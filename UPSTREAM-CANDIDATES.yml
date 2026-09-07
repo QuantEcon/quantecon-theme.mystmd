@@ -52,7 +52,7 @@ upstream_candidates:
     status: pending
     target: jupyter-book/myst-theme
     provenance:
-      - local_pr: PR_PHASE_4_5
+      - local_pr: 174
         note: Phase 4 implementation, with Phase 5 and the translator credit
     upstream:
       pr: null
@@ -71,7 +71,7 @@ upstream_candidates:
     status: pending
     target: jupyter-book/myst-theme
     provenance:
-      - local_pr: PR_PHASE_4_5
+      - local_pr: 174
         note: Phase 5 implementation
     upstream:
       pr: null
@@ -90,7 +90,7 @@ upstream_candidates:
     status: pending
     target: jupyter-book/myst-theme
     provenance:
-      - local_pr: PR_PHASE_4_5
+      - local_pr: 174
         note: Local Document copy, taken for Phase 5
     upstream:
       pr: null
