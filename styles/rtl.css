@@ -45,8 +45,12 @@
   border-right-width: 4px;
 }
 
+/* `dir` and `.dark` both sit on <html>, so the dark variant is a compound
+   selector on the same element, not a descendant. (Executable cells carry
+   the light class too, so the first selector already colours them in dark
+   mode; the second keeps the pair explicit.) */
 [dir='rtl'] .border-l-blue-400,
-[dir='rtl'] .dark .dark\:border-l-blue-400 {
+[dir='rtl'].dark .dark\:border-l-blue-400 {
   border-right-color: #60a5fa;
 }
 
