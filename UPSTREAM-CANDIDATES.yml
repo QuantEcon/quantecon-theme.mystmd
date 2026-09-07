@@ -44,20 +44,56 @@ upstream_candidates:
 
   - id: language-switcher
     title: Language switcher + hreflang alternates
-    status: planned
+    description: |
+      `languages` / `current_language` site options; a globe-icon Radix
+      dropdown in the toolbar linking to the same page in each edition
+      (app/components/toolbar/LanguageSwitcher.tsx), and `<link rel="alternate"
+      hreflang>` tags emitted from the page routes' `meta` (app/i18n.ts).
+    status: pending
     target: jupyter-book/myst-theme
-    provenance: []
+    provenance:
+      - local_pr: PR_PHASE_4_5
+        note: Phase 4 implementation, with Phase 5 and the translator credit
     upstream:
       pr: null
     notes: |
-      Phase 4 (#90); not yet built. Record local PRs here as they land.
+      Phase 4 (#90). The option shape is constrained by the CLI: template
+      options are scalar-only, so the list is a YAML block in a string. An
+      upstream version would want a real list type on template options
+      (jupyter-book/mystmd) before the theme half is worth porting.
 
   - id: rtl-support
     title: RTL rendering (dir="rtl" config + logical-property audit)
-    status: planned
+    description: |
+      `enable_rtl` site option; `dir` and `lang` set on <html> in the server
+      render; styles/rtl.css mirrors the physical utilities upstream content
+      markup uses and keeps code and maths LTR.
+    status: pending
     target: jupyter-book/myst-theme
-    provenance: []
+    provenance:
+      - local_pr: PR_PHASE_4_5
+        note: Phase 5 implementation
     upstream:
       pr: null
     notes: |
-      Phase 5 (#91); not yet built. Commonly shipped with language-switcher.
+      Phase 5 (#91). The most reusable piece upstream is the audit itself:
+      myst-to-react and @myst-theme/jupyter use physical `border-l-*` /
+      `pl-*` / `ml-*` utilities where logical ones (`border-s-*`, `ps-*`,
+      `ms-*`) would make RTL free. Shipped with language-switcher.
+
+  - id: document-lang-dir
+    title: Document accepts `lang` and `dir` props
+    description: |
+      @myst-theme/site's `Document` hard-codes `<html lang="en">` and sets no
+      `dir`. The theme carries a local copy (app/components/Document.tsx) that
+      adds the two props and wraps the tree in Radix's DirectionProvider.
+    status: pending
+    target: jupyter-book/myst-theme
+    provenance:
+      - local_pr: PR_PHASE_4_5
+        note: Local Document copy, taken for Phase 5
+    upstream:
+      pr: null
+    notes: |
+      A two-prop change to src/pages/Root.tsx upstream; once accepted, the
+      local copy can be deleted. Small enough to open ahead of the rest.

@@ -35,6 +35,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the existing `--qe-literal-color`. Only the default scheme ships: no lecture
   repo sets `color_scheme`, so the `gruvbox` / `none` switches and the
   custom-CSS hook are deferred until a consumer asks for one. Phase 3, Goal B. ([#171](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/171))
+- Language switcher and `hreflang` alternates for translated editions: with
+  two or more entries in the new `languages` site option the toolbar gains a
+  globe-icon dropdown linking to the same page in each edition, the entry
+  matching `current_language` marked current, and every page carries
+  `<link rel="alternate" hreflang>` tags with the first entry as `x-default`.
+  Phase 4 of the book-theme parity plan
+  ([#90](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/90)).
+- Right-to-left editions: `enable_rtl` sets `dir="rtl"` on the document (and
+  `current_language` now sets its `lang`, in place of the hard-coded `en`),
+  with the drawer, upstream content accents and spacing mirrored and code and
+  maths kept left-to-right. Phase 5
+  ([#91](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/91)).
+- Translator credit in the page header from the new `translators` site option,
+  with a localisable `translators_label` (default "Translated by") and a
+  per-page override under `site:` in page frontmatter, on the shape settled
+  across the themes on QuantEcon/workspace-themes#3
+  ([#143](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/143)).
+- The site options above are declared in `template.yml`. The MyST CLI drops
+  any `site.options` key the template does not declare, and can only declare
+  scalar types, so `languages` and `translators` are YAML written inside a
+  block string; see the README's "Multilingual editions".
 
 ## [2.5.0] - 2026-09-05
 

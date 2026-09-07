@@ -324,3 +324,94 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(page.getByRole("button", { name: /start compute/i })).toHaveCount(0);
   });
 });
+
+/**
+ * Multilingual editions: the language switcher and hreflang alternates
+ * (#90), right-to-left layout (#91) and translator credit (#143). The main
+ * fixture configures two editions (en current) and a project-level
+ * translator with a page-level override on `/` and a suppression on
+ * `/lists`; `fixture-rtl` is the Persian edition with `enable_rtl`.
+ */
+test.describe("Multilingual editions", () => {
+  const rtlBase = `http://localhost:${process.env.RTL_PORT || "3113"}`;
+
+  test("hreflang-alternates", async ({ page }) => {
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    const alternate = (lang: string) =>
+      page.locator(`head link[rel="alternate"][hreflang="${lang}"]`);
+    await expect(alternate("en")).toHaveAttribute("href", "https://example.org/en/features");
+    // The trailing slash on the configured URL is dropped before the path is joined.
+    await expect(alternate("fa")).toHaveAttribute("href", "https://example.org/fa/features");
+    await expect(alternate("x-default")).toHaveAttribute("href", "https://example.org/en/features");
+    // The landing page maps to each edition's root.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(alternate("fa")).toHaveAttribute("href", "https://example.org/fa/");
+  });
+
+  test("language-switcher", async ({ page }) => {
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const trigger = page.getByRole("button", { name: "Switch language" });
+    await expect(trigger).toBeVisible();
+    await trigger.click();
+    const items = page.getByRole("menuitem");
+    await expect(items).toHaveCount(2);
+    const english = items.filter({ hasText: "English" });
+    await expect(english).toHaveAttribute("aria-current", "true");
+    await expect(english).toHaveAttribute("href", "https://example.org/en/features");
+    const persian = items.filter({ hasText: "فارسی" });
+    await expect(persian).not.toHaveAttribute("aria-current", "true");
+    await expect(persian).toHaveAttribute("href", "https://example.org/fa/features");
+    await expect(persian).toHaveAttribute("hreflang", "fa");
+    // Escape closes the menu and returns focus to the trigger.
+    await page.keyboard.press("Escape");
+    await expect(items).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  });
+
+  test("translators", async ({ page }) => {
+    const block = page.locator(".qe-page__header-translators");
+    // Project-level credit, default English label.
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    await expect(block).toHaveText(/Translated by\s+Jane Translator/);
+    await expect(block.locator("a")).toHaveAttribute("href", "https://example.org/jane");
+    await expect(block.locator("a[rel~='author']")).toHaveCount(0);
+    // Page-level override replaces it on that page only (the landing page here).
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(block).toHaveText(/Page-level Translator/);
+    await expect(block).not.toHaveText(/Jane/);
+    // An explicitly empty page value suppresses the block.
+    await page.goto("/lists", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("h1")).toBeVisible();
+    await expect(block).toHaveCount(0);
+  });
+
+  test("rtl-document", async ({ page }) => {
+    await page.goto(`${rtlBase}/`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const html = page.locator("html");
+    await expect(html).toHaveAttribute("dir", "rtl");
+    await expect(html).toHaveAttribute("lang", "fa");
+    // Persian label and the current edition marked in the switcher.
+    await expect(page.locator(".qe-page__header-translators")).toHaveText(/ترجمهٔ\s+مترجم نمونه/);
+    await page.getByRole("button", { name: "تغییر زبان" }).click();
+    await expect(page.getByRole("menuitem").filter({ hasText: "فارسی" })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await page.keyboard.press("Escape");
+    // Code stays left-to-right inside the right-to-left document.
+    const code = page.locator(".myst-code").first();
+    await expect(code).toHaveCSS("direction", "ltr");
+  });
+
+  test("rtl", async ({ page }) => {
+    await page.goto(`${rtlBase}/`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await expect(page).toHaveScreenshot("rtl.png", {
+      fullPage: true,
+      maxDiffPixelRatio: 0.01,
+      animations: "disabled",
+    });
+  });
+});

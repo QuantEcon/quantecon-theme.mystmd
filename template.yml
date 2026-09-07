@@ -20,6 +20,49 @@ tags:
 parts:
   - id: footer
     description: The site wide footer
+# Site options (`site.options` in myst.yml, overridable per page under `site:`
+# in page frontmatter). The CLI validates against this list and DROPS any key
+# not declared here, and it can only declare scalar types -- so the two lists
+# (`languages`, `translators`) are strings holding a YAML block; app/i18n.ts
+# parses them. See README "Multilingual editions".
+#
+# No `default:` on any option, deliberately. The CLI validates every page's
+# `site:` frontmatter against this list too, and a declared default is written
+# into that validated block even when the page set nothing -- which then
+# replaces the page's raw `site:` block, overriding the site-wide value and
+# discarding undeclared keys such as `git_metadata`. Defaults live in
+# app/i18n.ts instead.
+options:
+  - id: current_language
+    type: string
+    description: >
+      BCP 47 code of this edition's language (e.g. `en`, `fa`, `zh-cn`). Sets the
+      document `lang` and marks the active entry in the language switcher.
+  - id: enable_rtl
+    type: boolean
+    description: Render the site right-to-left (`dir="rtl"`) for Arabic, Persian, Hebrew, Urdu editions.
+  - id: languages
+    type: string
+    description: >
+      YAML block listing every edition of this site as `- code`, `name`, `url`
+      entries. With two or more entries the toolbar shows a language switcher and
+      every page carries `hreflang` alternates; the first entry is `x-default`.
+  - id: translators
+    type: string
+    description: >
+      YAML block listing the edition's translators as `- name` (and optional
+      `url`) entries, credited in the page header. A page overrides it under
+      `site:` in its frontmatter; an empty value there suppresses the credit.
+  - id: translators_label
+    type: string
+    description: >
+      Label introducing the translators, in the edition's own language
+      ("Translated by" when unset; an empty string hides the label).
+  - id: language_switcher_label
+    type: string
+    description: >
+      Accessible name and tooltip of the language switcher, in the edition's own
+      language ("Switch language" when unset).
 build:
   install: npm install
   start: npm run start

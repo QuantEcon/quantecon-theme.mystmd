@@ -50,8 +50,9 @@ Derived from `quantecon-book-theme` v0.20.3 (see its `README.md`, `docs/user/*`,
 | Launch parity — Thebe (live compute) in addition to Colab / private hub (BinderHub dropped, #26) | ✅ | ✅ | **2** |
 | Code highlighting in the QE token palette (the Pygments-style toggle has no user; deferred) | ✅ | ✅ | **3** |
 | Text colour scheme `seoul256` (default; `gruvbox` / `none` / custom have no user; deferred) | ✅ | ✅ | **3** |
-| Language switcher (multilingual) + `hreflang` SEO tags | ✅ | ❌ | **4** |
-| RTL support (`dir="rtl"`) | ✅ | ❌ | **5** |
+| Language switcher (multilingual) + `hreflang` SEO tags | ✅ | ✅ | **4** |
+| RTL support (`dir="rtl"`) | ✅ | ✅ | **5** |
+| Translator credit (`translators` + localisable label; #143, QuantEcon/workspace-themes#3) | ✅ | ✅ | **4** |
 | Collapsible stderr warnings in notebook cells | ✅ | ❓ verify | **6** |
 | Full OpenGraph / Twitter card meta tags | ✅ | ⚠️ partial | **6** |
 | **Already at parity:** dark mode, font scaling, fullscreen, search, "On this page" TOC + back-to-top, contents sidebar, downloads (PDF/notebook), Colab launch, edit-on-GitHub, author header, content-driven footer, responsive/mobile | ✅ | ✅ | — |
@@ -60,7 +61,8 @@ Derived from `quantecon-book-theme` v0.20.3 (see its `README.md`, `docs/user/*`,
 [v2.1.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.1.0)–[v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0); Phase 1 and the Thebe half of Phase 2
 shipped in [v2.3.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.3.0), and Phase 2's launch-config half shipped in
 [v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0). Phase 3 landed on `main`
-on 2026-09-07 (#89), unreleased. **Phases 4–5 are next.**
+on 2026-09-07 (#89), unreleased; Phases 4–5 and the translator credit (#143) followed the same
+day. **Phase 6 is next.**
 
 ---
 
@@ -410,6 +412,14 @@ between custom QuantEcon token colours and any built-in Pygments style.
 
 ## Phase 4 — Internationalisation (language switcher + hreflang)
 
+**Status: complete** *(2026-09-07, #90; translator credit #143 shipped with it)*. One
+engine fact shaped the configuration: the MyST CLI validates `site.options` against the
+template's declared options and **drops every undeclared key** (myst-templates
+`validateTemplateOptions`), and it can declare only scalar types. So the options are
+declared in `template.yml`, and the two lists (`languages`, `translators`) are YAML written
+inside a block string, parsed by `app/i18n.ts`; a real list is accepted too. See README
+"Multilingual editions".
+
 **Goal:** book-theme v0.20.0 globe-icon dropdown to switch between translated lecture
 sites, plus `<link rel="alternate" hreflang>` head tags for SEO. Only renders with 2+
 languages configured.
@@ -418,12 +428,20 @@ hreflang block + language-switcher markup, `assets/scripts/language-switcher.js`
 `assets/styles/_language-switcher.scss`, `docs/user/rtl-support.md`,
 `docs/developer/multilingual.md` + `infrastructure.md`.
 
-- [ ] Add a `languages` config (list of `{code, name, url}`) to `myst.yml`/site config,
-      surfaced to the theme via the site manifest loader (`loaders.server.ts`).
-- [ ] New toolbar `LanguageSwitcher.tsx` (Radix dropdown), placed consistently in
-      `Toolbar.tsx` / `MobileActionsMenu.tsx`, with keyboard nav + active-language marker.
-- [ ] Inject `hreflang` alternates in `root.tsx` `links`/`meta` for each language +
-      `x-default`.
+- [x] `languages` (`{code, name, url}` list, 2+ entries to render) and `current_language`
+      under `site.options`, declared in `template.yml`; no loader change was needed once
+      declared, since the site manifest carries validated options.
+- [x] `LanguageSwitcher.tsx` (Radix dropdown, globe icon) at the far end of `Toolbar.tsx` at
+      every width, rather than inside the overflow menu: it is the one action a reader of a
+      translated edition reaches for. Keyboard navigation from Radix; the current edition
+      carries `aria-current` and a check mark; items are real anchors with `hreflang`.
+- [x] `hreflang` alternates (+ `x-default` on the first entry) from the two page routes'
+      `meta` (Remix v2 `tagName: 'link'`), not `root.tsx`: the alternates need the page path.
+- [x] Translator credit (#143): `translators` / `translators_label` site options with a
+      per-page `site:` override (replace, never merge; explicit empty suppresses), rendered
+      at the end of the "Last changed" row as the book theme does since v0.22.0. Labels
+      (`translators_label`, `language_switcher_label`) are the localisation mechanism; the
+      list connector (", " / " and ") stays English, the same gap the book theme records.
 
 **Effort:** M. **Risk:** low. **Deps:** none (independent of 1–3).
 
@@ -431,14 +449,22 @@ hreflang block + language-switcher markup, `assets/scripts/language-switcher.js`
 
 ## Phase 5 — RTL support
 
+**Status: complete** *(2026-09-07, #91)*.
+
 **Goal:** book-theme `enable_rtl` sets `dir="rtl"` on `<body>` and ships `_rtl.scss`.
 **Reference:** book-theme `layout.html` `body_tag` block + `assets/styles/_rtl.scss` +
 `docs/user/rtl-support.md`.
 
-- [ ] Add a config flag; set `dir="rtl"` on the document in `root.tsx`.
-- [ ] Audit Tailwind utilities for logical-property / RTL correctness (margins, the blue
-      left/right accents, toolbar ordering); add RTL overrides where physical properties
-      leak.
+- [x] `enable_rtl` sets `dir="rtl"` (and `current_language` sets `lang`) on `<html>` in the
+      server render. Upstream's `Document` hard-codes `lang="en"` and has no `dir`, so the
+      theme carries a local copy (`app/components/Document.tsx`) that adds the two props and
+      wraps the tree in Radix's `DirectionProvider`; an upstream prop is the candidate in
+      `UPSTREAM-CANDIDATES.yml`.
+- [x] Audit: the theme's own components now use logical utilities (`ms-`, `me-`, `pe-`), and
+      `styles/rtl.css` mirrors the physical utilities upstream content markup uses
+      (`border-l-4` accents, `pl-*`/`ml-*` spacing, the copy button), flips the drawer's
+      slide, and keeps code and maths left-to-right. Snapshot-tested on a Persian fixture
+      (`tests/visual/fixture-rtl`).
 
 **Effort:** S–M. **Risk:** low. **Deps:** ideally after Phase 4 (often shipped together
 for the same translated sites).
@@ -472,12 +498,12 @@ Phase 0  (hygiene/deploy + preview harness)  ── prerequisite  ✅ shipped
    ├─▶ Phase 1  Git history in headers          ⭐ ✅ shipped v2.3.0
    ├─▶ Phase 2  Launch parity (Thebe + config)     ✅ shipped v2.2.0 / v2.3.0
    ├─▶ Phase 3  Code highlight + colour schemes     ✅ on main 2026-09-07 (unreleased)
-   ├─▶ Phase 4  i18n (language switcher) ──▶ Phase 5  RTL  (commonly shipped together)  ← next
-   └─▶ Phase 6  Meta/SEO + stderr + docs
+   ├─▶ Phase 4  i18n (language switcher) ──▶ Phase 5  RTL     ✅ on main 2026-09-07 (unreleased)
+   └─▶ Phase 6  Meta/SEO + stderr + docs   ← next
 ```
 
 Suggested order: **0 → 1 → 2 → 3 → (4 → 5) → 6**. Phases 0–2 are shipped as of
-[v2.3.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.3.0) (2026-08-20) and Phase 3 is on `main`, so **Phases 4–5 are next**. Phases 4–6 are largely
+[v2.3.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.3.0) (2026-08-20) and Phases 3–5 are on `main`, so **Phase 6 is next**. Phases 3–6 are largely
 independent of one another and can be parallelised across contributors. Per open
 question 4's resolution below, all of Phases 3–6 gate the all-at-once lecture
 migration — they are cutover blockers, not optional polish.

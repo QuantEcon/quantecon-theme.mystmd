@@ -147,6 +147,52 @@ Notes:
   `site.git_metadata` in the page frontmatter, which takes precedence over the
   injected data (this is how the visual fixture keeps snapshots deterministic).
 
+### Multilingual editions
+
+A translated edition sets its language, direction and translators, and lists the
+sibling editions, under `site.options` (all declared in `template.yml`):
+
+```yaml
+# myst.yml
+site:
+  options:
+    current_language: fa        # BCP 47 code: document lang, current entry in the switcher
+    enable_rtl: true            # dir="rtl" on the document (Arabic, Persian, Hebrew, Urdu)
+    language_switcher_label: تغییر زبان   # tooltip / accessible name (default "Switch language")
+    languages: |
+      - code: en
+        name: English
+        url: https://python-programming.quantecon.org
+      - code: fa
+        name: فارسی
+        url: https://quantecon.github.io/lecture-python-programming.fa
+    translators: |
+      - name: Adisankar Manoj Thanuja
+        url: https://www.linkedin.com/in/adisankar-m-t/
+    translators_label: ترجمهٔ   # default "Translated by"; an empty string hides the label
+```
+
+- **`languages`** — with two or more entries the toolbar shows a globe-icon
+  switcher linking to the *same page* in each edition (that edition's `url` plus
+  the page path), and every page carries `<link rel="alternate" hreflang>` tags,
+  with the first entry as `x-default`. The entry matching `current_language` is
+  marked current.
+- **`translators`** — credited in the page header, at the end of the "Last
+  changed" row, with the label in front. A page overrides the list in its own
+  frontmatter under `site:`; the page value replaces the site value (never
+  merges), and an explicitly empty value (`translators: ''`) suppresses the
+  credit on that page. The same values configure `quantecon-book-theme`.
+
+`languages` and `translators` are written as YAML *inside a block string*
+(`|`). The MyST CLI validates `site.options` against the template's declared
+options and can only declare scalar types, so a bare list would be dropped; the
+theme parses the block. A real list is accepted too, should the engine ever pass
+one through.
+
+One trap: a page whose `site:` frontmatter sets any of these keys has its whole
+`site:` block replaced by the validated keys, so an undeclared `site.git_metadata`
+on the same page is lost. Keep the two on different pages.
+
 ## Usage with MyST
 
 Point your project's `site.template` at a **pinned release** zip:

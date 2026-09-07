@@ -30,7 +30,7 @@ export function GitHubButton({
           className={classNames('opacity-90 hover:scale-110', sizeClasses)}
         />
       )}
-      {showLabel && <span className="ml-2">Edit</span>}
+      {showLabel && <span className="ms-2">Edit</span>}
     </>
   );
 

@@ -21,5 +21,20 @@ site:
   template: __THEME__
   options:
     logo_text: QuantEcon Visual Fixture
+    # Multilingual editions (#90, #143). Two editions make the toolbar's
+    # language switcher and the hreflang alternates render on every page; the
+    # lists are YAML blocks because template options are scalar-only (see
+    # app/i18n.ts). The Persian edition lives in ../fixture-rtl.
+    current_language: en
+    languages: |
+      - code: en
+        name: English
+        url: https://example.org/en
+      - code: fa
+        name: فارسی
+        url: https://example.org/fa/
+    translators: |
+      - name: Jane Translator
+        url: https://example.org/jane
   parts:
     footer: footer.md

@@ -27,6 +27,7 @@ import { ProjectFrontmatter } from './ProjectFrontmatter.js';
 import { BackToTop, Outline } from './Outline.js';
 import { SiteFooter } from './SiteFooter.js';
 import { ComputeToolbarSlot } from './ComputeToolbarSlot.js';
+import { DEFAULT_TRANSLATORS_LABEL, resolveLabel, resolvePeople } from '~/i18n';
 
 export const PageContent = React.memo(function ({ article }: { article: PageLoader }) {
   const config = useSiteManifest();
@@ -36,6 +37,20 @@ export const PageContent = React.memo(function ({ article }: { article: PageLoad
   const keywords = article.frontmatter?.keywords ?? [];
   const parts = extractKnownParts(tree, article.frontmatter?.parts);
   const projectParts = config?.parts ?? {};
+  // Translator credit (#143): the site option, overridden per page under
+  // `site:` in the page's frontmatter (replace, never merge; an explicit empty
+  // value suppresses). See app/i18n.ts for the rules and the string form.
+  const siteOptions = ((config as any)?.options ?? {}) as Record<string, unknown>;
+  const pageOptions = ((article.frontmatter as any)?.site ?? undefined) as
+    | Record<string, unknown>
+    | undefined;
+  const { people: translators } = resolvePeople(pageOptions, siteOptions, 'translators');
+  const translatorsLabel = resolveLabel(
+    pageOptions,
+    siteOptions,
+    'translators_label',
+    DEFAULT_TRANSLATORS_LABEL,
+  );
 
   return (
     <GridSystemProvider gridSystem="simple-center-grid">
@@ -54,6 +69,8 @@ export const PageContent = React.memo(function ({ article }: { article: PageLoad
                 pageTitle={manifest?.index !== article.slug ? article.frontmatter.title : undefined}
                 authors={article.frontmatter.authors}
                 affiliations={article.frontmatter.affiliations}
+                translators={translators}
+                translatorsLabel={translatorsLabel}
               />
               <Outline
                 containerClassName="hidden lg:col-margin"

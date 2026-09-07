@@ -7,6 +7,9 @@
 /* QuantEcon content styles. Last, so it has the final say among the
    imports -- see the file's header for the specificity rules. */
 @import './quantecon.css';
+/* Right-to-left editions: mirrors the physical utilities upstream markup
+   uses and keeps code and maths LTR. After quantecon.css, and unlayered. */
+@import './rtl.css';
 
 @layer base {
   .grid-gap {

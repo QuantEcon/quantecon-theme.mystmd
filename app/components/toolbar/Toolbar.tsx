@@ -12,6 +12,7 @@ import { FullScreenButton } from './FullscreenButton';
 import { FontScaleListItems } from './FontScaleListItems';
 import { Tooltip } from './Tooltip';
 import { MobileActionsMenu } from './MobileActionsMenu';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { useBaseurl, useLinkProvider } from '@myst-theme/providers';
 
 export function Toolbar() {
@@ -62,7 +63,7 @@ export function Toolbar() {
         <FontScaleListItems className="hidden md:block" size={iconSize} />
         {/* Separator between the view controls and the actions cluster; scaled
             down in the narrow desktop band for the same reason as the gap. */}
-        <li className="flex items-center md:pr-4 lg:pr-[36px]">
+        <li className="flex items-center md:pe-4 lg:pe-[36px]">
           <ThemeButton className="w-5 h-5 opacity-60" />
         </li>
         <li className="hidden md:block">
@@ -76,6 +77,13 @@ export function Toolbar() {
         </li>
         <li className="hidden md:block">
           <GitHubButton sizeClasses="w-5 h-5" />
+        </li>
+        {/* Language switcher (#90): far end of the toolbar, as in the book
+            theme, and at every width -- it is the one action a reader of a
+            translated edition reaches for, so it stays out of the overflow
+            menu. Renders nothing unless two or more editions are configured. */}
+        <li className="flex items-center">
+          <LanguageSwitcher size={iconSize} />
         </li>
         <li className="block md:hidden">
           <MobileActionsMenu sizeClasses="w-5 h-5" size={iconSize} />
