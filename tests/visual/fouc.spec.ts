@@ -3,11 +3,15 @@ import { test, expect, type Page, type Route } from "@playwright/test";
 /**
  * FOUC guard (WebKit) — QuantEcon/quantecon-theme-src#66.
  *
- * In the static build every navigation is a full document load, and WebKit
- * paints the fresh document *before* its external `<link>` stylesheets apply —
- * so for ~1 frame the page renders with the default serif font and the content
- * grid collapsed to `display: block`. The fix inlines critical CSS into `<head>`
- * (see `app/root.tsx`), which parses synchronously and styles that first paint.
+ * The flash this guards against is NOT a pre-stylesheet first paint — WebKit
+ * holds first paint until the `<head>` stylesheets apply. It is the window
+ * where those stylesheets stop applying after load: historically, React's
+ * hydration-recovery re-render re-creating head nodes when server and client
+ * markup diverged there, which re-applies a `<link>` asynchronously but an
+ * inline `<style>` synchronously (see the CRITICAL_CSS comment in
+ * `app/root.tsx`, and #126 for the measurements). In that window the page
+ * shows the default serif font and the content grid collapsed to
+ * `display: block` unless the inlined critical CSS covers it.
  *
  * The contents drawer is checked here too: any panel that relies on author CSS
  * to stay hidden paints open in that same frame. It is a popover now, so the UA
@@ -21,8 +25,9 @@ import { test, expect, type Page, type Route } from "@playwright/test";
  * assertion below fails. The control case strips the inline block to prove the
  * abort genuinely removes external styling (otherwise the guard would be moot).
  *
- * Runs in the `webkit-fouc` Playwright project only — Chromium paint-holds and
- * cannot exhibit this flash.
+ * Runs in the `webkit-fouc` Playwright project only — the flash was only ever
+ * observed in Safari/WebKit (quantecon-theme-src#66), and this suite's
+ * abort-the-stylesheets simulation exercises the guard there.
  */
 
 const PAGE = "/";

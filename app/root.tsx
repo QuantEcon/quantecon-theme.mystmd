@@ -42,13 +42,29 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
  * Critical CSS — inlined in <head> to fix the Safari/WebKit FOUC on navigation
  * (https://github.com/QuantEcon/quantecon-theme-src/issues/66).
  *
- * Static builds (`myst build --html`) navigate via full document loads, and
- * WebKit paints the freshly-navigated document for ~1 frame BEFORE any <link>
- * stylesheet applies — even the same-origin Tailwind app.css. That frame shows
- * the default serif font and the content grid collapsed to `display: block`
- * (i.e. the "raw HTML" flash users report). An inline <style> is parsed
- * synchronously with the document, so it styles that very first paint with no
- * network round-trip.
+ * The mechanism is NOT a pre-stylesheet first paint. WebKit holds first paint
+ * until the render-blocking <head> stylesheets apply — probed with a
+ * rAF-from-document-start sampler: no frame renders unstyled on the static
+ * build, cold or warm cache, even with every CSS response delayed 800ms. The
+ * unstyled frame arrives ~200ms AFTER first paint, when React hydration fails
+ * (minified #418/#423) and the recovery client render re-patches whatever
+ * diverged between server and client markup. A divergence in the <head> makes
+ * that pass re-create head nodes (#126 measured it re-inserting a missing
+ * <style> at 195ms) — and a re-inserted stylesheet <link> re-applies
+ * asynchronously, while a re-inserted inline <style> applies the instant the
+ * node lands. In that gap this block is the only styling on the page, which
+ * is the styled -> unstyled -> styled flicker users reported as the "raw
+ * HTML" flash. A body-level mismatch, by contrast, recovers without touching
+ * the head at all (probed by injecting a stray node into the served <body>:
+ * both errors fire, zero head mutations, no flash).
+ *
+ * Current builds hydrate cleanly — no #418/#423 on any fixture page, dev or
+ * static — so day to day this block is the safety net for whenever the
+ * external stylesheets are absent, however that comes about; the FOUC guard
+ * test simulates that state by aborting them. The practical rule stands
+ * regardless of mechanism: anything that must not flash (hidden by opacity,
+ * gated by a transition) needs a rule HERE — at flash time React is already
+ * mounted, so mount-gating cannot help, and only this inline CSS survives.
  *
  * Every selector is wrapped in `:where(...)` so these rules carry **zero**
  * specificity: they take effect only while nothing else has loaded, and the
