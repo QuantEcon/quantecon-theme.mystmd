@@ -28,8 +28,8 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
   );
   const baseurl = rootMatch?.data?.BASE_URL;
 
-  // The OpenGraph / Twitter tags upstream's article set leaves out, merged over
-  // it (same-key tags replaced) -- see app/seo.ts.
+  // The OpenGraph / Twitter tags this theme adds to (or replaces in) upstream's
+  // article set -- see app/seo.ts.
   const social = socialMetaTags({
     domains: config?.domains,
     siteTitle: config?.title ?? project?.title,

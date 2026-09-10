@@ -103,7 +103,7 @@ options:
   - id: hide_search
     type: boolean
     description: Hide the toolbar search control.
-  # --- Notebook launcher (see README "Launch buttons") ---
+  # --- Notebook launcher (see docs/launch.md) ---
   - id: launch_repo_url
     type: string
     description: >

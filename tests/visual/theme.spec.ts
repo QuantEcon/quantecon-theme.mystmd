@@ -448,8 +448,9 @@ test.describe("Meta/SEO and notebook output", () => {
   const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
   const meta = (page: Page, sel: string) => page.locator(`head meta[${sel}]`);
 
-  // The full OpenGraph / Twitter set, on a lecture page. The
-  // no-thebe fixture declares `site_url`, `twitter`, both logo URLs and
+  // The OpenGraph / Twitter tags app/seo.ts adds to upstream's article set
+  // (and upstream's `twitter:creator`), on a lecture page. The no-thebe
+  // fixture declares `site_url`, `twitter`, both logo URLs and
   // `current_language`; nothing here depends on the page having a thumbnail.
   test("social-meta", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");

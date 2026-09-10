@@ -3,9 +3,9 @@
 # Serve the visual-regression fixture with a chosen theme, for Playwright.
 #
 #   THEME_TEMPLATE   theme under test — either a local theme *build* directory
-#                    (the 2.0.0 candidate) or a GitHub archive zip URL such as
-#                    the deployed v1.1.1 baseline:
-#                      https://github.com/QuantEcon/quantecon-theme/archive/refs/heads/main.zip
+#                    (e.g. $PWD/.deploy/quantecon-theme from `make build-theme`)
+#                    or a release bundle zip URL such as
+#                      https://github.com/QuantEcon/quantecon-theme.mystmd/releases/download/vX.Y.Z/quantecon-theme.zip
 #   PORT             port to serve on (default 3111, matching playwright.config.ts)
 #
 # Used as Playwright's `webServer.command`.

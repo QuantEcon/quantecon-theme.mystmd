@@ -84,8 +84,8 @@ jobs:
       # the published artifact.
       - run: npm run test:unit
       - name: Build
-        # esbuild occasionally deadlocks (QuantEcon/quantecon-theme-src — known
-        # flake); time out fast so the run can simply be retried.
+        # esbuild occasionally deadlocks: the build hangs rather than failing.
+        # Time out fast so the run can simply be retried.
         timeout-minutes: 20
         run: npm run prod:build
 

@@ -4,7 +4,8 @@
  * (title, description, keywords, og:title/description/url/image,
  * twitter:card/creator/title/description/image/alt).
  *
- * What upstream's set leaves out, or emits where it never renders:
+ * What upstream's set leaves out, sets differently, or emits where it never
+ * renders:
  *
  *   og:type        "website"
  *   og:site_name   the site title
@@ -12,8 +13,11 @@
  *                  It comes from the `site_url` option; `site.domains` would
  *                  be the natural source, but the CLI's site manifest does
  *                  not carry it, so it is only a fallback should that change
- *   og:image /     a site-level image when the page has no thumbnail --
- *   twitter:image  the `og_logo_url` and `twitter_logo_url` options
+ *   og:image       `og_logo_url` when the page has no thumbnail
+ *   twitter:image  `twitter_logo_url` when set, even over a page thumbnail;
+ *                  otherwise the og:image
+ *   twitter:card   "summary" whenever `twitter` is set, in place of upstream's
+ *                  own card type
  *   twitter:site   upstream puts it in the root route's meta, which Remix v2
  *                  replaces with the article route's, so it never renders
  *   og:locale      from `current_language`, when set

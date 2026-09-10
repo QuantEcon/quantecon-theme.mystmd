@@ -88,13 +88,13 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
  *   - font stack:    tailwind.config.js  -> theme.extend.fontFamily.sans
  *                    The `@font-face` rules for "Source Sans 3 Variable" are
  *                    self-hosted via app/links.ts, so they arrive in a <link>
- *                    and are NOT available at this first paint. The
- *                    `sans-serif` tail is what renders here and the webfont
- *                    swaps in once that stylesheet lands. The metric-matched
- *                    "Source Sans 3 Fallback" face sits just before that tail;
- *                    it is declared below rather than in styles/app.css so it
- *                    is available at this first paint too. Being `local()`-only
- *                    it costs no request.
+ *                    and are NOT available at this first paint, so the rest of
+ *                    the stack renders here: normally the metric-matched
+ *                    "Source Sans 3 Fallback" face, or the `sans-serif` tail
+ *                    where none of its local() fonts exists. The webfont swaps
+ *                    in once that stylesheet lands. That face is declared below
+ *                    rather than in styles/app.css so it is available at this
+ *                    first paint. Being `local()`-only, it costs no request.
  *   - heading face:  styles/quantecon.css -> `.article h1/h2/h3` ("PT Serif",
  *                    self-hosted via app/links.ts like the sans above, so it is
  *                    likewise absent at first paint). Without this rule the
@@ -110,9 +110,8 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
  *                    the whole page on every cold load.
  *   - grid columns:  tailwind.config.js  -> theme.extend.gridTemplateColumns
  *                    (`simple-sm` / `simple-xl`), applied by `.simple-center-grid`
- *   - dark bg:       matches the page <body>, which @myst-theme/site renders as
- *                    `dark:bg-stone-900` (#1c1917) — note the <body> tag lives in
- *                    that upstream Document, not in this file. (This is the outer
+ *   - dark bg:       app/components/Document.tsx -> the <body> class
+ *                    `dark:bg-stone-900` (#1c1917). (This is the outer
  *                    page background; the inner content panel uses `qepage-dark`
  *                    #222, see app/components/Page.tsx — intentionally not set here
  *                    since these rules target <body>.)

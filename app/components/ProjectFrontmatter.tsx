@@ -120,7 +120,7 @@ export function ProjectFrontmatter({
           </div>
         )}
         {/* Translators: same row as the "Last changed" control, at the end --
-            a fourth stacked header line reads as clutter. This block takes the
+            an extra stacked header line reads as clutter. This block takes the
             `ms-auto` and the history control sits beside it; on narrow
             viewports the row wraps. Distinct class from the authors line and
             no `rel="author"` on the links, so the two are never confused. A

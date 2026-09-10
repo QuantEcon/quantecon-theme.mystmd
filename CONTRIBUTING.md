@@ -158,12 +158,13 @@ accurate; a comment that narrates a project phase goes stale once the work is
 done.
 
 - **No project framing.** No phase numbers, `PLAN.md` items, milestones or
-  tracker issues. `git blame` leads from any line to the PR that added it.
+  tracker issues. `git log -L` traces any line back through the PRs that
+  shaped it.
 - **No issue numbers as labels.** Don't tag a block with the issue that
   introduced it. Link an issue or PR only when it holds detail the comment
   cannot give in a line — an upstream bug being worked around, a field a fork
-  adds, the regression a test exists to catch — and state the point itself in
-  the comment as well.
+  adds, the regression a test exists to catch, the measurements a claim rests
+  on — and state the point itself in the comment as well.
 - **Reasons, not comparisons.** "Matches the Sphinx build" does not tell the
   next reader what breaks if the value changes. Give the reason: the
   measurement, the contrast ratio, the layout constraint. Code ported from

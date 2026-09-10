@@ -25,7 +25,7 @@
  *
  * Not every stylesheet sits in `_assets/`: Remix also emits route and
  * shared-chunk CSS into the build root, `_shared/` and `routes/`, and those
- * reference `_assets/` from a directory above it. So the relative prefix is
+ * reference `_assets/` from outside it. So the relative prefix is
  * computed per stylesheet from its own location rather than assumed to be
  * `./` — the whole tree is walked, and a stylesheet in the build root gets
  * `./_assets/` where one in `routes/` gets `../_assets/`.

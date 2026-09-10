@@ -4,7 +4,8 @@ import { defineConfig, devices } from "@playwright/test";
  * Visual-regression config for the QuantEcon MyST theme.
  *
  * This theme is a runtime Remix server, so tests run against a live
- * `myst start` of the fixture in `tests/visual/fixture`, with the theme under
+ * `myst start` of the fixture in `tests/visual/fixture` (static.spec.ts
+ * instead runs against a `myst build --html` of it), with the theme under
  * test selected via the `THEME_TEMPLATE` env var (see `tests/visual/serve.sh`
  * and the README).
  *

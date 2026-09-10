@@ -2,8 +2,6 @@
 
 # Releases ship via the tag-triggered GitHub Release workflow
 # (.github/workflows/release.yml) — see CONTRIBUTING.md "Releases".
-# The old `make deploy` flow (pushing the bundle to the now-archived
-# QuantEcon/quantecon-theme build repo) was retired with it.
 
 THEME = quantecon-theme
 VERSION = $(shell cat package.json | jq -r '.version')

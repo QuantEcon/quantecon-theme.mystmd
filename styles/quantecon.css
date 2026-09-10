@@ -53,10 +53,13 @@
  *
  * UNITS
  *
- * Content is a flat 18px, set on `.article`; the root stays at 16px, so the
- * browser's own font-size preference still applies (overriding it with a px
- * root is a WCAG 1.4.4 problem). The size is the same at every width, with no
- * breakpoint step, so it never shifts under the reader.
+ * Content is a flat 1.125rem (18px at the default 16px root), set on
+ * `.article`. The theme never sets the root in px, so the browser's own
+ * font-size preference still applies (overriding it with a px root is a WCAG
+ * 1.4.4 problem); the toolbar's font-size control steps the root to 0.9rem or
+ * 1.1rem, and every `em` and `rem` size here scales with it. The size is the
+ * same at every width, with no breakpoint step, so it never shifts under the
+ * reader.
  *
  * `em` (18px, off `.article`) and `rem` (16px, off the root) differ here, so the
  * choice carries meaning. Use `em` for anything that should scale with the
@@ -79,22 +82,22 @@
   --qe-strong-color: #875f00; /* seoul256 #94, amber; 5.7:1 on white */
   --qe-definition-color: var(--qe-strong-color);
   /* Content links, resting and hover. */
-  --qe-link-color: #0072bc; /* 5.05:1 on white -- AA */
+  --qe-link-color: #0072bc; /* 5.08:1 on white -- AA */
   --qe-link-hover-color: #004979;
 }
 
 /* Dark mode. Inline literals take their own dark colour: the light #af5f5f
-   scores only 3.85:1 on stone-900, below the 4.5:1 AA floor, where #d78787
-   is 6.42:1. `.dark` and `:root` are both (0,1,0), so this wins on source
-   order -- it has to stay below the block above.
+   scores only 3.50:1 on the #222 content panel, below the 4.5:1 AA floor,
+   where #d78787 is 5.84:1. `.dark` and `:root` are both (0,1,0), so this
+   wins on source order -- it has to stay below the block above.
 
    Links go white, as `.dark .article :where(a)` below already paints every
    anchor that is not a `.link`. Hover stays white too, with no colour
    change. */
 .dark {
   --qe-literal-color: #d78787;
-  /* seoul256's dark emphasis and strong colours: 6.9:1 and 8.5:1 on
-     stone-900. */
+  /* seoul256's dark emphasis and strong colours: 6.2:1 and 7.7:1 on the
+     #222 content panel. */
   --qe-emphasis-color: #5fafaf;
   --qe-strong-color: #d7af5f;
   --qe-link-color: #fff;
@@ -168,8 +171,8 @@
   }
 
   /* Paragraph rhythm. The plugin ships `.article :where(p)` at 1.25em (22.5px).
-     This sets the UA default of `1em 0` instead, so the gap tracks the
-     content size. `.article p` is (0,1,1) and beats the plugin's (0,1,0). */
+     This tightens it to the UA default of `1em 0`, a gap equal to the content
+     size. `.article p` is (0,1,1) and beats the plugin's (0,1,0). */
   .article p {
     margin: 1em 0; /* 18px at 18px content */
   }
@@ -235,8 +238,10 @@
      coloured rather than slanted or thickened: `em` and `strong` both render
      upright at weight 550, in the seoul256 teal and amber. The colours come
      through the tokens above, so a scheme is a re-pointing of four custom
-     properties. Only seoul256 ships, since no site uses another; a second
-     scheme would be a class on the root that re-points the tokens.
+     properties: `--qe-emphasis-color`, `--qe-strong-color` and
+     `--qe-definition-color`, plus `--qe-literal-color` for inline literals.
+     Only seoul256 ships, since no site uses another; a second scheme would
+     be a class on the root that re-points the tokens.
 
      `.article em` and `.article strong` are (0,1,1). The typography plugin's
      `:where(strong)` (weight 600, `--tw-prose-bold`) is (0,1,0), and it has
@@ -275,18 +280,18 @@
     font-weight: inherit;
   }
 
-  /* Figures: no space above, 1rem below. Scoped to `.article` because the
+  /* Figures: no space above, 1em below. Scoped to `.article` because the
      plugin's `:where(figure)` is (0,1,0) and a bare `figure` at (0,0,1) would
      lose to it. Top/bottom longhands only -- the shorthand's left/right would
      outrank `.auto`/`.terminal` at (0,1,0) and cancel the auto margins that
      centre these same figures. */
   .article figure {
     margin-top: 0;
-    margin-bottom: 1em; /* 16px, matching the paragraph rhythm */
-    padding: 0.5em; /* 8px; box-sizing is border-box, so width is unchanged */
+    margin-bottom: 1em; /* 18px, matching the paragraph rhythm */
+    padding: 0.5em; /* 9px; box-sizing is border-box, so width is unchanged */
   }
 
-  /* Lists sit flush -- the surrounding paragraphs' 1rem margins define the
+  /* Lists sit flush -- the surrounding paragraphs' 1em margins define the
      space before and after. This clears three plugin rules at once:
      `:where(ul)`, `:where(ol)` and `:where(ul ul, ul ol, ol ul, ol ol)`. All
      three are (0,1,0), because `:where()` contributes no specificity whatever
@@ -438,8 +443,8 @@
 
   /* Dark mode. The rule above is (0,2,1), so it beats both `.link`'s dark
      colour utility and `.dark .article :where(a)` -- and #0072bc drawn at the
-     footer's 70% opacity on stone-900 is about 2.3:1. blue-300, the theme's
-     dark `.link` hover colour, lands near 5.3:1 at the same opacity. */
+     footer's 70% opacity on the #222 content panel is about 2.2:1; blue-300
+     lands near 5.0:1 at the same opacity. */
   .dark .article .qe-site-footer a {
     color: #93c5fd;
   }
@@ -563,7 +568,7 @@
   }
 
   /* Collapsible stderr: a stderr stream folded in a native <details>,
-     closed by default. Amber #ffc107 border and icon, #856404 label (7.0:1
+     closed by default. Amber #ffc107 border and icon, #856404 label (5.5:1
      on white). */
   .qe-stderr {
     margin: 0.5rem 0;
@@ -682,7 +687,7 @@
    `content`, and `hljs-*` classes are generated at runtime by lowlight,
    never written in any scanned file.
 
-   Five light values fall short of WCAG AA on a white ground; the two found
+   Six light values fall short of WCAG AA on a white ground; the two found
    in almost every code cell are comments #60a0b0 (2.9:1) and numbers
    #40a070 (3.2:1). They stay as the palette defines them: changing the
    palette is an open decision, with measurements and AA-passing candidates
