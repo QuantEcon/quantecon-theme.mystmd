@@ -534,7 +534,7 @@
     overflow-y: auto;
   }
   .qe-outline__logo {
-    margin-bottom: 1.5rem;
+    margin-top: 1.5rem;
   }
   .qe-outline__title {
     margin: 0 0 0.75rem;
@@ -587,7 +587,7 @@
     border-inline-start-color: var(--qe-link-color);
   }
   .qe-outline__powered {
-    margin: 1.5rem 0 0;
+    margin: 0.75rem 0 0;
     font-size: 0.875rem;
   }
   .dark .qe-outline__list a:hover,

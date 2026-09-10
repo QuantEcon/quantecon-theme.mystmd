@@ -63,8 +63,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)) ([#194](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/194)).
 
 ### Changed
-- The QuantEcon logo in the "On this page" panel is smaller (100px) and sits
-  above the list rather than below it, so it reads as a quiet brand mark
+- The QuantEcon logo in the "On this page" panel is smaller (100px), so it
+  reads as a quiet brand mark; it stays below the list and above "Powered
+  by", where the Sphinx panel keeps it
   ([#96](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/96)). Its
   entries are 15px, navigation chrome rather than reading copy, and the
   outline's inert `useOutlineHeight` scroll listener is gone

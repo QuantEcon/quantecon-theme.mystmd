@@ -66,7 +66,8 @@ export function BackToTop() {
  *  - Enumerators come from the heading itself (`span.select-none`, "3.1"),
  *    plus the period the h1 and the Sphinx panel use -- never a number
  *    computed from the list index, which was wrong as soon as h3s existed.
- *  - The logo sits above the list, smaller (#96); "Powered by" stays below.
+ *  - The logo sits below the list and above "Powered by", where the Sphinx
+ *    panel keeps it (decided on review of #196); smaller, per #96.
  */
 export function Outline({
   containerClassName,
@@ -91,20 +92,6 @@ export function Outline({
         aria-label="On this page"
         className={classNames('qe-outline not-prose', innerClassName)}
       >
-        <div className="qe-outline__logo">
-          <img
-            className="dark:hidden"
-            src={withBaseurl('/logos/qe-logo.png', baseurl)}
-            alt="QuantEcon Logo"
-            width={100}
-          />
-          <img
-            className="hidden dark:block"
-            src={withBaseurl('/logos/quantecon-logo-transparent.png', baseurl)}
-            alt="QuantEcon Logo (dark-mode)"
-            width={100}
-          />
-        </div>
         {headings.length > 0 && (
           <>
             <p className="qe-outline__title">On this page</p>
@@ -131,6 +118,20 @@ export function Outline({
             </ul>
           </>
         )}
+        <div className="qe-outline__logo">
+          <img
+            className="dark:hidden"
+            src={withBaseurl('/logos/qe-logo.png', baseurl)}
+            alt="QuantEcon Logo"
+            width={100}
+          />
+          <img
+            className="hidden dark:block"
+            src={withBaseurl('/logos/quantecon-logo-transparent.png', baseurl)}
+            alt="QuantEcon Logo (dark-mode)"
+            width={100}
+          />
+        </div>
         <p className="qe-outline__powered">
           Powered by <a href="https://mystmd.org">MyST Markdown</a>
         </p>
