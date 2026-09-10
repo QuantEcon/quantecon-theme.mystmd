@@ -132,7 +132,7 @@ tag they build with, rather than vendoring copies:
 project:
   github: https://github.com/QuantEcon/lecture-python.myst # commit links target this repo
   plugins:
-    - https://raw.githubusercontent.com/QuantEcon/quantecon-theme.mystmd/v2.6.1/plugins/git-metadata.mjs
+    - https://raw.githubusercontent.com/QuantEcon/quantecon-theme.mystmd/v2.7.0/plugins/git-metadata.mjs
 ```
 
 The plugin is moving to the shared
@@ -260,7 +260,7 @@ Point your project's `site.template` at a **pinned release** zip:
 ```yaml
 # myst.yml
 site:
-  template: https://github.com/QuantEcon/quantecon-theme.mystmd/releases/download/v2.6.1/quantecon-theme.zip
+  template: https://github.com/QuantEcon/quantecon-theme.mystmd/releases/download/v2.7.0/quantecon-theme.zip
 ```
 
 Pin a specific version rather than tracking a branch, and bump it deliberately: the
