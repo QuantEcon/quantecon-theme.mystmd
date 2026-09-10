@@ -25,6 +25,7 @@ below.
 | `analytics_plausible` | string | site | — | Plausible domain |
 | `hide_toc` | boolean | site or page | `false` | hide the contents drawer and its toggle |
 | `hide_search` | boolean | site or page | `false` | hide the search control |
+| `enable_live_compute` | boolean | site or page | `true` | offer in-page live compute on a page ([notebooks](notebooks.md#per-lecture-live-compute)) |
 | `launch_repo_url` | string | site | derived | explicit notebook repository |
 | `launch_repo_suffix` | string | site | `.notebooks` | suffix locating the notebook repo |
 | `launch_branch` | string | site | `main` | notebook repo branch |

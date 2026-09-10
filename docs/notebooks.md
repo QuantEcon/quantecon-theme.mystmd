@@ -34,3 +34,27 @@ projects that need a full environment.
 
 The deployed Sphinx lecture sites set `thebe: false`, so a series moving from
 them changes nothing by leaving `project.thebe` unset.
+
+### Per-lecture live compute
+
+Because Pyodide cannot run every lecture, the `enable_live_compute` site
+option gates the control per page. A lecture that will not run under the
+configured kernel sets it under `site:` in its frontmatter (for a notebook,
+`"site": {"enable_live_compute": false}` in the notebook metadata):
+
+```yaml
+---
+site:
+  enable_live_compute: false
+---
+```
+
+Resolution is page value, then the site-wide `site.options.enable_live_compute`,
+then on: with no flag anywhere the control appears wherever `project.thebe` is
+set, so a series adopts the flag by marking its known-incompatible lectures
+`false`. A series that would rather certify one lecture at a time sets
+`enable_live_compute: false` site-wide and opts pages in with `true`. The gate
+is broad: a gated page loses the toolbar toggle, the execute scope and the
+error tray together, so nothing on it tries to run. The flag should come from
+running each lecture's cells under the kernel and recording pass/fail, a job
+that lives in the lecture repo rather than the theme.

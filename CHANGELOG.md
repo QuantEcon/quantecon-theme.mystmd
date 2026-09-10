@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Per-lecture live compute: an `enable_live_compute` site option, set `false`
+  under `site:` in a lecture's frontmatter (or notebook metadata) to withhold
+  the in-page compute control on lectures Pyodide cannot run, or site-wide to
+  make the default opt-in. Page value over site value over on, so projects
+  without the flag change nothing. The gate is broad: a gated page loses the
+  toolbar toggle, the execute scope and the error tray together
+  ([#114](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/114)).
+
 ## [2.7.0] - 2026-09-11
 
 ### Added

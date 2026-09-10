@@ -10,12 +10,23 @@ project:
   # theme's parenthesised markers in RTL whichever mystmd parses it.
   plugins:
     - ../fixture/fancy-lists.mjs
+  # Live compute is on for the project, but the site-wide `enable_live_compute: false`
+  # below turns it off by default; notebook-live.ipynb opts back in per page.
+  # This fixture carries the per-lecture gate tests (#114) because its only
+  # snapshot is the landing page, so adding notebook pages moves no baseline.
+  thebe:
+    lite: true
   toc:
     - file: intro.md
+    - file: notebook.ipynb
+    - file: notebook-live.ipynb
 site:
   title: QE Theme RTL Fixture
   template: __THEME__
   options:
+    # Per-lecture live compute (#114): off by default for this project; a
+    # page opts in with `site: {enable_live_compute: true}` (notebook-live.ipynb).
+    enable_live_compute: false
     current_language: fa
     enable_rtl: true
     language_switcher_label: تغییر زبان

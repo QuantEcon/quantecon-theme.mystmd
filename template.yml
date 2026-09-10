@@ -103,6 +103,14 @@ options:
   - id: hide_search
     type: boolean
     description: Hide the toolbar search control.
+  - id: enable_live_compute
+    type: boolean
+    description: >
+      Whether in-page live compute (`project.thebe`) is offered on a page. Set
+      `false` under `site:` in a lecture's frontmatter when it cannot run under
+      the configured kernel (numba, JAX and other packages Pyodide lacks); set
+      it site-wide to change the default for every page. Unset means on
+      wherever `project.thebe` is configured.
   # --- Notebook launcher (see README "Launch buttons") ---
   - id: launch_repo_url
     type: string
