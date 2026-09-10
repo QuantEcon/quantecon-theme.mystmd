@@ -42,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   right-to-left editions the panel started off-screen. The empty track left
   of the body is now `minmax(0, 200px)` and absorbs the shortfall; from
   1328px up the layout is unchanged. An `outline-within-viewport` assertion
-  covers 1280, 1300 and 1328px in both directions.
+  covers 1280, 1300 and 1328px in both directions
+  ([#198](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/198)).
 - Every site option the theme reads is now declared in `template.yml`, so it
   actually arrives. The MyST CLI validates `site.options` against the
   template's declarations and drops every undeclared key, and until now only
