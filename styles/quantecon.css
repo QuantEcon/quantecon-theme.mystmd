@@ -550,10 +550,12 @@
     margin: 0;
   }
   .qe-outline__list a {
-    /* The left rule is reserved on every entry so the active one does not
-       shift the text; Sphinx uses the same 3px inset. */
+    /* The inline-start rule is reserved on every entry so the active one
+       does not shift the text; Sphinx uses the same 3px inset. Logical
+       padding, like the rule, so both mirror together in RTL editions. */
     display: block;
-    padding: 0.2rem 0 0.2rem 0.75rem;
+    padding-block: 0.2rem;
+    padding-inline: 0.75rem 0;
     border-inline-start: 3px solid transparent;
     text-decoration: none;
     /* Resting: the prose colour (#44403c, 10.3:1). Sphinx composites its
