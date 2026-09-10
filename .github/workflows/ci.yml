@@ -55,7 +55,7 @@ jobs:
         # The report/diff artifacts and PR comment below must still be
         # produced on failure — that is when reviewers need them.
         continue-on-error: true
-        run: npx playwright test --project=desktop-chrome --project=mobile-chrome
+        run: npx playwright test --project=desktop-chrome --project=mobile-chrome --project=static-chrome
         env:
           THEME_TEMPLATE: ${{ github.workspace }}/.deploy/quantecon-theme
           PORT: "3111"

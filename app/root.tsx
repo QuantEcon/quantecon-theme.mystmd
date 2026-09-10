@@ -25,6 +25,9 @@ import { Document } from './components/Document';
 import { htmlDir, htmlLang } from './i18n';
 import type { TemplateOptions } from './types';
 export { AppErrorBoundary as ErrorBoundary } from '@myst-theme/site';
+// Never re-run the loader on a navigation that changes neither pathname nor
+// search (Back off an in-page anchor on a static build) -- #186.
+export { shouldRevalidate } from '~/revalidate';
 
 const RENDERERS: NodeRenderers = mergeRenderers([
   defaultRenderers,

@@ -87,6 +87,27 @@ THEME_TEMPLATE="$PWD/.deploy/quantecon-theme" \
   npm run test:fouc
 ```
 
+## Static-build guard
+
+`static.spec.ts` guards the deployed shape of the theme
+([#186](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/186)):
+`serve-static.sh` copies the fixture to a gitignored `.static/` working copy,
+runs `myst build --html` with the chosen `THEME_TEMPLATE`, and serves
+`_build/html` from `static-server.mjs` -- a deliberately dumb file server, so a
+Remix `?_data=` fetch gets the page's own HTML back with a 200, exactly as
+Netlify or GitHub Pages would. The spec asserts that Back after an in-page
+anchor (an outline entry, "↑ Top") fires no loader fetch and leaves the page
+intact, and that "↑ Top" is a same-document fragment link. Snapshot-free, and
+it runs on the `static-chrome` project only. The three `myst start` servers run
+`MODE=app`, where every loader is live, which is why #138, #150 and #186 all
+shipped unseen.
+
+```bash
+make build-theme
+THEME_TEMPLATE="$PWD/.deploy/quantecon-theme" \
+  npx playwright test --project=static-chrome
+```
+
 ## Files
 
 - `fixture/` — minimal MyST project (`intro.md`, `features.md`, `notebook.ipynb`);
@@ -98,11 +119,14 @@ THEME_TEMPLATE="$PWD/.deploy/quantecon-theme" \
   snapshot and the right-to-left assertions (#91)
 - `fixture/myst.yml.in` — template; `serve.sh` writes `myst.yml` from it
 - `serve.sh` — `myst start` with the chosen `THEME_TEMPLATE`
+- `serve-static.sh` / `static-server.mjs` — `myst build --html` of the fixture behind
+  a plain file server (fourth port), for the static-build guard
+- `static.spec.ts` — static-build guard, no snapshots (Chromium, `static-chrome`)
 - `theme.spec.ts` — one full-page snapshot per surface, plus a sidebar-open
   viewport snapshot (the sidebar is off-canvas in the full-page shots — #70
   was invisible to them) (Chromium)
 - `fouc.spec.ts` — FOUC guard, no snapshots (WebKit)
 - `__snapshots__/` — committed baselines
 
-> The generated `fixture/myst.yml`, `fixture/_build/`, and `playwright-report/`
-> are gitignored.
+> The generated `fixture/myst.yml`, `fixture/_build/`, `.static/` and
+> `playwright-report/` are gitignored.
