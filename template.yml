@@ -65,7 +65,13 @@ options:
       Accessible name and tooltip of the language switcher, in the edition's own
       language ("Switch language" when unset).
 build:
-  install: npm install
+  # `npm ci`, not `npm install`: the release asset ships a lockfile (release.yml
+  # generates it with `npm install --package-lock-only` and it is in `files`
+  # below), so consumer installs are reproducible and the lockfile is never
+  # mutated in place. `npm ci` fails without a lockfile, but the only
+  # lockfile-less path is a source checkout, which is not a usable template
+  # until `make build-theme` has run -- and that target installs its own.
+  install: npm ci
   start: npm run start
 files:
   - server.js
