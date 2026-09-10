@@ -103,7 +103,7 @@ options:
   - id: hide_search
     type: boolean
     description: Hide the toolbar search control.
-  - id: live_compute
+  - id: enable_live_compute
     type: boolean
     description: >
       Whether in-page live compute (`project.thebe`) is offered on a page. Set

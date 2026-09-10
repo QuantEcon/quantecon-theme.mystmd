@@ -87,7 +87,7 @@ In addition to launching a notebook elsewhere (Colab/Hub), the theme can run
 notebook cells **in place** via [Thebe](https://thebe.readthedocs.io). This is
 opt-in per project through the standard MyST `thebe` config, set under
 `project.thebe` in `myst.yml` (the theme reads it from the project manifest;
-per-lecture gating is the separate `live_compute` option, [below](#per-lecture-live-compute)). The QuantEcon default is
+per-lecture gating is the separate `enable_live_compute` option, [below](#per-lecture-live-compute)). The QuantEcon default is
 **JupyterLite** — Python runs entirely in the browser via Pyodide, with no
 server or Binder to host:
 
@@ -114,23 +114,23 @@ server) if a project needs a full environment.
 
 #### Per-lecture live compute
 
-Because Pyodide cannot run every lecture, the `live_compute` site option gates
+Because Pyodide cannot run every lecture, the `enable_live_compute` site option gates
 the control per page. Mark a lecture that will not run under the configured
 kernel in its frontmatter:
 
 ```yaml
 ---
 site:
-  live_compute: false
+  enable_live_compute: false
 ---
 ```
 
-(for a notebook, `"site": {"live_compute": false}` in the notebook metadata).
-Resolution is page value, then the site-wide `site.options.live_compute`, then
+(for a notebook, `"site": {"enable_live_compute": false}` in the notebook metadata).
+Resolution is page value, then the site-wide `site.options.enable_live_compute`, then
 on: with no flag anywhere the control appears wherever `project.thebe` is set,
 so existing projects change nothing and a series adopts the flag by marking its
 known-incompatible lectures `false`. A series that would rather certify one
-lecture at a time sets `live_compute: false` site-wide and opts pages in with
+lecture at a time sets `enable_live_compute: false` site-wide and opts pages in with
 `true`. The gate is broad: a gated page loses the toolbar toggle, the execute
 scope and the error tray together, so nothing on it tries to run.
 
@@ -270,7 +270,7 @@ block inside a string (`key: |`), which the theme parses.
 | `favicon` | site | Favicon file, relative to `myst.yml`; served at `/favicon.ico` (the QuantEcon lectures favicon when unset) |
 | `analytics_google`, `analytics_plausible` | site | Analytics IDs, rendered by `@myst-theme/site` |
 | `hide_toc`, `hide_search` | site or page | Hide the contents drawer / the search control |
-| `live_compute` | site or page | Offer in-page live compute on a page ([Per-lecture live compute](#per-lecture-live-compute)) |
+| `enable_live_compute` | site or page | Offer in-page live compute on a page ([Per-lecture live compute](#per-lecture-live-compute)) |
 | `launch_repo_url`, `launch_repo_suffix`, `launch_branch`, `launch_notebooks_path`, `launch_source_path` | site | Notebook launcher conventions ([Launch buttons](#launch-buttons)) |
 | `current_language`, `enable_rtl`, `languages`, `language_switcher_label` | site | Multilingual editions ([below](#multilingual-editions)) |
 | `translators`, `translators_label` | site or page | Translator credit in the page header |

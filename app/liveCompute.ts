@@ -2,11 +2,11 @@
  * Per-lecture live compute (#114).
  *
  * `project.thebe` turns in-page compute on for a whole project, but Pyodide
- * cannot run every lecture (numba and JAX do not import), so the `live_compute`
+ * cannot run every lecture (numba and JAX do not import), so the `enable_live_compute`
  * site option gates the control per page. Resolution, most specific first:
  *
- *   1. `site.live_compute` in the page's frontmatter
- *   2. `site.options.live_compute` in myst.yml (the project-wide default)
+ *   1. `site.enable_live_compute` in the page's frontmatter
+ *   2. `site.options.enable_live_compute` in myst.yml (the project-wide default)
  *   3. `true` -- absent means today's behaviour: compute wherever `project.thebe`
  *      is set, so existing projects change nothing, and a series can adopt the
  *      flag incrementally by marking its known-incompatible lectures `false`.
@@ -38,5 +38,5 @@ export function resolveLiveCompute(
   pageOptions: Record<string, unknown> | undefined,
   siteOptions: Record<string, unknown> | undefined,
 ): boolean {
-  return asBoolean(pageOptions?.live_compute) ?? asBoolean(siteOptions?.live_compute) ?? true;
+  return asBoolean(pageOptions?.enable_live_compute) ?? asBoolean(siteOptions?.enable_live_compute) ?? true;
 }

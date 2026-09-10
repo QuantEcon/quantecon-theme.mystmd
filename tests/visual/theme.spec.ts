@@ -325,8 +325,8 @@ test.describe("QuantEcon theme — visual regression", () => {
   });
 
   // Per-lecture gate (#114): the RTL fixture has `project.thebe` but sets
-  // `live_compute: false` site-wide. Its plain notebook page inherits that and
-  // shows no control; notebook-live.ipynb sets `site: {live_compute: true}`
+  // `enable_live_compute: false` site-wide. Its plain notebook page inherits that and
+  // shows no control; notebook-live.ipynb sets `site: {enable_live_compute: true}`
   // in its metadata and gets it back. The main fixture's `live-compute-toggle`
   // above is the third case: no flag anywhere means on.
   test("live-compute-per-page", async ({ page }, testInfo) => {

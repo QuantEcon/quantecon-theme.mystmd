@@ -14,24 +14,24 @@ test('absent everywhere: enabled (today\'s behaviour, project.thebe decides)', (
 });
 
 test('site-wide false turns the default off; a page opts back in', () => {
-  assert.equal(resolveLiveCompute({}, { live_compute: false }), false);
-  assert.equal(resolveLiveCompute({ live_compute: true }, { live_compute: false }), true);
+  assert.equal(resolveLiveCompute({}, { enable_live_compute: false }), false);
+  assert.equal(resolveLiveCompute({ enable_live_compute: true }, { enable_live_compute: false }), true);
 });
 
 test('page false wins over an enabled site (incremental adoption)', () => {
-  assert.equal(resolveLiveCompute({ live_compute: false }, {}), false);
-  assert.equal(resolveLiveCompute({ live_compute: false }, { live_compute: true }), false);
+  assert.equal(resolveLiveCompute({ enable_live_compute: false }, {}), false);
+  assert.equal(resolveLiveCompute({ enable_live_compute: false }, { enable_live_compute: true }), false);
 });
 
 test('a page that sets other site keys but not this one inherits the site value', () => {
-  assert.equal(resolveLiveCompute({ hide_search: true }, { live_compute: false }), false);
+  assert.equal(resolveLiveCompute({ hide_search: true }, { enable_live_compute: false }), false);
   assert.equal(resolveLiveCompute({ hide_search: true }, {}), true);
 });
 
 test('string spellings from hand edits are read; garbage falls through', () => {
-  assert.equal(resolveLiveCompute({ live_compute: 'false' }, {}), false);
-  assert.equal(resolveLiveCompute({ live_compute: 'no' }, {}), false);
-  assert.equal(resolveLiveCompute({ live_compute: 'TRUE' }, { live_compute: false }), true);
-  assert.equal(resolveLiveCompute({ live_compute: 'maybe' }, { live_compute: false }), false);
-  assert.equal(resolveLiveCompute({ live_compute: 'maybe' }, {}), true);
+  assert.equal(resolveLiveCompute({ enable_live_compute: 'false' }, {}), false);
+  assert.equal(resolveLiveCompute({ enable_live_compute: 'no' }, {}), false);
+  assert.equal(resolveLiveCompute({ enable_live_compute: 'TRUE' }, { enable_live_compute: false }), true);
+  assert.equal(resolveLiveCompute({ enable_live_compute: 'maybe' }, { enable_live_compute: false }), false);
+  assert.equal(resolveLiveCompute({ enable_live_compute: 'maybe' }, {}), true);
 });
