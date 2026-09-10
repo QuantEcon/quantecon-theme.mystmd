@@ -33,3 +33,5 @@ remix.config.js
 /tests/visual/fixture/_build
 /tests/visual/fixture-no-thebe/myst.yml
 /tests/visual/fixture-no-thebe/_build
+/tests/visual/fixture-rtl/myst.yml
+/tests/visual/fixture-rtl/_build

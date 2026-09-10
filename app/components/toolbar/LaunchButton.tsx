@@ -51,7 +51,7 @@ export function LaunchButton({ size, showLabel }: { size: number; showLabel?: bo
         className="flex items-center cursor-pointer"
       >
         <CirclePlay className="opacity-90 hover:scale-110" width={size} height={size} />
-        {showLabel && <span className="ml-2">Launch</span>}
+        {showLabel && <span className="ms-2">Launch</span>}
       </a>
     </Tooltip>
   );

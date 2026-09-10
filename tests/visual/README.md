@@ -89,7 +89,13 @@ THEME_TEMPLATE="$PWD/.deploy/quantecon-theme" \
 
 ## Files
 
-- `fixture/` — minimal MyST project (`intro.md`, `features.md`, `notebook.ipynb`)
+- `fixture/` — minimal MyST project (`intro.md`, `features.md`, `notebook.ipynb`);
+  configures two editions and a translator so the language switcher, hreflang
+  alternates and translator credit render (#90, #143)
+- `fixture-no-thebe/` — the same without `project.thebe`, for the absent live-compute
+  toggle (second port)
+- `fixture-rtl/` — a Persian edition with `enable_rtl` (third port), for the `rtl`
+  snapshot and the right-to-left assertions (#91)
 - `fixture/myst.yml.in` — template; `serve.sh` writes `myst.yml` from it
 - `serve.sh` — `myst start` with the chosen `THEME_TEMPLATE`
 - `theme.spec.ts` — one full-page snapshot per surface, plus a sidebar-open

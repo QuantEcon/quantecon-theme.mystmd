@@ -28,6 +28,14 @@ if (NO_THEBE_PORT === PORT) {
 // Write the resolved value back so test workers read one source of truth
 // (tests/visual/theme.spec.ts builds the no-thebe URL from this).
 process.env.NO_THEBE_PORT = NO_THEBE_PORT;
+// Third fixture: a right-to-left Persian edition (`enable_rtl`, `fa` current
+// in the language switcher, translator credit) for the multilingual tests.
+const RTL_PORT = process.env.RTL_PORT || "3113";
+const rtlURL = `http://localhost:${RTL_PORT}`;
+if (RTL_PORT === PORT || RTL_PORT === NO_THEBE_PORT) {
+  throw new Error(`RTL_PORT (${RTL_PORT}) must differ from PORT and NO_THEBE_PORT`);
+}
+process.env.RTL_PORT = RTL_PORT;
 
 export default defineConfig({
   testDir: "./tests/visual",
@@ -79,6 +87,14 @@ export default defineConfig({
       // `live-compute-toggle-absent-without-thebe` test in theme.spec.ts.
       command: `FIXTURE_DIR=fixture-no-thebe PORT=${NO_THEBE_PORT} bash tests/visual/serve.sh`,
       url: noThebeURL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 300 * 1000,
+    },
+    {
+      // Right-to-left fixture (tests/visual/fixture-rtl) for the `rtl`
+      // snapshot and the multilingual assertions in theme.spec.ts.
+      command: `FIXTURE_DIR=fixture-rtl PORT=${RTL_PORT} bash tests/visual/serve.sh`,
+      url: rtlURL,
       reuseExistingServer: !process.env.CI,
       timeout: 300 * 1000,
     },

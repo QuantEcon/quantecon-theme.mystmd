@@ -4,6 +4,34 @@ import type { Affiliation, Contributor } from 'myst-frontmatter';
 import React from 'react';
 import { useBaseurl, useLinkProvider } from '@myst-theme/providers';
 import { PageHeaderHistory } from './PageHeaderHistory';
+import type { Person } from '~/i18n';
+
+/**
+ * Names joined the way the authors line joins them: "A", "A and B",
+ * "A, B and C". Linked when the person has a URL; no `rel="author"`, which
+ * is reserved for the authors so crawlers can tell the two apart.
+ */
+function PeopleList({ people, linkClassName }: { people: Person[]; linkClassName?: string }) {
+  return (
+    <>
+      {people.map((person, i) => {
+        const separator = i === 0 ? '' : i === people.length - 1 ? ' and ' : ', ';
+        return (
+          <span key={`${person.name}-${i}`}>
+            {separator}
+            {person.url ? (
+              <a href={person.url} target="_blank" rel="noopener noreferrer" className={linkClassName}>
+                {person.name}
+              </a>
+            ) : (
+              person.name
+            )}
+          </span>
+        );
+      })}
+    </>
+  );
+}
 
 export function ProjectFrontmatter({
   className,
@@ -11,13 +39,20 @@ export function ProjectFrontmatter({
   pageTitle,
   authors,
   affiliations,
+  translators,
+  translatorsLabel,
 }: {
   className?: string;
   projectTitle: string;
   pageTitle?: string;
   authors?: Contributor[];
   affiliations?: Affiliation[];
+  /** Translators of this page's edition (#143); nothing renders when empty. */
+  translators?: Person[];
+  /** Label introducing the translators, in the edition's language; '' omits it. */
+  translatorsLabel?: string;
 }) {
+  const hasTranslators = !!translators && translators.length > 0;
   const baseurl = useBaseurl();
   const Link = useLinkProvider();
   return (
@@ -38,7 +73,7 @@ export function ProjectFrontmatter({
           className={classNames('block font-bold lg:inline prose-a:text-inherit', {
             'text-lg': pageTitle,
             'text-4xl': !pageTitle,
-            'mr-4': pageTitle,
+            'me-4': pageTitle,
           })}
         >
           <Link to={baseurl ?? '/'}>{projectTitle}</Link>
@@ -84,7 +119,26 @@ export function ProjectFrontmatter({
             }, '')}
           </div>
         )}
-        <PageHeaderHistory />
+        {/* Translators (#143). Same row as the "Last changed" control, at the
+            end, as the book theme places them since v0.22.0 -- a fourth
+            stacked header line read as clutter there. This block takes the
+            `ms-auto` and the history control sits beside it; on narrow
+            viewports the row wraps. Distinct class from the authors line and
+            no `rel="author"` on the links, so the two are never confused. A
+            <div>, not a <p>: `.article p` sets a 1em margin that a utility
+            cannot beat. */}
+        {hasTranslators && (
+          <div
+            className="qe-page__header-translators ms-auto text-[0.85rem] text-qetext-light/70 dark:text-qetext-dark-muted"
+            aria-label="Translator names and links"
+          >
+            {translatorsLabel && (
+              <span className="qe-page__header-translators-label">{translatorsLabel} </span>
+            )}
+            <PeopleList people={translators} linkClassName="text-sky-500 hover:underline" />
+          </div>
+        )}
+        <PageHeaderHistory alignEnd={!hasTranslators} />
       </div>
     </div>
   );

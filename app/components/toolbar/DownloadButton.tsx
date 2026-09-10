@@ -48,7 +48,7 @@ export function DownloadsButton({ size, showLabel }: { size: number; showLabel?:
           className="flex items-center cursor-pointer"
         >
           <CloudDownload className="opacity-90 hover:scale-110" width={size} height={size} />
-          {showLabel && <span className="ml-2">Downloads</span>}
+          {showLabel && <span className="ms-2">Downloads</span>}
         </DropdownMenu.Trigger>
       </Tooltip>
       <DropdownMenu.Portal>

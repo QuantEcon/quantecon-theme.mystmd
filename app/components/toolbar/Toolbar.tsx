@@ -12,6 +12,7 @@ import { FullScreenButton } from './FullscreenButton';
 import { FontScaleListItems } from './FontScaleListItems';
 import { Tooltip } from './Tooltip';
 import { MobileActionsMenu } from './MobileActionsMenu';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { useBaseurl, useLinkProvider } from '@myst-theme/providers';
 
 export function Toolbar() {
@@ -31,8 +32,14 @@ export function Toolbar() {
         control set switches on at `md`, and at 20px spacing it does not fit
         between 768px and ~856px — the last icons get pushed off the right
         edge. Keep the tighter spacing for that band when adding controls here.
+
+        `gap-x-*`, not `space-x-*`: the latter is a physical `margin-left` on
+        every item after the first, which a right-to-left edition (#91) does
+        not mirror, so the first two icons touch and the margin lands on the
+        outer edge. `gap` is direction-neutral. An empty <li> still takes a
+        gap, hence the `empty:hidden` on the two slots that may render nothing.
       */}
-      <ul className="flex items-center w-full space-x-3 lg:space-x-5 text-qetext-light dark:text-qetext-dark">
+      <ul className="flex items-center w-full gap-x-3 lg:gap-x-5 text-qetext-light dark:text-qetext-dark">
         <li>
           <SidebarToggle />
         </li>
@@ -62,7 +69,7 @@ export function Toolbar() {
         <FontScaleListItems className="hidden md:block" size={iconSize} />
         {/* Separator between the view controls and the actions cluster; scaled
             down in the narrow desktop band for the same reason as the gap. */}
-        <li className="flex items-center md:pr-4 lg:pr-[36px]">
+        <li className="flex items-center md:pe-4 lg:pe-[36px]">
           <ThemeButton className="w-5 h-5 opacity-60" />
         </li>
         <li className="hidden md:block">
@@ -76,6 +83,16 @@ export function Toolbar() {
         </li>
         <li className="hidden md:block">
           <GitHubButton sizeClasses="w-5 h-5" />
+        </li>
+        {/* Language switcher (#90): far end of the toolbar, as in the book
+            theme, and at every width -- it is the one action a reader of a
+            translated edition reaches for, so it stays out of the overflow
+            menu. Renders nothing unless two or more editions are configured,
+            and `empty:hidden` keeps the wrapper from taking a gap when it does
+            not -- every single-edition site would otherwise carry dead space
+            here. */}
+        <li className="qe-language-slot flex items-center empty:hidden">
+          <LanguageSwitcher size={iconSize} />
         </li>
         <li className="block md:hidden">
           <MobileActionsMenu sizeClasses="w-5 h-5" size={iconSize} />

@@ -59,7 +59,7 @@ const COPY = "text-[0.85rem]";
  *
  * Layout: the root is `display: contents`, so the trigger and the panel become
  * flex items of the header's author row rather than nesting inside a box. The
- * trigger takes `ml-auto` (right-aligned, inline with the author names) and the
+ * trigger takes `ms-auto` (end-aligned, inline with the author names) and the
  * panel takes `w-full`, which wraps it onto its own line directly underneath.
  * Because the whole thing renders inside ProjectFrontmatter's bordered block,
  * expanding pushes the blue divider down and keeps the changelog adjacent to
@@ -73,8 +73,12 @@ const COPY = "text-[0.85rem]";
  *
  * Renders nothing when neither is present.
  */
-export function PageHeaderHistory() {
+export function PageHeaderHistory({ alignEnd = true }: { alignEnd?: boolean } = {}) {
   const page = usePage();
+  // `ms-auto` pushes the control to the end of the header row. When the
+  // translators block is present it takes that role instead and this sits
+  // beside it (ProjectFrontmatter passes alignEnd=false).
+  const align = alignEnd ? "ms-auto" : "";
   // Relative times depend on the clock; render absolute dates on the server
   // and only switch after mount so statically exported HTML hydrates cleanly.
   const [now, setNow] = React.useState<number | null>(null);
@@ -108,7 +112,7 @@ export function PageHeaderHistory() {
   if (changelog.length === 0) {
     return (
       <div
-        className={`ml-auto ${COPY} text-qetext-light/70 dark:text-qetext-dark-muted`}
+        className={`${align} ${COPY} text-qetext-light/70 dark:text-qetext-dark-muted`}
       >
         Last changed: {formatDate(lastModified)}
       </div>
@@ -133,7 +137,7 @@ export function PageHeaderHistory() {
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
-        className={`group ml-auto flex items-center gap-1 ${COPY} cursor-pointer
+        className={`group ${align} flex items-center gap-1 ${COPY} cursor-pointer
           text-qetext-light/70 dark:text-qetext-dark-muted
           hover:text-qeborder-blue dark:hover:text-qeborder-blue`}
       >

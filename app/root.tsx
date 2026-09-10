@@ -5,7 +5,6 @@ import { PTSerifCSS, SourceSans3CSS } from '~/links';
 import { getConfig } from '~/backend/loaders.server';
 import type { SiteLoader } from '@myst-theme/common';
 import {
-  Document,
   responseNoSite,
   getMetaTagsForSite,
   getThemeSession,
@@ -22,6 +21,9 @@ import { SEARCH_ATTRIBUTES_ORDERED } from '@myst-theme/search';
 import { useCallback } from 'react';
 import { JUPYTER_RENDERERS } from '@myst-theme/jupyter';
 import { LIST_RENDERERS } from './renderers';
+import { Document } from './components/Document';
+import { htmlDir, htmlLang } from './i18n';
+import type { TemplateOptions } from './types';
 export { AppErrorBoundary as ErrorBoundary } from '@myst-theme/site';
 
 const RENDERERS: NodeRenderers = mergeRenderers([
@@ -217,6 +219,9 @@ export default function AppWithReload() {
   const { theme, config, CONTENT_CDN_PORT, MODE, BASE_URL } = useLoaderData<SiteLoader>();
 
   const searchFactory = useCallback((index: MystSearchIndex) => createSearch(index), []);
+  // Edition language and direction, from the declared site options (see
+  // app/i18n.ts). Set on <html> in the server render by the local Document.
+  const options: TemplateOptions = (config as any)?.options ?? {};
 
   return (
     <SearchFactoryProvider factory={searchFactory}>
@@ -234,6 +239,8 @@ export default function AppWithReload() {
         // inside <style>, so `<style>{CRITICAL_CSS}</style>` would emit an invalid
         // selector and silently drop the body-column rule. Keep this as-is.
         head={<style dangerouslySetInnerHTML={{ __html: CRITICAL_CSS }} />}
+        lang={htmlLang(options)}
+        dir={htmlDir(options)}
       >
         <SkipTo
           targets={[

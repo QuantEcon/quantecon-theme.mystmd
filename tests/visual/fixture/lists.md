@@ -1,3 +1,9 @@
+---
+# An explicitly empty value suppresses the translator credit on this page
+# (#143), rather than falling back to the project-level one.
+site:
+  translators: ''
+---
 # Fancy ordered lists
 
 Ordered lists whose `list` nodes carry `style` / `delimiter` (QuantEcon/mystmd#50)

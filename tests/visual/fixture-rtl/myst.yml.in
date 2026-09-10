@@ -1,0 +1,33 @@
+# Template for the right-to-left visual-regression fixture (#91): a Persian
+# edition with `enable_rtl`, the language switcher marking `fa` as current,
+# and a translator credit with a Persian label. `serve.sh` copies this to
+# myst.yml, substituting __THEME__ (FIXTURE_DIR=fixture-rtl).
+version: 1
+project:
+  title: نظریهٔ نمونه — ویرایش فارسی
+  github: https://github.com/QuantEcon/quantecon-theme.mystmd
+  # Stamps `% fancy:` lists with style/delimiter, so intro.md can exercise the
+  # theme's parenthesised markers in RTL whichever mystmd parses it.
+  plugins:
+    - ../fixture/fancy-lists.mjs
+  toc:
+    - file: intro.md
+site:
+  title: QE Theme RTL Fixture
+  template: __THEME__
+  options:
+    logo_text: QE RTL Fixture
+    current_language: fa
+    enable_rtl: true
+    language_switcher_label: تغییر زبان
+    languages: |
+      - code: en
+        name: English
+        url: https://example.org/en
+      - code: fa
+        name: فارسی
+        url: https://example.org/fa
+    translators: |
+      - name: مترجم نمونه
+        url: https://example.org/translator
+    translators_label: ترجمهٔ
