@@ -121,16 +121,23 @@ it down, so it stays adjacent to its toggle and clear of the lecture content.
 The data is injected at build time by [`plugins/git-metadata.mjs`](./plugins/git-metadata.mjs),
 a MyST transform that runs `git log --follow` per source file and attaches
 `{ last_modified, changelog: [{hash, short_hash, author, date, message}] }`
-to the page AST. Copy the plugin into a lecture repo (or reference a checkout)
-and register it:
+to the page AST. Lecture repos load it by URL, pinned to the same theme release
+tag they build with, rather than vendoring copies:
 
 ```yaml
 # myst.yml
 project:
   github: https://github.com/QuantEcon/lecture-python.myst # commit links target this repo
   plugins:
-    - git-metadata.mjs
+    - https://raw.githubusercontent.com/QuantEcon/quantecon-theme.mystmd/v2.6.0/plugins/git-metadata.mjs
 ```
+
+The plugin is moving to the shared
+[`QuantEcon/quantecon-plugins.mystmd`](https://github.com/QuantEcon/quantecon-plugins.mystmd)
+repository (QuantEcon/quantecon-plugins.mystmd#11); the in-repo copy is retired once
+that standalone release exists
+([#157](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/157)). Until then
+the pinned URL above is the supported form.
 
 Notes:
 
@@ -200,7 +207,7 @@ Point your project's `site.template` at a **pinned release** zip:
 ```yaml
 # myst.yml
 site:
-  template: https://github.com/QuantEcon/quantecon-theme.mystmd/releases/download/v2.3.0/quantecon-theme.zip
+  template: https://github.com/QuantEcon/quantecon-theme.mystmd/releases/download/v2.6.0/quantecon-theme.zip
 ```
 
 Pin a specific version rather than tracking a branch, and bump it deliberately: the

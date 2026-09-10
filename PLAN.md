@@ -280,6 +280,14 @@ and a "full history" link.
       `https://raw.githubusercontent.com/QuantEcon/quantecon-theme.mystmd/<tag>/plugins/git-metadata.mjs`.
       A shared `quantecon-myst-plugins` repo is revisited only if a second,
       non-theme-coupled plugin ever appears.
+      **Superseded (2026-09-02):** that trigger fired — decision D8 of the report-theme
+      design review created [`QuantEcon/quantecon-plugins.mystmd`](https://github.com/QuantEcon/quantecon-plugins.mystmd)
+      as the plugin family's home. The move is QuantEcon/quantecon-plugins.mystmd#11 and
+      this repo's retirement of the in-repo copy is
+      [#157](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/157); the
+      tag-pinned URL form stays the supported way to consume it until the standalone
+      release exists. Does not gate the cutover
+      ([#147](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/147)).
 
 **Theme (render) deliverable:**
 - [x] New `app/components/PageHeaderHistory.tsx` (rendered from `ProjectFrontmatter.tsx`)
@@ -532,6 +540,12 @@ inline below.*
    with the theme; lecture repos reference it by tag-pinned URL rather than vendoring
    copies. A shared plugins repo is revisited only if a second, non-theme-coupled
    plugin ever appears.
+   **Superseded (2026-09-02):** a second plugin family arrived with the report theme, and
+   decision D8 of its design review created `QuantEcon/quantecon-plugins.mystmd` as the
+   shared home. Move: QuantEcon/quantecon-plugins.mystmd#11; this repo's side:
+   [#157](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/157);
+   living-document corrections:
+   [#159](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/159).
 3. **Compute model:** how much of the launch story moves to in-page Thebe vs external
    Colab/Binder/Hub, given infra cost and the existing `.notebooks` convention?
    **Answered in practice (2026-08-20):** external launch is **Colab** (BinderHub dropped,
