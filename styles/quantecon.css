@@ -507,6 +507,100 @@
    there rather than painting this blue on a dark background.
    --------------------------------------------------------------------------- */
 @layer components {
+  /* "On this page" outline (#182) -- pinned, scroll-tracking, nested. The
+     Sphinx build pins its panel with `position: fixed` behind a class named
+     `sticky`; `sticky` itself cannot work here (the wrapper is `self-start`,
+     so a sticky child has no travel). `left`/`right` stay `auto` so the
+     panel keeps its static position in the 200px margin track.
+     `top` is this theme's own first-content line at 1280x800 -- the navbar
+     (50px) plus main's 72px padding -- measured, not Sphinx's 7rem, so the
+     panel does not jump on load. Past `max-height` it scrolls internally,
+     behind a mask fade, with the scrollbar only on hover/focus as in Sphinx. */
+  .qe-outline {
+    position: fixed;
+    top: 122px;
+    width: 200px;
+    max-height: calc(100vh - 122px - 2rem);
+    overflow-x: hidden;
+    overflow-y: hidden;
+    mask-image: linear-gradient(180deg, #000 calc(100% - 2rem), transparent);
+    /* Navigation chrome, not reading copy: Sphinx sets .9rem of its 18px
+       root (16.2px); 15px is that intent against this theme's base. */
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .qe-outline:hover,
+  .qe-outline:focus-within {
+    overflow-y: auto;
+  }
+  .qe-outline__logo {
+    margin-top: 1.5rem;
+  }
+  .qe-outline__title {
+    margin: 0 0 0.75rem;
+    font-size: 1.0625rem; /* 17px */
+    font-weight: 700;
+  }
+  .qe-outline__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .qe-outline__list li {
+    margin: 0;
+  }
+  .qe-outline__list a {
+    /* The inline-start rule is reserved on every entry so the active one
+       does not shift the text; Sphinx uses the same 3px inset. Logical
+       padding, like the rule, so both mirror together in RTL editions. */
+    display: block;
+    padding-block: 0.2rem;
+    padding-inline: 0.75rem 0;
+    border-inline-start: 3px solid transparent;
+    text-decoration: none;
+    /* Resting: the prose colour (#44403c, 10.3:1). Sphinx composites its
+       resting entries to 4.47:1, under AA -- not copied. */
+    color: inherit;
+  }
+  /* Autoexpand (Sphinx `contents_autoexpand`, on by default there): nested
+     sub-lists are hidden until their branch is the current one. */
+  .qe-outline__list ul {
+    display: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .qe-outline__list li.qe-outline__expanded > ul {
+    display: block;
+  }
+  .qe-outline__sub a {
+    padding-inline-start: 1.75rem; /* Sphinx: `ul ul { padding-left: 1rem }` */
+  }
+  .qe-outline__list a:hover {
+    color: var(--qe-link-color);
+  }
+  /* Active: the book theme's *intent* (QuantEcon blue, bold), which
+     pydata-sphinx-theme outranks on the deployed sites; here it is the same
+     blue as content links, so the panel reads as one system. Weight and the
+     rule keep the state from being colour-only (WCAG 1.4.1). */
+  .qe-outline__list a[aria-current] {
+    color: var(--qe-link-color);
+    font-weight: 600;
+    border-inline-start-color: var(--qe-link-color);
+  }
+  .qe-outline__powered {
+    margin: 0.75rem 0 0;
+    font-size: 0.875rem;
+  }
+  .dark .qe-outline__list a:hover,
+  .dark .qe-outline__list a[aria-current] {
+    /* Sphinx's dark link blue; 7.4:1 on this theme's #222 ground. The
+       dark `--qe-link-color` is white, which would not distinguish the
+       active entry from the rest. */
+    color: #6cb6ff;
+    border-inline-start-color: #6cb6ff;
+  }
+
   /* Collapsible stderr (#92): the Sphinx build's amber "Code warnings"
      fold (_stderr.scss), as a native <details>. Colours are the book
      theme's: #ffc107 border and icon, #856404 label (7.0:1 on white). */

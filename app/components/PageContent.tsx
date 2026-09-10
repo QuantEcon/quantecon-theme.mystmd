@@ -72,10 +72,7 @@ export const PageContent = React.memo(function ({ article }: { article: PageLoad
                 translators={translators}
                 translatorsLabel={translatorsLabel}
               />
-              <Outline
-                containerClassName="hidden lg:col-margin"
-                pageEnumerator={article.frontmatter.enumerator}
-              />
+              <Outline containerClassName="hidden lg:col-margin" />
               {/* Live-compute toggle: portaled into the header toolbar (next to
                   Launch) rather than rendered here in the article body. */}
               {compute?.enabled &&
