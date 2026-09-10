@@ -29,7 +29,7 @@ test('ogLocale: BCP 47 to OpenGraph', () => {
   assert.equal(ogLocale(undefined), undefined);
 });
 
-test('the Sphinx set, on a lecture page with the site-level images', () => {
+test('the full set, on a lecture page with the site-level images', () => {
   const tags = byKey(
     socialMetaTags({
       siteTitle: 'Python Programming for Economics and Finance',

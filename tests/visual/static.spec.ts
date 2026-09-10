@@ -58,7 +58,7 @@ async function expectIntact(page: Page, title: string, watched: ReturnType<typeo
   expect(watched.pageErrors).toEqual([]);
 }
 
-test.describe("Static build -- in-page anchors (#186)", () => {
+test.describe("Static build -- in-page anchors", () => {
   test("back after an outline entry keeps the page", async ({ page }) => {
     const watched = watch(page);
     const title = await open(page, "/features/");

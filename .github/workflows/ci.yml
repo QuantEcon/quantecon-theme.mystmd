@@ -105,7 +105,7 @@ jobs:
         run: make build-theme
       - name: Install Playwright WebKit
         run: npx playwright install --with-deps webkit
-      - name: Run FOUC guard (QuantEcon/quantecon-theme-src#66)
+      - name: Run FOUC guard
         run: npm run test:fouc
         env:
           THEME_TEMPLATE: ${{ github.workspace }}/.deploy/quantecon-theme

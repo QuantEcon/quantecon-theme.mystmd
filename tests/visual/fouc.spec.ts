@@ -105,9 +105,9 @@ type FirstPaint = {
  * that ordering is what the #126 timings show, with the earliest observed
  * restoration an order of magnitude later than the sample.
  *
- * Note this deliberately survives a *fixed* #126: a control that strips the
- * inline block guarantees a hydration mismatch by construction, so no repair to
- * the hydration failure itself could make a post-hydration sample safe here.
+ * Note this holds even when ordinary loads hydrate cleanly: a control that
+ * strips the inline block guarantees a hydration mismatch by construction, so
+ * no repair to hydration itself could make a post-hydration sample safe here.
  */
 async function firstPaintState(page: Page): Promise<FirstPaint> {
   await page.addInitScript((key) => {

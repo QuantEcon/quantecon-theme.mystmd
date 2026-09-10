@@ -13,10 +13,11 @@ module.exports = {
         // Two-column layout at large screens. The empty left track is
         // `minmax(0, 200px)`, not `200px`: the fixed tracks plus the six
         // `subgrid-gap` column gaps need 1328px of viewport, so between the
-        // 1280px breakpoint and there the grid outgrew its box -- LTR pages
-        // scrolled sideways and the margin column ran off the edge. The
-        // spare left track now absorbs that, and from 1328px up the layout
-        // is unchanged. Keep in step with CRITICAL_CSS in app/root.tsx.
+        // 1280px breakpoint and there a fixed 200px would overflow the grid's
+        // box: LTR pages would scroll sideways and the margin column run off
+        // the edge. The left track absorbs the shortfall instead, reaching
+        // its full 200px from 1328px up. Keep in step with CRITICAL_CSS in
+        // app/root.tsx.
         'simple-xl':
           '[screen-start] 1fr minmax(0, 200px) 20px [body-start] 800px [body-end] 20px [margin-start] 200px [margin-end] 1fr [screen-end]',
       },

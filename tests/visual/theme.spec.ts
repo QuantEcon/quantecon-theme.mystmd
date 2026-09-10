@@ -323,7 +323,7 @@ test.describe("QuantEcon theme — visual regression", () => {
   });
 });
 
-test.describe("On this page outline (#182)", () => {
+test.describe("On this page outline", () => {
   // The full-page snapshots cannot see this (they stitch a scrolled page, and
   // the file records above why a fixed element breaks that), so it is
   // asserted behaviourally. The no-thebe fixture carries the numbered,
@@ -444,7 +444,7 @@ test.describe("On this page outline (#182)", () => {
   });
 });
 
-test.describe("Meta/SEO and notebook output polish (#92)", () => {
+test.describe("Meta/SEO and notebook output", () => {
   const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
   const meta = (page: Page, sel: string) => page.locator(`head meta[${sel}]`);
 
@@ -492,7 +492,7 @@ test.describe("Meta/SEO and notebook output polish (#92)", () => {
   });
 });
 
-test.describe("Site options reach the theme (#173)", () => {
+test.describe("Site options reach the theme", () => {
   // The CLI validates `site.options` against template.yml and DROPS every key
   // the template does not declare, so a theme that reads an undeclared option
   // silently runs on its default. These assert, end to end, that a declared
