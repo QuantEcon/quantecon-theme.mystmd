@@ -95,6 +95,14 @@ A tip admonition with a nested list:
 - two
 :::
 
+### A note in an admonition subsection
+
+A level-three heading, so the "On this page" panel has a nested entry (#182).
+
+### And a second subsection
+
+Two of them, so the nesting is visible.
+
 ## A table
 
 | Symbol | Meaning      | Value |
