@@ -21,6 +21,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Per-lecture live compute: an `enable_live_compute` site option, set `false`
+  under `site:` in a lecture's frontmatter (or notebook metadata) to withhold
+  the in-page compute control on lectures Pyodide cannot run, or site-wide to
+  make the default opt-in. Page value over site value over on, so projects
+  without the flag change nothing. The gate is broad: a gated page loses the
+  toolbar toggle, the execute scope and the error tray together
+  ([#114](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/114)).
+
+## [2.7.0] - 2026-09-11
+
+### Added
 - The full OpenGraph / Twitter card set the Sphinx lecture sites emit, on every
   page: `og:type`, `og:site_name`, `og:url` (from a new `site_url` option; myst's `site.domains` never reaches the theme), a site-level
   `og:image` / `twitter:image` when the page has no thumbnail (new
@@ -40,13 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   highlighting, text colour schemes, dark mode, RTL and editions,
   announcements), each naming its `myst.yml` keys and what has no counterpart
   ([#92](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/92)) ([#197](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/197)).
-- Per-lecture live compute: an `enable_live_compute` site option, set `false`
-  under `site:` in a lecture's frontmatter (or notebook metadata) to withhold
-  the in-page compute control on lectures Pyodide cannot run, or site-wide to
-  make the default opt-in. Page value over site value over on, so projects
-  without the flag change nothing. The gate is broad: a gated page loses the
-  toolbar toggle, the execute scope and the error tray together
-  ([#114](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/114)).
 
 ### Fixed
 - The "On this page" panel is pinned, tracks scrolling and lists subsections,
@@ -111,7 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   contradicting CONTRIBUTING.md and every real floor in the repo) and installs
   the shipped lockfile with `npm ci` instead of `npm install`, so consumer
   installs from the release asset are reproducible and never mutate the
-  lockfile in place ([#162](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/162)).
+  lockfile in place ([#162](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/162)) ([#191](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/191)).
 
 ## [2.6.1] - 2026-09-10
 
@@ -674,7 +678,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version of the QuantEcon MyST theme: Remix + `@myst-theme` book theme with QuantEcon branding, toolbar (home, search, fullscreen, font scaling, dark mode, downloads, Colab/JupyterHub launch, edit-on-GitHub), content-driven site footer, and bundled brand assets.
 
-[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.1...HEAD
+[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.4.0...v2.5.0
