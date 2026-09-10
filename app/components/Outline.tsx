@@ -56,17 +56,16 @@ export function BackToTop() {
  *    `sticky`: the wrapper is `self-start`, so a sticky child would have zero
  *    travel, and the grid declares no rows for it to span. `left`/`right` stay
  *    `auto`, so the panel keeps its static position in the margin track.
- *  - h3 entries are included and always visible (Sphinx collapses them to the
- *    active branch under `contents_autoexpand`; that is a deliberate
- *    simplification recorded on #182, with the collapse as a possible
- *    follow-up), so the panel is capped and scrolls internally past its
- *    `max-height`.
- *  - Enumerators come from the heading itself: myst-to-react renders the
- *    section number in a `span.select-none` beside `.heading-text` ("3.1",
- *    no period), and the entry adds the period the page's own h1 and the
- *    Sphinx panel use ("3.1. Overview"). With no numbering configured the
- *    entry is the bare title -- never a number computed from the list index,
- *    which was wrong as soon as h3s were present.
+ *  - h3 entries nest under their h2 and collapse to the active branch, as the
+ *    Sphinx panel does under `contents_autoexpand` (on by default there and
+ *    on every lecture site): at the top of the page only the sections show;
+ *    scrolling into a section expands its subsections, the current one
+ *    (section or subsection) is marked, and the parent of a current
+ *    subsection is expanded but not marked. Past `max-height` the panel
+ *    scrolls internally.
+ *  - Enumerators come from the heading itself (`span.select-none`, "3.1"),
+ *    plus the period the h1 and the Sphinx panel use -- never a number
+ *    computed from the list index, which was wrong as soon as h3s existed.
  *  - The logo sits above the list, smaller (#96); "Powered by" stays below.
  */
 export function Outline({
@@ -80,6 +79,12 @@ export function Outline({
   const baseurl = useBaseurl();
   const { headings } = useHeaders('main h2, main h3', 3);
   const currentId = useActiveHeading(headings);
+  const tree = nest(headings);
+  // Sphinx's autoexpand: the current item's own sub-list, and every ancestor
+  // of the current item, are expanded; nothing else is.
+  const expandedId = tree.find(
+    (branch) => branch.id === currentId || branch.children.some((c) => c.id === currentId)
+  )?.id;
   return (
     <div className={classNames('relative self-start', containerClassName)}>
       <nav
@@ -104,22 +109,25 @@ export function Outline({
           <>
             <p className="qe-outline__title">On this page</p>
             <ul className="qe-outline__list">
-              {headings.map((h) => {
-                const enumerator = h.element
-                  .querySelector('span.select-none')
-                  ?.textContent?.trim();
-                const active = h.id === currentId;
-                return (
-                  <li
-                    key={`outline-li-${h.id}`}
-                    className={classNames({ 'qe-outline__sub': h.level > 1 })}
-                  >
-                    <Link to={`#${h.id}`} aria-current={active ? 'location' : undefined}>
-                      {enumerator ? `${enumerator}. ${h.title}` : h.title}
-                    </Link>
-                  </li>
-                );
-              })}
+              {tree.map((branch) => (
+                <li
+                  key={`outline-li-${branch.id}`}
+                  className={classNames({
+                    'qe-outline__expanded': branch.children.length > 0 && branch.id === expandedId,
+                  })}
+                >
+                  <Entry heading={branch} currentId={currentId} Link={Link} />
+                  {branch.children.length > 0 && (
+                    <ul>
+                      {branch.children.map((child) => (
+                        <li key={`outline-li-${child.id}`} className="qe-outline__sub">
+                          <Entry heading={child} currentId={currentId} Link={Link} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
             </ul>
           </>
         )}
@@ -128,6 +136,38 @@ export function Outline({
         </p>
       </nav>
     </div>
+  );
+}
+
+type OutlineHeading = { id: string; title: string; level: number; element: HTMLElement };
+type Branch = OutlineHeading & { children: OutlineHeading[] };
+
+/** h3s under the h2 before them; a leading h3 with no h2 starts its own branch. */
+function nest(headings: OutlineHeading[]): Branch[] {
+  const tree: Branch[] = [];
+  for (const h of headings) {
+    if (h.level > 1 && tree.length > 0) tree[tree.length - 1].children.push(h);
+    else tree.push({ ...h, children: [] });
+  }
+  return tree;
+}
+
+function Entry({
+  heading,
+  currentId,
+  Link,
+}: {
+  heading: OutlineHeading;
+  currentId?: string;
+  Link: ReturnType<typeof useLinkProvider>;
+}) {
+  // The heading's own enumerator ("3.1"), plus the period the h1 and the
+  // Sphinx panel use; the bare title when the project sets no numbering.
+  const enumerator = heading.element.querySelector('span.select-none')?.textContent?.trim();
+  return (
+    <Link to={`#${heading.id}`} aria-current={heading.id === currentId ? 'location' : undefined}>
+      {enumerator ? `${enumerator}. ${heading.title}` : heading.title}
+    </Link>
   );
 }
 

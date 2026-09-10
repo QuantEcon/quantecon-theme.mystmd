@@ -55,7 +55,7 @@ Derived from `quantecon-book-theme` v0.20.3 (see its `README.md`, `docs/user/*`,
 | Translator credit (`translators` + localisable label; #143, QuantEcon/workspace-themes#3) | ✅ | ✅ | **4** |
 | Collapsible stderr warnings in notebook cells | ✅ | ❓ verify | **6** |
 | Full OpenGraph / Twitter card meta tags | ✅ | ⚠️ partial | **6** |
-| Pinned, scroll-tracking "On this page" outline with nested entries (`sticky_contents`, scrollspy, `contents_autoexpand`) | ✅ | ✅ (#182: pinned + scroll-spy + h3; sub-lists always shown, not collapsed) | **—** |
+| Pinned, scroll-tracking "On this page" outline with nested entries (`sticky_contents`, scrollspy, `contents_autoexpand`) | ✅ | ✅ (#182: pinned + scroll-spy + h3 sub-lists collapsed to the current branch) | **—** |
 | **Already at parity:** dark mode, font scaling, fullscreen, search, back-to-top, contents sidebar, downloads (PDF/notebook), Colab launch, edit-on-GitHub, author header, content-driven footer, responsive/mobile | ✅ | ✅ | — |
 
 **Shipped state (2026-08-20).** Phase 0 completed across

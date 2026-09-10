@@ -560,6 +560,17 @@
        resting entries to 4.47:1, under AA -- not copied. */
     color: inherit;
   }
+  /* Autoexpand (Sphinx `contents_autoexpand`, on by default there): nested
+     sub-lists are hidden until their branch is the current one. */
+  .qe-outline__list ul {
+    display: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .qe-outline__list li.qe-outline__expanded > ul {
+    display: block;
+  }
   .qe-outline__sub a {
     padding-inline-start: 1.75rem; /* Sphinx: `ul ul { padding-left: 1rem }` */
   }

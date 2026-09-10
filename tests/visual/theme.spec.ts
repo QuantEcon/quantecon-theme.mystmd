@@ -355,8 +355,17 @@ test.describe("On this page outline (#182)", () => {
     await expect(entries.nth(0)).toHaveText(/^1\. First section$/);
     await expect(entries.nth(1)).toHaveText(/^1\.1\. First subsection$/);
     await expect(entries.nth(4)).toHaveText(/^3\. Last section$/);
-    // Nested entries indent: the anchors are block-level, so compare their
-    // start padding (where the text begins), not the boxes.
+    // Autoexpand: at the top of the page only the sections show.
+    const subs = nav(page).locator("li.qe-outline__sub a");
+    await expect(subs).toHaveCount(2);
+    await expect(subs.first()).toBeHidden();
+    // Scrolling into the first section expands its subsections, indented:
+    // the anchors are block-level, so compare their start padding.
+    await page.evaluate(() => {
+      const el = document.getElementById("first-section")!;
+      window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 100);
+    });
+    await expect(subs.first()).toBeVisible();
     const pad = async (i: number) =>
       parseFloat(await entries.nth(i).evaluate((a) => getComputedStyle(a).paddingInlineStart));
     expect(await pad(1)).toBeGreaterThan(await pad(0));
@@ -388,11 +397,17 @@ test.describe("On this page outline (#182)", () => {
     await scrollTo("second-section", 100);
     await expect(current(page)).toHaveAttribute("href", /#second-section$/);
     await expect(current(page)).toHaveCSS("font-weight", "600");
+    // ...and the first section's sub-list has collapsed again.
+    await expect(nav(page).locator("li.qe-outline__sub a").first()).toBeHidden();
     // 20px short of the line: the previous section (a subsection) still holds.
     await scrollTo("second-section", 140);
     await expect(current(page)).toHaveAttribute("href", /#second-subsection$/);
     await scrollTo("first-subsection", 100);
+    // A current subsection is marked itself; its parent is expanded, not marked.
     await expect(current(page)).toHaveAttribute("href", /#first-subsection$/);
+    const parent = nav(page).locator("li.qe-outline__expanded > a");
+    await expect(parent).toHaveAttribute("href", /#first-section$/);
+    await expect(parent).not.toHaveAttribute("aria-current", "location");
     // The last section is too short to reach the activation window; the
     // bottom-of-page rule marks it, as Sphinx's scrollspy does.
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
@@ -409,7 +424,9 @@ test.describe("On this page outline (#182)", () => {
     // No numbering configured: bare titles, no invented "1." prefixes.
     await expect(entries.first()).toHaveText(/^Mathematics$/);
     await expect(entries.filter({ hasText: /^\d/ })).toHaveCount(0);
+    // The two h3s nest under "Admonitions" and are hidden until it is current.
     await expect(nav(page).locator("li.qe-outline__sub")).toHaveCount(2);
+    await expect(nav(page).locator("li.qe-outline__sub a").first()).toBeHidden();
   });
 });
 

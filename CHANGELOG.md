@@ -21,6 +21,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- The "On this page" panel is pinned, tracks scrolling and lists subsections,
+  as the Sphinx sites' `sticky_contents` panel does. It scrolled off with the
+  page, never marked the current section (the hook computed an active id the
+  component threw away) and listed h2 headings only. It is now `position:
+  fixed` in the margin track (not `sticky`, which has no travel inside the
+  `self-start` wrapper); the current section follows the Sphinx scrollspy rule
+  (the last heading past 120px, the last section at the page bottom) and is
+  marked with `aria-current`, QuantEcon blue, weight 600 and an inset rule;
+  h3 entries nest under their h2 and collapse to the current branch as
+  `contents_autoexpand` does, with the parent of a current subsection
+  expanded but not marked; each entry's number comes from the heading itself
+  rather than the list index. Capped at the viewport with an internal scroll
+  behind a mask fade
+  ([#182](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/182)) ([#196](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/196)).
 - Every site option the theme reads is now declared in `template.yml`, so it
   actually arrives. The MyST CLI validates `site.options` against the
   template's declarations and drops every undeclared key, and until now only
@@ -49,6 +63,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)) ([#194](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/194)).
 
 ### Changed
+- The QuantEcon logo in the "On this page" panel is smaller (100px) and sits
+  above the list rather than below it, so it reads as a quiet brand mark
+  ([#96](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/96)). Its
+  entries are 15px, navigation chrome rather than reading copy, and the
+  outline's inert `useOutlineHeight` scroll listener is gone
+  ([#182](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/182)) ([#196](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/196)).
 - The release bundle's manifest now declares Node `>=20` (it said `>=16`,
   contradicting CONTRIBUTING.md and every real floor in the repo) and installs
   the shipped lockfile with `npm ci` instead of `npm install`, so consumer
