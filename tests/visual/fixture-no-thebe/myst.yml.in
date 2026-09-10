@@ -8,7 +8,7 @@ project:
   title: QuantEcon Theme — No-Thebe Fixture
   github: https://github.com/QuantEcon/quantecon-theme.mystmd
   # Section numbering as the lecture repos configure it, so outline.md's
-  # "On this page" entries carry real enumerators (#182). Only this fixture
+  # "On this page" entries carry real enumerators. Only this fixture
   # numbers: it has no snapshots, so the numbers move no baseline.
   numbering:
     titles: true
@@ -22,7 +22,7 @@ site:
   title: QE Theme No-Thebe Fixture
   template: __THEME__
   options:
-    # Social meta (#92), asserted in theme.spec.ts ("social-meta"). `site_url`
+    # Social meta, asserted in theme.spec.ts ("social-meta"). `site_url`
     # feeds og:url; myst's own `site.domains` never reaches the theme's manifest.
     site_url: https://example.org
     twitter: quantecon

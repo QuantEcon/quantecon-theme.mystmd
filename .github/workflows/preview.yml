@@ -7,10 +7,9 @@
 # preview; closing the PR tears the subdirectory down.
 #
 # The content repo is a legacy Jupyter Book (_config.yml/_toc.yml): `myst init`
-# performs the JB→MyST upgrade at build time, so the preview doubles as a
-# continuous migration-readiness check for the lecture content (PLAN.md open
-# question 4). Content is cloned at full depth so the git-metadata plugin
-# (plugins/git-metadata.mjs, PR #83) renders real per-page history.
+# performs the JB→MyST upgrade at build time, so every preview also exercises
+# that upgrade on real lecture content. Content is cloned at full depth so the
+# git-metadata plugin (plugins/git-metadata.mjs) renders real per-page history.
 name: PR Preview
 
 on:
@@ -76,8 +75,7 @@ jobs:
           test -f myst.yml
           yq -i '.site.template = env(THEME_DIR)' myst.yml
           yq -i '.project.github = env(CONTENT_GITHUB)' myst.yml
-          # The git-metadata plugin ships with the theme from PR #83 onward;
-          # guard so previews still build on branches that predate it.
+          # Guarded so the preview still builds on a branch without the plugin.
           if [ -f "$PLUGIN" ]; then
             yq -i '.project.plugins = [env(PLUGIN)]' myst.yml
           fi

@@ -12,7 +12,7 @@ import { hreflangLinks } from '~/i18n';
 import { mergeMeta, socialMetaTags } from '~/seo';
 
 // Never re-run the loader on a navigation that changes neither pathname nor
-// search (Back off an in-page anchor on a static build) -- #186.
+// search (Back off an in-page anchor on a static build).
 export { shouldRevalidate } from '~/revalidate';
 
 type ManifestProject = Required<SiteManifest>['projects'][0];
@@ -28,8 +28,8 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
   );
   const baseurl = rootMatch?.data?.BASE_URL;
 
-  // Phase 6 (#92): the Sphinx sites' full OpenGraph / Twitter set on top of
-  // upstream's article tags -- see app/seo.ts for what upstream leaves out.
+  // The OpenGraph / Twitter tags upstream's article set leaves out, merged over
+  // it (same-key tags replaced) -- see app/seo.ts.
   const social = socialMetaTags({
     domains: config?.domains,
     siteTitle: config?.title ?? project?.title,
@@ -47,7 +47,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
       keywords: config.keywords ?? project.keywords ?? [],
       twitter: config?.options?.twitter,
     }), social),
-    // hreflang alternates for the translated editions (Phase 4, #90).
+    // hreflang alternates for the translated editions.
     ...hreflangLinks(config?.options, location.pathname, baseurl),
   ];
 };

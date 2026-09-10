@@ -9,7 +9,7 @@ import { OUTPUT_RENDERERS } from '@myst-theme/jupyter';
  * (paren | parens) for Pandoc fancy_lists markers such as `a.`, `iv.`, `(i)`.
  *
  * myst-to-react's `list` renderer drops both fields, so `(a)` / `(i)` lists
- * render with decimal markers (#100). This override maps `style` to the
+ * render with decimal markers. This override maps `style` to the
  * `<ol type>` attribute and exposes `delimiter` as a `delimiter-paren` /
  * `delimiter-parens` class consumed by styles/lists.css — the same hook the
  * fork's `myst-to-html` emits, so one CSS spec serves both renderers.
@@ -68,10 +68,9 @@ export const LIST_RENDERERS: NodeRenderers = {
 };
 
 /**
- * Collapsible stderr (Phase 6, #92). The Sphinx build's `stderr-warnings.js`
- * folds a cell's stderr streams behind a "Code warnings" button after page
- * load; upstream @myst-theme/jupyter renders them as a plain `<pre
- * class="jupyter-error">`. Same fold, done at render: a stderr stream
+ * Collapsible stderr. A cell's stderr streams fold behind a "Code warnings"
+ * button, where upstream @myst-theme/jupyter renders them as a plain
+ * `<pre class="jupyter-error">`. The fold is done at render: a stderr stream
  * `output` node is wrapped in a native `<details>`, closed by default, so it
  * works in the server-rendered HTML with no script and no DOM surgery. Every
  * other output goes to upstream's renderer untouched. Styled by the

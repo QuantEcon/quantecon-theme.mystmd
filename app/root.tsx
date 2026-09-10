@@ -26,14 +26,14 @@ import { htmlDir, htmlLang } from './i18n';
 import type { TemplateOptions } from './types';
 export { AppErrorBoundary as ErrorBoundary } from '@myst-theme/site';
 // Never re-run the loader on a navigation that changes neither pathname nor
-// search (Back off an in-page anchor on a static build) -- #186.
+// search (Back off an in-page anchor on a static build).
 export { shouldRevalidate } from '~/revalidate';
 
 const RENDERERS: NodeRenderers = mergeRenderers([
   defaultRenderers,
   JUPYTER_RENDERERS,
   LIST_RENDERERS,
-  // After JUPYTER_RENDERERS: wraps upstream's `output` renderer (#92).
+  // After JUPYTER_RENDERERS: wraps upstream's `output` renderer.
   STDERR_RENDERERS,
 ]);
 
@@ -56,8 +56,8 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
  * unstyled frame arrives ~200ms AFTER first paint, when React hydration fails
  * (minified #418/#423) and the recovery client render re-patches whatever
  * diverged between server and client markup. A divergence in the <head> makes
- * that pass re-create head nodes (#126 measured it re-inserting a missing
- * <style> at 195ms) — and a re-inserted stylesheet <link> re-applies
+ * that pass re-create head nodes (re-inserting a missing <style> at 195ms;
+ * measurements in #126) — and a re-inserted stylesheet <link> re-applies
  * asynchronously, while a re-inserted inline <style> applies the instant the
  * node lands. In that gap this block is the only styling on the page, which
  * is the styled -> unstyled -> styled flicker users reported as the "raw
@@ -90,8 +90,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
  *                    self-hosted via app/links.ts, so they arrive in a <link>
  *                    and are NOT available at this first paint. The
  *                    `sans-serif` tail is what renders here and the webfont
- *                    swaps in once that stylesheet lands — as it did with the
- *                    Google Fonts @import this replaced. The metric-matched
+ *                    swaps in once that stylesheet lands. The metric-matched
  *                    "Source Sans 3 Fallback" face sits just before that tail;
  *                    it is declared below rather than in styles/app.css so it
  *                    is available at this first paint too. Being `local()`-only
@@ -135,12 +134,12 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
  * `transition-opacity` and is hidden by `opacity-0`, so on any frame where the
  * stylesheet is absent it paints at full opacity and then *fades* out when the
  * sheet lands, rather than never having been there. That frame is not only the
- * first paint — the React #423 hydration recovery (#126) re-renders the head
- * and briefly drops the stylesheet, and by then the component is mounted and
- * the transition is live, so gating the transition on mount (as #141 tried)
- * cannot stop it. Measured in WebKit with the stylesheet delayed: 17–18
- * animating frames without this rule, none with it. Its `opacity-100` utility
- * outranks this rule, so the scrolled state still shows.
+ * first paint — the React #423 hydration recovery re-renders the head and
+ * briefly drops the stylesheet, and by then the component is mounted and the
+ * transition is live, so gating the transition on mount cannot stop it.
+ * Measured in WebKit with the stylesheet delayed: 17–18 animating frames
+ * without this rule, none with it. Its `opacity-100` utility outranks this
+ * rule, so the scrolled state still shows.
  */
 const CRITICAL_CSS = `
 @font-face{font-family:"Source Sans 3 Fallback";src:local("Helvetica"),local("Arial"),local("Liberation Sans"),local("Arimo");size-adjust:92.25%;ascent-override:111%;descent-override:43.36%;line-gap-override:0%}
@@ -181,9 +180,9 @@ export const links: LinksFunction = () => {
     { rel: 'stylesheet', href: tailwind },
     { rel: 'stylesheet', href: thebeCoreCss },
     { rel: 'stylesheet', href: '/myst-theme.css' },
-    // jupyter-matplotlib's stylesheet used to be pulled from jsdelivr here. It
-    // is now vendored into the Tailwind bundle (styles/mpl-widget.css), which
-    // drops a render-blocking request to a third-party CDN that is
+    // jupyter-matplotlib's stylesheet is vendored into the Tailwind bundle
+    // (styles/mpl-widget.css) rather than linked from jsdelivr here: that
+    // would be a render-blocking request to a third-party CDN that is
     // intermittently unreachable in mainland China.
     // Font Awesome intentionally not loaded: nothing in the theme renders
     // `fa-*` classes; use the bundled `lucide-react` icons instead.

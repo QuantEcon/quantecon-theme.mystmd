@@ -2,7 +2,7 @@ import type { ShouldRevalidateFunction } from '@remix-run/react';
 
 /**
  * `shouldRevalidate` for the three route modules that render UI (`root`,
- * `routes/$`, `routes/_index`) -- #186.
+ * `routes/$`, `routes/_index`).
  *
  * A static build (`myst build --html`) still hydrates a live data router, but
  * its loaders are only servable by a running Remix server: on a static host a
@@ -15,8 +15,8 @@ import type { ShouldRevalidateFunction } from '@remix-run/react';
  *
  * These three loaders are pure functions of pathname and search, so declining
  * to revalidate when neither has changed is correct in `app` mode too, not
- * merely a patch for static builds: a repeated click on the active link no
- * longer refetches. All three modules must export it -- patching `routes/$`
+ * merely a patch for static builds: a repeated click on the active link does
+ * not refetch. All three modules must export it -- patching `routes/$`
  * alone leaves `?_data=root` firing, which silently replaces the root loader
  * data (`MODE`, `BASE_URL`, `theme`) with an HTML string.
  *

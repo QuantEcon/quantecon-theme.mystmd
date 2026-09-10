@@ -156,7 +156,7 @@
 
   /* Toggle icon: hamburger when closed, cross when open, driven off the
      drawer's own state so the two cannot desync. Swap with `display`, not
-     opacity — a transitioned swap animates itself on the first paint (#127). */
+     opacity — a transitioned swap animates itself on the first paint. */
   .qe-toc-toggle__close {
     display: none;
   }

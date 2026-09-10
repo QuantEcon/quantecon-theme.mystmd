@@ -2,9 +2,8 @@ import { test, expect, Page } from "@playwright/test";
 
 /**
  * Full-page visual snapshots of the fixture, one per rendering surface.
- * `notebook` is the one that matters most for the 2.0.0 move — it exercises
- * the `@myst-theme` v1.0.0 output-node AST change (stream / execute_result /
- * error outputs).
+ * `notebook` exercises the `@myst-theme` output-node AST (stream /
+ * execute_result / error outputs).
  */
 async function settle(page: Page) {
   // Not `networkidle` — the runtime theme can hold a persistent connection
@@ -18,7 +17,7 @@ async function settle(page: Page) {
 const pages = [
   { name: "intro", path: "/" },
   { name: "features", path: "/features" },
-  // Fancy ordered lists (#100/#101): markers stamped by the fixture's
+  // Fancy ordered lists: markers stamped by the fixture's
   // fancy-lists.mjs plugin, so coverage is independent of the CLI's parser.
   { name: "lists", path: "/lists" },
   { name: "notebook", path: "/notebook" },
@@ -41,11 +40,11 @@ test.describe("QuantEcon theme — visual regression", () => {
   // pins git_metadata in features.md frontmatter and the clock is frozen, so
   // the relative times ("4 months ago") are deterministic.
   //
-  // The agreed design (#83) is a disclosure that expands *above* the header's
-  // blue divider, pushing it down — keeping the changelog adjacent to its
-  // toggle and out of the lecture content. The geometry assertions below pin
-  // that, since a panel that rendered below the divider would still look
-  // plausible in isolation.
+  // The control is a disclosure that expands *above* the header's blue
+  // divider, pushing it down — keeping the changelog adjacent to its toggle
+  // and out of the lecture content. The geometry assertions below pin that,
+  // since a panel that rendered below the divider would still look plausible
+  // in isolation.
   const BLUE_DIVIDER_BLOCK = '[class*="border-b-qeborder-blue"]';
   // Matches `border-b-[5px]` on that block.
   const BLUE_DIVIDER_PX = 5;
@@ -103,8 +102,8 @@ test.describe("QuantEcon theme — visual regression", () => {
     }, panelId!);
     expect(scrolls).toBe(false);
 
-    // DrDrij's "keep font sizes consistent": the toggle and the changelog copy
-    // are one type size (0.85rem), so the block reads as a unit.
+    // The toggle and the changelog copy are one type size (0.85rem), so the
+    // block reads as a unit.
     const sizes = await page.evaluate(
       ({ id }) => {
         const p = document.getElementById(id)!;
@@ -137,7 +136,7 @@ test.describe("QuantEcon theme — visual regression", () => {
   // ((A) where (a) is expected) moves far too few pixels for the full-page
   // snapshot's 1% diff budget, so pin the DOM/computed styles directly.
   // Ordering matches lists.md: alpha-parens, roman-parens, upper-alpha-paren,
-  // roman-period, decimal control, and (#121) the same roman-parens list
+  // roman-period, decimal control, and the same roman-parens list
   // wrapped in a `prf:theorem` directive.
   test("lists-markers", async ({ page }) => {
     await page.goto("/lists", { waitUntil: "domcontentloaded" });
@@ -170,14 +169,14 @@ test.describe("QuantEcon theme — visual regression", () => {
     expect(lists[4]).toMatchObject({ type: null, listStyleType: "decimal" });
     expect(lists[4].liBefore).toBe("none");
 
-    // #121: the same stamped roman-parens list, wrapped in `prf:theorem`.
-    // Two load-bearing behaviours were untested while every fixture list sat
-    // in the page body: myst-to-react's proof renderer passes its children
-    // through the same <MyST/> dispatcher that consults LIST_RENDERERS, and
-    // nothing in styles/lists.css scopes a selector to body-vs-proof. A
-    // regression in either would drop the ~330 list items across the dp books'
-    // prf:* blocks back to decimals — and moves far too few pixels for the
-    // snapshot budget, so it is pinned here rather than by screenshot.
+    // The same stamped roman-parens list, wrapped in `prf:theorem`. It covers
+    // two load-bearing behaviours a page-body list cannot: myst-to-react's
+    // proof renderer passes its children through the same <MyST/> dispatcher
+    // that consults LIST_RENDERERS, and nothing in styles/lists.css scopes a
+    // selector to body-vs-proof. A regression in either would drop the ~330
+    // list items across the dp books' prf:* blocks back to decimals — and moves
+    // far too few pixels for the snapshot budget, so it is pinned here rather
+    // than by screenshot.
     expect(lists[1].insideProof).toBe(false);
     expect(lists[5].insideProof).toBe(true);
     // Byte-identical treatment to the equivalent body list (lists[1]).
@@ -258,13 +257,12 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(drawer).toBeHidden();
   });
 
-  // Launch is a direct link to Colab — the only launch target (BinderHub was
-  // deliberately not offered, #26; the private JupyterHub option was removed in
-  // #87). Asserting the anchor's href rather than a stubbed window.open keeps
-  // this offline and deterministic, and pins that the control is a *link*, so a
-  // regression back to a chooser would fail here. The repo part comes from the
-  // fixture's `github` field, so only the stable pieces (host, .notebooks
-  // convention, branch, path) are matched.
+  // Launch is a direct link to Colab — the only launch target. Asserting the
+  // anchor's href rather than a stubbed window.open keeps this offline and
+  // deterministic, and pins that the control is a *link*, so a chooser in its
+  // place would fail here. The repo part comes from the fixture's `github`
+  // field, so only the stable pieces (host, .notebooks convention, branch,
+  // path) are matched.
   test("launch-colab", async ({ page }, testInfo) => {
     test.skip(
       testInfo.project.name !== "desktop-chrome",
@@ -296,8 +294,8 @@ test.describe("QuantEcon theme — visual regression", () => {
     await settle(page);
     await expect(
       // Scoped to the header slot: a toggle existing *somewhere* on the page
-      // wouldn't distinguish the final portaled placement from the earlier
-      // in-article iterations. Substring regex: resilient to upstream label
+      // wouldn't prove it was portaled into the header rather than rendered in
+      // the article. Substring regex: resilient to upstream label
       // wording/casing changes.
       page.locator("#qe-compute-slot").getByRole("button", { name: /start compute/i })
     ).toBeVisible();
@@ -325,13 +323,6 @@ test.describe("QuantEcon theme — visual regression", () => {
   });
 });
 
-/**
- * Multilingual editions: the language switcher and hreflang alternates
- * (#90), right-to-left layout (#91) and translator credit (#143). The main
- * fixture configures two editions (en current) and a project-level
- * translator with a page-level override on `/` and a suppression on
- * `/lists`; `fixture-rtl` is the Persian edition with `enable_rtl`.
- */
 test.describe("On this page outline (#182)", () => {
   // The full-page snapshots cannot see this (they stitch a scrolled page, and
   // the file records above why a fixed element breaks that), so it is
@@ -387,8 +378,8 @@ test.describe("On this page outline (#182)", () => {
     await settle(page);
     // Nothing is current above the first heading.
     await expect(current(page)).toHaveCount(0);
-    // The Sphinx rule: a section is current once its heading has passed
-    // 120px from the top, and stays current until the next one does.
+    // A section is current once its heading has passed 120px from the top, and
+    // stays current until the next one does.
     const scrollTo = (id: string, y: number) =>
       page.evaluate(([i, yy]) => {
         const el = document.getElementById(i)!;
@@ -409,7 +400,7 @@ test.describe("On this page outline (#182)", () => {
     await expect(parent).toHaveAttribute("href", /#first-section$/);
     await expect(parent).not.toHaveAttribute("aria-current", "location");
     // The last section is too short to reach the activation window; the
-    // bottom-of-page rule marks it, as Sphinx's scrollspy does.
+    // bottom-of-page rule marks it.
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await expect(current(page)).toHaveAttribute("href", /#last-section$/);
     // Exactly one entry is current at a time.
@@ -457,7 +448,7 @@ test.describe("Meta/SEO and notebook output polish (#92)", () => {
   const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
   const meta = (page: Page, sel: string) => page.locator(`head meta[${sel}]`);
 
-  // The Sphinx lecture sites' OpenGraph / Twitter set, on a lecture page. The
+  // The full OpenGraph / Twitter set, on a lecture page. The
   // no-thebe fixture declares `site_url`, `twitter`, both logo URLs and
   // `current_language`; nothing here depends on the page having a thumbnail.
   test("social-meta", async ({ page }, testInfo) => {
@@ -480,9 +471,8 @@ test.describe("Meta/SEO and notebook output polish (#92)", () => {
   });
 
   // A cell's stderr stream is folded behind a "Code warnings" disclosure,
-  // closed by default, as the Sphinx build's stderr-warnings.js does; stdout
-  // in the same cell stays visible. A native <details>, so it holds in the
-  // server-rendered HTML too.
+  // closed by default; stdout in the same cell stays visible. A native
+  // <details>, so it holds in the server-rendered HTML too.
   test("stderr-collapsed", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
     await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
@@ -514,11 +504,10 @@ test.describe("Site options reach the theme (#173)", () => {
   test("site-options", async ({ page, request }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
     await page.goto("/features", { waitUntil: "domcontentloaded" });
-    // `twitter:creator`, not `twitter:site`: the article routes' meta() emits
-    // the former, and under Remix v2 meta semantics the leaf route's tags
-    // replace the root's (where `twitter:site` lives) rather than merging.
-    // That gap is Phase 6's (#92); what is asserted here is only that the
-    // declared option reached the theme at all.
+    // `twitter:creator`, which upstream's article meta emits from the option.
+    // What is asserted here is only that the declared option reached the theme
+    // at all; the rest of the social set, `twitter:site` included, is asserted
+    // in "social-meta".
     await expect(page.locator('head meta[name="twitter:creator"]')).toHaveAttribute(
       "content",
       "@quantecon"
@@ -533,9 +522,9 @@ test.describe("Site options reach the theme (#173)", () => {
     const fixture = fs.readFileSync("tests/visual/fixture/cc-by-sa-4.0-80x15.png");
     expect(Buffer.from(await served.body()).equals(fixture)).toBe(true);
     // And the default when the option is unset (the no-thebe fixture): the
-    // QuantEcon lectures favicon, byte-identical to the Sphinx sites' one.
-    // It used to sit at public/favicon.ico, where the static file shadowed the
-    // route and the option with it.
+    // QuantEcon lectures favicon. It lives under public/logos/, not at
+    // public/favicon.ico, where a static file would shadow the route and the
+    // option with it.
     const noThebe = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
     const fallback = await request.get(`${noThebe}/favicon.ico`);
     expect(fallback.status()).toBe(200);
@@ -545,6 +534,13 @@ test.describe("Site options reach the theme (#173)", () => {
   });
 });
 
+/**
+ * Multilingual editions: the language switcher and hreflang alternates,
+ * right-to-left layout and translator credit. The main fixture configures
+ * two editions (en current) and a project-level translator with a
+ * page-level override on `/` and a suppression on `/lists`; `fixture-rtl` is
+ * the Persian edition with `enable_rtl`.
+ */
 test.describe("Multilingual editions", () => {
   const rtlBase = `http://localhost:${process.env.RTL_PORT || "3113"}`;
 

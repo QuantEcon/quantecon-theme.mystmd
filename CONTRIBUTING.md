@@ -149,6 +149,26 @@ Sphinx-era repos), but the theme treats both styles identically. Making gated
 cells genuinely root-level in the AST would be an upstream mystmd transform
 change, not a theme or content fix.
 
+## Code comments
+
+Comments explain the code as it stands: what it does, and why it is written
+that way when the code alone does not say. How it came to be written belongs
+in git — the commit message, the PR and `CHANGELOG.md` — where it stays
+accurate; a comment that narrates a project phase goes stale once the work is
+done.
+
+- **No project framing.** No phase numbers, `PLAN.md` items, milestones or
+  tracker issues. `git blame` leads from any line to the PR that added it.
+- **No issue numbers as labels.** Don't tag a block with the issue that
+  introduced it. Link an issue or PR only when it holds detail the comment
+  cannot give in a line — an upstream bug being worked around, a field a fork
+  adds, the regression a test exists to catch — and state the point itself in
+  the comment as well.
+- **Reasons, not comparisons.** "Matches the Sphinx build" does not tell the
+  next reader what breaks if the value changes. Give the reason: the
+  measurement, the contrast ratio, the layout constraint. Code ported from
+  another project gets one line of provenance where the port starts.
+
 ## Commit Convention
 
 We use conventional commits:

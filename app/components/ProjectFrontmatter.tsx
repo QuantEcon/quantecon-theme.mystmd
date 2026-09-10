@@ -47,7 +47,7 @@ export function ProjectFrontmatter({
   pageTitle?: string;
   authors?: Contributor[];
   affiliations?: Affiliation[];
-  /** Translators of this page's edition (#143); nothing renders when empty. */
+  /** Translators of this page's edition; nothing renders when empty. */
   translators?: Person[];
   /** Label introducing the translators, in the edition's language; '' omits it. */
   translatorsLabel?: string;
@@ -60,8 +60,8 @@ export function ProjectFrontmatter({
       className={classNames(
         // When the changelog is open its panel is the last thing in this
         // block, and the bottom padding is dropped so the blue divider becomes
-        // the panel's own bottom edge (the tidier "integrated" look of the
-        // Sphinx book-theme header, keeping the blue on the bottom).
+        // the panel's own bottom edge: the panel reads as part of the header,
+        // with the blue still on the bottom.
         `col-body border-b-[5px] border-b-qeborder-blue space-y-1
          pb-4 has-[[data-qe-history-panel]]:pb-0`,
         className
@@ -119,9 +119,8 @@ export function ProjectFrontmatter({
             }, '')}
           </div>
         )}
-        {/* Translators (#143). Same row as the "Last changed" control, at the
-            end, as the book theme places them since v0.22.0 -- a fourth
-            stacked header line read as clutter there. This block takes the
+        {/* Translators: same row as the "Last changed" control, at the end --
+            a fourth stacked header line reads as clutter. This block takes the
             `ms-auto` and the history control sits beside it; on narrow
             viewports the row wraps. Distinct class from the authors line and
             no `rel="author"` on the links, so the two are never confused. A

@@ -1,17 +1,15 @@
 // Pure URL/path builders for the notebook launcher.
 //
 // Kept free of React so the logic can be unit-tested in isolation
-// (see tests/unit/launch-urls.test.mjs). This is the MyST-theme port of the
-// book-theme `launch.py` URL construction (`nb_path_to_notebooks`,
-// `path_to_docs` stripping, branch/repo handling). Defaults reproduce the
-// historical hardcoded behaviour, so projects that set no config are unchanged.
+// (see tests/unit/launch-urls.test.mjs). Ported from the URL construction in
+// quantecon-book-theme's `launch.py` (`nb_path_to_notebooks`, `path_to_docs`).
 
 export interface LaunchConfig {
   repoUrl?: string; // launch_repo_url — explicit notebook repo, overrides the derived one
   repoSuffix?: string; // launch_repo_suffix — appended to the source repo (default ".notebooks")
   branch?: string; // launch_branch — notebook repo branch (default "main")
-  notebooksPath?: string; // launch_notebooks_path — subdir within the notebook repo (book-theme nb_path_to_notebooks)
-  sourcePath?: string; // launch_source_path — prefix stripped from the page path (book-theme path_to_docs)
+  notebooksPath?: string; // launch_notebooks_path — subdir within the notebook repo
+  sourcePath?: string; // launch_source_path — prefix stripped from the page path
 }
 
 export const DEFAULT_REPO_SUFFIX = '.notebooks';
@@ -52,13 +50,13 @@ export function notebookRelPath(location: string, config: LaunchConfig = {}): st
   // Strip leading slash and the trailing source extension only (not every dot).
   let path = location.replace(/^\/+/, '').replace(/\.[^/.]+$/, '');
 
-  // Strip the source_path (path_to_docs) prefix if the page lives under it.
+  // Strip the source_path prefix if the page lives under it.
   const sourcePath = trimSlashes(config.sourcePath ?? '');
   if (sourcePath && (path === sourcePath || path.startsWith(`${sourcePath}/`))) {
     path = trimSlashes(path.slice(sourcePath.length));
   }
 
-  // Prepend the notebooks_path (nb_path_to_notebooks) subdir.
+  // Prepend the notebooks_path subdir.
   const notebooksPath = trimSlashes(config.notebooksPath ?? '');
   const prefix = notebooksPath ? `${notebooksPath}/` : '';
   return `${prefix}${path}.ipynb`;

@@ -1,5 +1,5 @@
 /**
- * Unit tests for the social/SEO meta helpers (app/seo.ts, #92). Run with
+ * Unit tests for the social/SEO meta helpers (app/seo.ts). Run with
  * `npm run test:unit` (node --test with type stripping, Node >= 23.6).
  */
 import assert from 'node:assert/strict';

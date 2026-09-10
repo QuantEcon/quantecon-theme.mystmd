@@ -1,9 +1,9 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /**
- * Static-build guard (#186) -- runs in the `static-chrome` project only,
+ * Static-build guard -- runs in the `static-chrome` project only,
  * against a `myst build --html` of the fixture served by a plain file server
- * (tests/visual/serve-static.sh). That is the shape every lecture site
+ * (tests/visual/serve-static.sh). That is the shape a production site
  * deploys in, and the one the `myst start` harness structurally cannot see:
  * in MODE=app every loader is live, so `?_data=` fetches return JSON and the
  * defects below do not exist.
@@ -81,9 +81,9 @@ test.describe("Static build -- in-page anchors (#186)", () => {
       const watched = watch(page);
       const title = await open(page, path);
 
-      // A bare fragment, as the Sphinx build renders it: the provider `Link`
-      // resolved against the un-slashed SSR pathname and turned "Top" into a
-      // full reload through a 301 on every lecture page.
+      // A bare fragment, not the provider `Link`, which resolves against the
+      // un-slashed SSR pathname and turns "Top" into a full reload through a
+      // 301 on every lecture page.
       const top = page.locator(".qe-back-to-top a");
       await expect(top).toHaveAttribute("href", "#top");
 

@@ -134,11 +134,10 @@ export async function getMystSearchJson(): Promise<MystSearchIndex | null> {
 }
 
 /**
- * The QuantEcon lectures favicon (byte-identical to the Sphinx sites'
- * `_static/lectures-favicon.ico`), served when no `favicon` option is set.
+ * The QuantEcon lectures favicon, served when no `favicon` option is set.
  * It lives under public/logos/ rather than at public/favicon.ico: a static
- * file at that path is served ahead of the `[favicon.ico]` route, which is
- * why the `favicon` site option never took effect before #173.
+ * file at that path is served ahead of the `[favicon.ico]` route, so the
+ * `favicon` site option would never take effect.
  */
 const DEFAULT_FAVICON = "public/logos/lectures-favicon.png";
 

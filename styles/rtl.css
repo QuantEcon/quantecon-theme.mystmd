@@ -1,4 +1,4 @@
-/* Right-to-left editions (Phase 5, #91).
+/* Right-to-left editions.
  *
  * `enable_rtl` puts `dir="rtl"` on <html> (app/components/Document.tsx), and
  * almost everything follows from that on its own: flex rows and the grid
@@ -13,8 +13,8 @@
  *      physical utilities -- `border-l-4` on executable cells and
  *      admonitions, `pl-*` / `ml-*` / `mr-*` spacing, `right-1` on the copy
  *      button. Each one used is mirrored below with Tailwind's own values.
- *   3. Code and mathematics stay left-to-right, as in the book theme: code
- *      is LTR by nature, and KaTeX lays out LTR.
+ *   3. Code and mathematics stay left-to-right: code is LTR by nature, and
+ *      KaTeX lays out LTR.
  *   4. The theme's own parenthesised list markers (styles/lists.css) hang in
  *      the gutter with a physical `left` and translate; hung from the right.
  *

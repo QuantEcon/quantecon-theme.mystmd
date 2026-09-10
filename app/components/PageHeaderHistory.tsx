@@ -55,8 +55,7 @@ function relativeTime(iso: string, now: number) {
 const COPY = "text-[0.85rem]";
 
 /**
- * "Last changed" page-header control that expands an inline changelog,
- * mirroring the quantecon-book-theme header.
+ * "Last changed" page-header control that expands an inline changelog.
  *
  * Layout: the root is `display: contents`, so the trigger and the panel become
  * flex items of the header's author row rather than nesting inside a box. The

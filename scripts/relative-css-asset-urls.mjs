@@ -1,6 +1,6 @@
 /**
  * Rewrite absolute asset URLs in the built stylesheets to be relative to the
- * stylesheet itself (#138).
+ * stylesheet itself.
  *
  * Remix rewrites every `url()` in a bundled stylesheet to
  * `${publicPath}_assets/<file>` — an absolute path, because `publicPath` is
@@ -19,11 +19,11 @@
  *   static build   /build/_assets/x.css              -> /build/_assets/font.woff2
  *   under baseurl  <base>/build/_assets/x.css        -> <base>/build/_assets/font.woff2
  *
- * The last of those is a bug fixed in passing: an absolute `/myst_assets_folder`
- * ignores `baseurl` and breaks on project-scoped deployments such as the
- * per-PR GitHub Pages previews.
+ * The last of those needs the relative form too: an absolute
+ * `/myst_assets_folder` ignores `baseurl` and breaks on project-scoped
+ * deployments such as the per-PR GitHub Pages previews.
  *
- * Not every stylesheet sits in `_assets/` (#150): Remix also emits route and
+ * Not every stylesheet sits in `_assets/`: Remix also emits route and
  * shared-chunk CSS into the build root, `_shared/` and `routes/`, and those
  * reference `_assets/` from a directory above it. So the relative prefix is
  * computed per stylesheet from its own location rather than assumed to be
