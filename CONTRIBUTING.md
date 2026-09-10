@@ -178,6 +178,10 @@ To cut a release:
 2. Bump the version in `package.json` (e.g. `npm version X.Y.Z --no-git-tag-version`).
    You do **not** need to bump `template.yml` — the release workflow stamps its `version`
    from `package.json` into the published bundle, so the two cannot drift.
+   Do bump the two pinned `vX.Y.Z` URLs in `README.md` (the `site.template` example
+   under "Usage with MyST" and the git-metadata plugin URL): the release guard does not
+   check them, and a stale example hands consumers a superseded release
+   ([#158](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/158)).
 3. Commit (`chore(release): prepare vX.Y.Z`) and open a PR.
 4. After merge, tag the release commit and push the tag:
    ```bash
