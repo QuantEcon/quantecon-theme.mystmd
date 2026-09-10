@@ -51,13 +51,30 @@ See {eq}`euler`.
 
 ## Code
 
+One token of each kind the QuantEcon palette colours: a comment, a decorator,
+a function and its parameters, a docstring, keywords, `True` / `None`, a class
+name, builtins, numbers and an f-string.
+
 ```python
 import numpy as np
 
-def f(x):
-    return np.exp(-x ** 2)
 
-print(f(np.linspace(0, 1, 3)))
+@np.vectorize
+def f(x, scale=1.0):
+    """Scaled Gaussian."""
+    # comments sit in the muted blue
+    return scale * np.exp(-x ** 2)
+
+
+class Model:
+    def __init__(self, r=0.05, verbose=True):
+        self.r, self.verbose = r, verbose
+
+    def step(self, a):
+        return (1 + self.r) * a if a is not None else 0.0
+
+
+print(f"{f(np.linspace(0, 1, 3))!r}", Model().step(2))
 ```
 
 ## Admonitions

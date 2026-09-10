@@ -81,6 +81,13 @@
 :root {
   /* Inline literals, matching the Sphinx build's `code.literal`. */
   --qe-literal-color: #af5f5f; /* 4.54:1 on white -- AA, but only just */
+  /* Emphasis, strong text and definition terms: the Sphinx build's default
+     `seoul256` text colour scheme (`_colors.scss`). Every live lecture site
+     runs that default -- none sets `color_scheme` -- so it applies
+     unconditionally here; see TEXT COLOUR SCHEME below. */
+  --qe-emphasis-color: #005f5f; /* seoul256 #23, teal; 7.5:1 on white */
+  --qe-strong-color: #875f00; /* seoul256 #94, amber; 5.7:1 on white */
+  --qe-definition-color: var(--qe-strong-color);
   /* Content links, matching the Sphinx build's `a` / `a:hover`. */
   --qe-link-color: #0072bc; /* 5.05:1 on white -- AA */
   --qe-link-hover-color: #004979;
@@ -98,6 +105,10 @@
    the Sphinx dark theme has no hover colour change. */
 .dark {
   --qe-literal-color: #d78787;
+  /* The Sphinx dark theme's own seoul256 values (`_colors.scss`, `*-dark`):
+     6.9:1 and 8.5:1 on stone-900. */
+  --qe-emphasis-color: #5fafaf;
+  --qe-strong-color: #d7af5f;
   --qe-link-color: #fff;
   --qe-link-hover-color: #fff;
 }
@@ -241,6 +252,53 @@
   .article :not(pre) > code::before,
   .article :not(pre) > code::after {
     content: none;
+  }
+
+  /* TEXT COLOUR SCHEME. The Sphinx build colours emphasis, strong text and
+     definition terms rather than slanting or thickening them: `em` and
+     `strong` both render upright at weight 550, in the seoul256 teal and
+     amber (`_base.scss`). Same here, through the tokens above, so a scheme
+     is a re-pointing of four custom properties -- the shape
+     `quantecon-book-theme` gives its `gruvbox` / `none` schemes and its
+     `custom_color_scheme.css` hook. Those switches have no user (no lecture
+     repo sets `color_scheme`), so only the default ships; a second scheme
+     would be a class on the root that re-points the tokens.
+
+     `.article em` and `.article strong` are (0,1,1). The typography plugin's
+     `:where(strong)` (weight 600, `--tw-prose-bold`) is (0,1,0), and it has
+     no `em` rule at all. Weight 550 is real only on the variable Source Sans
+     3 face the theme self-hosts; a static font would snap it to 500 or 600. */
+  .article em {
+    font-style: normal;
+    font-weight: 550;
+    color: var(--qe-emphasis-color);
+  }
+
+  .article strong {
+    font-weight: 550;
+    color: var(--qe-strong-color);
+  }
+
+  /* Definition terms take the definition colour, which defaults to the strong
+     colour. myst-to-react wraps a text-only term in <strong>; that inner
+     element inherits so the term follows `--qe-definition-color` if the two
+     tokens are ever split, as the Sphinx build's `dl dt` does. */
+  .article dt {
+    color: var(--qe-definition-color);
+  }
+
+  .article dt > strong {
+    color: inherit;
+  }
+
+  /* Emphasis inside a link keeps the link's colour and weight -- the Sphinx
+     build's `a.reference em` reset, there so the "et al." of a textual
+     citation does not go teal. Covers `.hover-link` (citations and
+     cross-references) and `.link` alike; in dark mode it inherits the white
+     that `.dark .article :where(a)` paints on the anchor. */
+  .article a em {
+    color: inherit;
+    font-weight: inherit;
   }
 
   /* Figures: no space above, 1rem below. Scoped to `.article` because the
@@ -466,6 +524,252 @@
     border-radius: 4px;
     text-decoration: none;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   CODE HIGHLIGHTING
+
+   The Sphinx build highlights with Pygments and, with `qetheme_code_style`
+   at its default of true, paints the tokens in QuantEcon's own palette
+   (`_code.scss`, light and dark). No lecture repo turns that option off, so
+   the palette is the whole of what parity means here: it ships
+   unconditionally, and there is no toggle.
+
+   MyST highlights with highlight.js, not Pygments. myst-to-react's CodeBlock
+   renders react-syntax-highlighter's async build, which tokenises with
+   lowlight (highlight.js 10) on the client and emits `hljs-*` classes.
+   CodeBlock asks for inline styles, but the async build hands the renderer
+   an empty style object, so nothing is inlined and no class is stripped --
+   the colours on the page come entirely from @myst-theme/styles'
+   `code-highlight-light.css` (XCode) and `code-highlight-dark.css`
+   (VS 2015). The rules below replace both palettes. Verified on the fixture:
+   token spans carry `hljs-keyword`, `hljs-function hljs-title` and so on,
+   and no `style` attribute.
+
+   The two tokenisers do not carve Python up the same way, so this is a
+   mapping, not a port. Where Pygments has a class and highlight.js has no
+   scope, the token renders in the base text colour:
+
+     Pygments (Sphinx)                          highlight.js (here)
+     .c .c1 .cm   comments                      .hljs-comment
+     .k .kn .kr   keywords; .ow and/or/not/in   .hljs-keyword
+     .kc          True / False / None           .hljs-literal
+     .nb .bp      builtins                      .hljs-built_in
+     .m .mi .mf   numbers                       .hljs-number
+     .s .s1 .s2   strings; .sd docstrings       .hljs-string
+     .si          f-string {expr}               .hljs-subst
+     .nf          def name                      .hljs-function .hljs-title
+     .nc          class name                    .hljs-class .hljs-title
+     .nd          @decorator                    .hljs-meta (also the >>> prompt)
+     .nv          variables (other languages)   .hljs-variable
+     .na          attributes                    .hljs-attr / .hljs-attribute
+     .nt          tags                          .hljs-tag / .hljs-name
+     .kt          types                         .hljs-type
+     .sr / .ss    regex / symbol                .hljs-regexp / .hljs-symbol
+     .gi / .gd    diff add / delete             .hljs-addition / .hljs-deletion
+     .gh          heading                       .hljs-section
+     .o           operators (#666)              -- no scope; base colour
+     .nn          module names (#0e84b5, bold)  -- no scope; base colour
+     .p           punctuation                   -- unstyled in both
+
+   Unlayered on purpose, twice over. Upstream's two palettes are plain CSS
+   imported before this file, so source order settles every tie at matched
+   specificity: `.hljs-keyword` (0,1,0) and `.dark .hljs-keyword` (0,2,0)
+   mirror upstream's own selectors. And `@layer components` would purge
+   these rules -- Tailwind keeps a layered rule only if it sees the class in
+   `content`, and `hljs-*` classes are generated at runtime by lowlight,
+   never written in any scanned file.
+
+   The light values are the Sphinx build's as shipped. Two fall short of
+   WCAG AA on a white ground -- comments #60a0b0 (2.9:1) and numbers
+   #40a070 (3.4:1) -- and are reproduced for parity; revisiting them is a
+   decision for both themes, not a fix for one. Measured in full, with
+   AA-passing candidates and the options, on #172.
+   --------------------------------------------------------------------------- */
+.hljs-comment,
+.hljs-quote {
+  color: #60a0b0;
+}
+
+.hljs-keyword,
+.hljs-literal {
+  color: #007020;
+  font-weight: 700;
+}
+
+.hljs-built_in {
+  color: #007020;
+}
+
+.hljs-number {
+  color: #40a070;
+}
+
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: #4070a0;
+}
+
+.hljs-subst {
+  color: #70a0d0;
+}
+
+.hljs-title,
+.hljs-function .hljs-title,
+.hljs-title.function_ {
+  color: #06287e;
+}
+
+.hljs-class .hljs-title,
+.hljs-title.class_ {
+  color: #0e84b5;
+  font-weight: 700;
+}
+
+.hljs-meta {
+  color: #555;
+  font-weight: 700;
+}
+
+/* Parameters are plain names in Pygments; upstream paints them purple. */
+.hljs-params {
+  color: inherit;
+}
+
+.hljs-type {
+  color: #902000;
+}
+
+.hljs-attr,
+.hljs-attribute {
+  color: #4070a0;
+}
+
+.hljs-variable,
+.hljs-template-variable {
+  color: #bb60d5;
+}
+
+.hljs-regexp {
+  color: #235388;
+}
+
+.hljs-symbol {
+  color: #517918;
+}
+
+.hljs-tag,
+.hljs-name {
+  color: #062873;
+  font-weight: 700;
+}
+
+/* Diff lines are coloured text in the Sphinx palette, not filled rows. */
+.hljs-addition {
+  color: #00a000;
+  background-color: transparent;
+}
+
+.hljs-deletion {
+  color: #a00000;
+  background-color: transparent;
+}
+
+.hljs-section {
+  color: navy;
+  font-weight: 700;
+}
+
+/* Dark mode: the Sphinx theme's `body.dark-theme` palette (`_code.scss`),
+   chosen for its #1e1e32 code ground; upstream's `.dark .hljs` ground here
+   is #1e1e1e, close enough that the same values read the same. */
+.dark .hljs-comment,
+.dark .hljs-quote {
+  color: #7c8a9e;
+}
+
+.dark .hljs-keyword,
+.dark .hljs-literal {
+  color: #c586c0;
+  font-weight: 700;
+}
+
+.dark .hljs-built_in {
+  color: #4ec9b0;
+}
+
+.dark .hljs-number {
+  color: #b5cea8;
+}
+
+.dark .hljs-string,
+.dark .hljs-meta .hljs-string {
+  color: #ce9178;
+}
+
+.dark .hljs-subst {
+  color: #9cdcfe;
+}
+
+.dark .hljs-title,
+.dark .hljs-function .hljs-title,
+.dark .hljs-title.function_ {
+  color: #dcdcaa;
+}
+
+.dark .hljs-class .hljs-title,
+.dark .hljs-title.class_ {
+  color: #4ec9b0;
+  font-weight: 700;
+}
+
+.dark .hljs-meta {
+  color: #dcdcaa;
+  font-weight: 700;
+}
+
+.dark .hljs-params {
+  color: inherit;
+}
+
+.dark .hljs-type {
+  color: #4ec9b0;
+}
+
+.dark .hljs-attr,
+.dark .hljs-attribute,
+.dark .hljs-variable,
+.dark .hljs-template-variable {
+  color: #9cdcfe;
+}
+
+.dark .hljs-regexp {
+  color: #d16969;
+}
+
+.dark .hljs-symbol {
+  color: #ce9178;
+}
+
+.dark .hljs-tag,
+.dark .hljs-name {
+  color: #569cd6;
+  font-weight: 700;
+}
+
+.dark .hljs-addition {
+  color: #b5cea8;
+  background-color: transparent;
+}
+
+.dark .hljs-deletion {
+  color: #f48771;
+  background-color: transparent;
+}
+
+.dark .hljs-section {
+  color: #569cd6;
+  font-weight: 700;
 }
 
 /* Sizing classes applied from lecture source, e.g. `:class: terminal` on a

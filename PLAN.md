@@ -48,8 +48,8 @@ Derived from `quantecon-book-theme` v0.20.3 (see its `README.md`, `docs/user/*`,
 | --- | :---: | :---: | :---: |
 | Git history in lecture headers (last-modified + changelog dropdown) | ✅ | ✅ | **1** |
 | Launch parity — Thebe (live compute) in addition to Colab / private hub (BinderHub dropped, #26) | ✅ | ✅ | **2** |
-| Configurable code highlighting (custom QE tokens vs Pygments styles) | ✅ | ❌ | **3** |
-| Text colour schemes (`seoul256` / `gruvbox` / `none` + custom) | ✅ | ❌ | **3** |
+| Code highlighting in the QE token palette (the Pygments-style toggle has no user; deferred) | ✅ | ✅ | **3** |
+| Text colour scheme `seoul256` (default; `gruvbox` / `none` / custom have no user; deferred) | ✅ | ✅ | **3** |
 | Language switcher (multilingual) + `hreflang` SEO tags | ✅ | ❌ | **4** |
 | RTL support (`dir="rtl"`) | ✅ | ❌ | **5** |
 | Collapsible stderr warnings in notebook cells | ✅ | ❓ verify | **6** |
@@ -59,7 +59,8 @@ Derived from `quantecon-book-theme` v0.20.3 (see its `README.md`, `docs/user/*`,
 **Shipped state (2026-08-20).** Phase 0 completed across
 [v2.1.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.1.0)–[v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0); Phase 1 and the Thebe half of Phase 2
 shipped in [v2.3.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.3.0), and Phase 2's launch-config half shipped in
-[v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0). **Phase 3 is next.**
+[v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0). Phase 3 landed on `main`
+on 2026-09-07 (#89), unreleased. **Phases 4–5 are next.**
 
 ---
 
@@ -370,6 +371,13 @@ properly is tracked as future work — see the enhancement issues linked from #8
 
 ## Phase 3 — Code highlighting + text colour schemes
 
+**Status: complete** *(2026-09-07, #89 via #171)* — defaults only, by design. Before building,
+the scoping pass on #89 found that no lecture repo sets `qetheme_code_style` or
+`color_scheme`: every live site runs the defaults, so parity is the default rendering,
+applied unconditionally, and the switch surface (Pygments toggle, `gruvbox` / `none`,
+the custom-CSS hook) has no user and is deferred until one appears. Both goals ship as
+CSS in `styles/quantecon.css`, where the token mapping is documented.
+
 Two related theming features; bundle together since both touch the CSS/token layer.
 
 **Goal A — configurable code highlighting:** book-theme `qetheme_code_style` toggles
@@ -381,13 +389,19 @@ between custom QuantEcon token colours and any built-in Pygments style.
 `setup_pygments_css`, `validate_color_scheme`), `assets/styles/_color-schemes.scss` /
 `_syntax.scss`, `docs/user/code-highlighting.md`, `docs/user/text-color-schemes.md`.
 
-- [ ] Map the book-theme colour-scheme CSS variables onto this theme's Tailwind tokens
-      (`qetext-*`, `qeborder-blue`, …) in `tailwind.config.js` / `styles/app.css`.
-- [ ] Add a `myst.yml`-driven option to select scheme; render a body/root class
-      (`color-scheme-gruvbox`, etc.) the same way the book-theme does.
-- [ ] Decide code-highlighting strategy under MyST (syntax highlighting comes from
-      `@myst-theme`/prism, not Pygments) — likely "QE token theme vs upstream default"
-      rather than a literal Pygments port. Document the mapping.
+- [x] Map the book-theme colour-scheme CSS variables onto this theme: `--qe-emphasis-color`,
+      `--qe-strong-color`, `--qe-definition-color` beside the existing `--qe-literal-color`,
+      light and dark, with `em` / `strong` / `dt` rules in `styles/quantecon.css` (not
+      `tailwind.config.js`: they are element rules, not utilities).
+- [x] Decide the code-highlighting strategy. The premise was wrong: MyST highlights with
+      **highlight.js** (react-syntax-highlighter's async build over lowlight), not prism, and
+      the async build inlines nothing, so the `hljs-*` classes are themable in CSS. The QE
+      Pygments palette is mapped scope by scope, light and dark; the mapping and its two
+      gaps (Pygments `.o` operators and `.nn` module names have no highlight.js scope) are
+      in the stylesheet's CODE HIGHLIGHTING comment.
+- [ ] *Deferred:* a `myst.yml` option to select a scheme, rendered as a root class the way
+      the book-theme does. Not built because no consumer sets one; when asked for, it is a
+      class that re-points the four tokens.
 
 **Effort:** M. **Risk:** medium (visual regressions — needs the Phase 0 preview).
 **Deps:** Phase 0.
@@ -457,13 +471,13 @@ Phase 0  (hygiene/deploy + preview harness)  ── prerequisite  ✅ shipped
    │
    ├─▶ Phase 1  Git history in headers          ⭐ ✅ shipped v2.3.0
    ├─▶ Phase 2  Launch parity (Thebe + config)     ✅ shipped v2.2.0 / v2.3.0
-   ├─▶ Phase 3  Code highlight + colour schemes  (needs visual preview)  ← next
-   ├─▶ Phase 4  i18n (language switcher) ──▶ Phase 5  RTL  (commonly shipped together)
+   ├─▶ Phase 3  Code highlight + colour schemes     ✅ on main 2026-09-07 (unreleased)
+   ├─▶ Phase 4  i18n (language switcher) ──▶ Phase 5  RTL  (commonly shipped together)  ← next
    └─▶ Phase 6  Meta/SEO + stderr + docs
 ```
 
 Suggested order: **0 → 1 → 2 → 3 → (4 → 5) → 6**. Phases 0–2 are shipped as of
-[v2.3.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.3.0) (2026-08-20), so **Phase 3 is next**. Phases 3–6 are largely
+[v2.3.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.3.0) (2026-08-20) and Phase 3 is on `main`, so **Phases 4–5 are next**. Phases 4–6 are largely
 independent of one another and can be parallelised across contributors. Per open
 question 4's resolution below, all of Phases 3–6 gate the all-at-once lecture
 migration — they are cutover blockers, not optional polish.
