@@ -483,16 +483,20 @@ for the same translated sites).
 
 **Goal:** close the smaller gaps and verify assumptions.
 
-- [ ] **OpenGraph/Twitter parity:** the book-theme emits a full OG + Twitter card set;
+- [x] **OpenGraph/Twitter parity:** the book-theme emits a full OG + Twitter card set;
       `root.tsx` currently uses `getMetaTagsForSite` (title/description/twitter). Add
       `og:image`/`twitter:image` (logo), `og:type`, `og:site_name`, etc., driven from
-      site config.
-- [ ] **Collapsible stderr warnings:** confirm whether `@myst-theme/jupyter` already
+      site config. *Done (#92): `app/seo.ts` adds `og:type`, `og:site_name`, `og:url`
+      (from a `site_url` option), site-level images (`og_logo_url` / `twitter_logo_url`),
+      `twitter:site` and `og:locale` on top of upstream's article tags.*
+- [x] **Collapsible stderr warnings:** confirm whether `@myst-theme/jupyter` already
       renders notebook stderr in a collapsible/styled way (it may — verify before
-      porting). If not, add an output transform/renderer.
-- [ ] **Docs:** add a `docs/`-style feature reference for the MyST theme mirroring the
+      porting). If not, add an output transform/renderer. *Verified (#92): upstream
+      renders stderr as a plain `<pre class="jupyter-error">`; ported as a native
+      `<details>` around the stderr `output` node (`STDERR_RENDERERS`).*
+- [x] **Docs:** add a `docs/`-style feature reference for the MyST theme mirroring the
       book-theme's `docs/user/*` set, so downstream lecture maintainers have parity
-      documentation.
+      documentation. *Done (#92): `docs/` with one page per book-theme user page.*
 
 **Effort:** S–M. **Risk:** low. **Deps:** none.
 

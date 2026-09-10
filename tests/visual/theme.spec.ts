@@ -332,6 +332,55 @@ test.describe("QuantEcon theme — visual regression", () => {
  * translator with a page-level override on `/` and a suppression on
  * `/lists`; `fixture-rtl` is the Persian edition with `enable_rtl`.
  */
+test.describe("Meta/SEO and notebook output polish (#92)", () => {
+  const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+  const meta = (page: Page, sel: string) => page.locator(`head meta[${sel}]`);
+
+  // The Sphinx lecture sites' OpenGraph / Twitter set, on a lecture page. The
+  // no-thebe fixture declares `site_url`, `twitter`, both logo URLs and
+  // `current_language`; nothing here depends on the page having a thumbnail.
+  test("social-meta", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    const expectTag = async (sel: string, content: string | RegExp) =>
+      expect(meta(page, sel)).toHaveAttribute("content", content);
+    await expectTag('property="og:type"', "website");
+    await expectTag('property="og:site_name"', "QE Theme No-Thebe Fixture");
+    await expectTag('property="og:url"', "https://example.org/notebook");
+    await expectTag('property="og:image"', "https://assets.example.org/qe-og-logo.png");
+    await expectTag('property="og:locale"', "en_US");
+    await expectTag('name="twitter:site"', "@quantecon");
+    await expectTag('name="twitter:creator"', "@quantecon");
+    await expectTag('name="twitter:card"', "summary");
+    await expectTag('name="twitter:image"', "https://assets.example.org/qe-twitter-logo.png");
+    // Replaced, not duplicated: one og:image, one twitter:card.
+    await expect(meta(page, 'property="og:image"')).toHaveCount(1);
+    await expect(meta(page, 'name="twitter:card"')).toHaveCount(1);
+  });
+
+  // A cell's stderr stream is folded behind a "Code warnings" disclosure,
+  // closed by default, as the Sphinx build's stderr-warnings.js does; stdout
+  // in the same cell stays visible. A native <details>, so it holds in the
+  // server-rendered HTML too.
+  test("stderr-collapsed", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const fold = page.locator("details.qe-stderr");
+    await expect(fold).toHaveCount(1);
+    await expect(fold).not.toHaveAttribute("open", "");
+    await expect(fold.locator("summary")).toContainText("Code warnings");
+    await expect(fold.locator("pre.jupyter-error")).toBeHidden();
+    // The output, not the source cell that also carries the string.
+    await expect(
+      page.locator("pre.jupyter-output", { hasText: "and a normal line on stdout, left visible" })
+    ).toBeVisible();
+    await fold.locator("summary").click();
+    await expect(fold.locator("pre.jupyter-error")).toBeVisible();
+    await expect(fold.locator("pre.jupyter-error")).toContainText("a deliberate warning on stderr");
+  });
+});
+
 test.describe("Site options reach the theme (#173)", () => {
   // The CLI validates `site.options` against template.yml and DROPS every key
   // the template does not declare, so a theme that reads an undeclared option

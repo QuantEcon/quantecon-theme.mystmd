@@ -20,7 +20,7 @@ import type { ISearch, MystSearchIndex } from '@myst-theme/search';
 import { SEARCH_ATTRIBUTES_ORDERED } from '@myst-theme/search';
 import { useCallback } from 'react';
 import { JUPYTER_RENDERERS } from '@myst-theme/jupyter';
-import { LIST_RENDERERS } from './renderers';
+import { LIST_RENDERERS, STDERR_RENDERERS } from './renderers';
 import { Document } from './components/Document';
 import { htmlDir, htmlLang } from './i18n';
 import type { TemplateOptions } from './types';
@@ -33,6 +33,8 @@ const RENDERERS: NodeRenderers = mergeRenderers([
   defaultRenderers,
   JUPYTER_RENDERERS,
   LIST_RENDERERS,
+  // After JUPYTER_RENDERERS: wraps upstream's `output` renderer (#92).
+  STDERR_RENDERERS,
 ]);
 
 export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {

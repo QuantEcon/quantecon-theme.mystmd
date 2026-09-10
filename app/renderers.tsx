@@ -1,6 +1,7 @@
 import type { GenericNode } from 'myst-common';
 import type { NodeRenderers } from '@myst-theme/providers';
 import { MyST } from 'myst-to-react';
+import { OUTPUT_RENDERERS } from '@myst-theme/jupyter';
 
 /**
  * Fancy ordered lists (QuantEcon/mystmd#50): `list` nodes carry `style`
@@ -63,5 +64,40 @@ export const LIST_RENDERERS: NodeRenderers = {
         <MyST ast={node.children} />
       </ul>
     );
+  },
+};
+
+/**
+ * Collapsible stderr (Phase 6, #92). The Sphinx build's `stderr-warnings.js`
+ * folds a cell's stderr streams behind a "Code warnings" button after page
+ * load; upstream @myst-theme/jupyter renders them as a plain `<pre
+ * class="jupyter-error">`. Same fold, done at render: a stderr stream
+ * `output` node is wrapped in a native `<details>`, closed by default, so it
+ * works in the server-rendered HTML with no script and no DOM surgery. Every
+ * other output goes to upstream's renderer untouched. Styled by the
+ * `.qe-stderr` block in styles/quantecon.css.
+ */
+const UpstreamOutput = OUTPUT_RENDERERS.output as (props: {
+  node: GenericNode;
+  className?: string;
+}) => JSX.Element | null;
+
+export const STDERR_RENDERERS: NodeRenderers = {
+  output(props: { node: GenericNode; className?: string }) {
+    const data = props.node.jupyter_data as { output_type?: string; name?: string } | undefined;
+    if (data?.output_type === 'stream' && data?.name === 'stderr') {
+      return (
+        <details className="qe-stderr">
+          <summary>
+            <span className="qe-stderr__icon" aria-hidden="true">
+              ⚠
+            </span>{' '}
+            Code warnings
+          </summary>
+          <UpstreamOutput {...props} />
+        </details>
+      );
+    }
+    return <UpstreamOutput {...props} />;
   },
 };

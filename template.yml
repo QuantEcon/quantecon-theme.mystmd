@@ -68,6 +68,22 @@ options:
     description: >
       Twitter/X handle for the `twitter:site` and `twitter:creator` card meta
       tags, with or without the leading `@`.
+  - id: site_url
+    type: string
+    description: >
+      The site's public URL (the Sphinx sites' `html_baseurl`), for the
+      absolute `og:url` on every page. `site.domains` would be the natural
+      source but does not reach the theme.
+  - id: og_logo_url
+    type: string
+    description: >
+      Absolute URL of the image for `og:image` when a page has no thumbnail
+      (the book theme's `og_logo_url`).
+  - id: twitter_logo_url
+    type: string
+    description: >
+      Absolute URL of the image for `twitter:image` (the book theme's
+      `twitter_logo_url`); falls back to the OpenGraph image.
   - id: favicon
     type: file
     description: >
