@@ -323,6 +323,33 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(page.getByRole("heading", { name: "Notebook outputs" })).toBeVisible();
     await expect(page.getByRole("button", { name: /start compute/i })).toHaveCount(0);
   });
+
+  // Per-lecture gate (#114): the RTL fixture has `project.thebe` but sets
+  // `live_compute: false` site-wide. Its plain notebook page inherits that and
+  // shows no control; notebook-live.ipynb sets `site: {live_compute: true}`
+  // in its metadata and gets it back. The main fixture's `live-compute-toggle`
+  // above is the third case: no flag anywhere means on.
+  test("live-compute-per-page", async ({ page }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "desktop-chrome",
+      "the live-compute toggle lives in the desktop header toolbar"
+    );
+    const rtlBase = `http://localhost:${process.env.RTL_PORT}`;
+    await page.goto(`${rtlBase}/notebook`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await expect(page.getByRole("heading", { name: "Notebook without compute" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /start compute/i })).toHaveCount(0);
+    // The gate is broad: the compute-enabled error tray is gone too, so
+    // nothing on the page can try to execute.
+    await expect(page.locator("#qe-compute-slot")).toBeEmpty();
+
+    await page.goto(`${rtlBase}/notebook-live`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await expect(page.getByRole("heading", { name: "Notebook opted into compute" })).toBeVisible();
+    await expect(
+      page.locator("#qe-compute-slot").getByRole("button", { name: /start compute/i })
+    ).toBeVisible();
+  });
 });
 
 /**

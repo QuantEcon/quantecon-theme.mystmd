@@ -9,6 +9,9 @@ export interface TemplateOptions {
   // the site-wide options.
   hide_toc?: boolean;
   hide_search?: boolean;
+  // Per-lecture live compute (#114): gates the whole in-page compute surface
+  // on this page. Page value over site value over `true`; see app/liveCompute.ts.
+  live_compute?: boolean;
 
   // Meta / SEO and analytics, passed through to @myst-theme/site.
   twitter?: string; // handle for twitter:site / twitter:creator, `@` optional

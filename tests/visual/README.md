@@ -116,7 +116,10 @@ THEME_TEMPLATE="$PWD/.deploy/quantecon-theme" \
 - `fixture-no-thebe/` — the same without `project.thebe`, for the absent live-compute
   toggle (second port)
 - `fixture-rtl/` — a Persian edition with `enable_rtl` (third port), for the `rtl`
-  snapshot and the right-to-left assertions (#91)
+  snapshot and the right-to-left assertions (#91); also carries the per-lecture
+  live-compute cases (#114) — `project.thebe` on, `live_compute: false` site-wide,
+  `notebook.ipynb` inheriting it and `notebook-live.ipynb` opting back in — because
+  its only snapshot is the landing page, so the extra pages move no baseline
 - `fixture/myst.yml.in` — template; `serve.sh` writes `myst.yml` from it
 - `serve.sh` — `myst start` with the chosen `THEME_TEMPLATE`
 - `serve-static.sh` / `static-server.mjs` — `myst build --html` of the fixture behind
