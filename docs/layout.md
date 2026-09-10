@@ -26,8 +26,10 @@ marks the section being read in QuantEcon blue, bold, with an inset rule
 (`aria-current="location"`). The rule is the Sphinx scrollspy's: a section is
 current once its heading has passed 120px from the top, and the last section is
 current at the bottom of the page. Past the viewport height the panel scrolls
-internally behind a fade. Subsections stay expanded rather than collapsing to
-the active branch as the Sphinx panel does under `contents_autoexpand`.
+internally behind a fade. Subsections collapse to the current branch as the
+Sphinx panel does under `contents_autoexpand`: only the sections show until
+you scroll into one, its subsections then expand, and the parent of a current
+subsection is expanded but not marked.
 
 ## Back to top
 
