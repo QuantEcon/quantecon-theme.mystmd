@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.1] - 2026-09-10
+
 ### Fixed
 - Pressing Back after following an in-page anchor no longer replaces a
   statically-built page with a bare "Application Error" screen. A `myst build
@@ -50,6 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fetch fires and the page survives Back after an outline entry and after
   "↑ Top" -- the third static-only defect in a row (#138, #150, #186) to have
   shipped unguarded ([#186](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/186)).
+
+### Dependencies
+- `morgan` 1.11.0 → 1.12.0 ([#188](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/188)).
 
 ## [2.6.0] - 2026-09-10
 
@@ -576,7 +581,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version of the QuantEcon MyST theme: Remix + `@myst-theme` book theme with QuantEcon branding, toolbar (home, search, fullscreen, font scaling, dark mode, downloads, Colab/JupyterHub launch, edit-on-GitHub), content-driven site footer, and bundled brand assets.
 
-[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.0...HEAD
+[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.1...HEAD
+[2.6.1]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.3.1...v2.4.0
