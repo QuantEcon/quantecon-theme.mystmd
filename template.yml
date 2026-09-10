@@ -20,11 +20,12 @@ tags:
 parts:
   - id: footer
     description: The site wide footer
-# Site options (`site.options` in myst.yml, overridable per page under `site:`
-# in page frontmatter). The CLI validates against this list and DROPS any key
-# not declared here, and it can only declare scalar types -- so the two lists
-# (`languages`, `translators`) are strings holding a YAML block; app/i18n.ts
-# parses them. See README "Multilingual editions".
+# Site options (`site.options` in myst.yml). The CLI validates against this
+# list and DROPS any key not declared here, and it can only declare scalar
+# types -- so the two lists (`languages`, `translators`) are strings holding a
+# YAML block; app/i18n.ts parses them. Only `translators` and
+# `translators_label` are also read per page (under `site:` in page
+# frontmatter); the rest are site-wide. See README "Multilingual editions".
 #
 # No `default:` on any option, deliberately. The CLI validates every page's
 # `site:` frontmatter against this list too, and a declared default is written

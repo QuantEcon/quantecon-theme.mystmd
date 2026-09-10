@@ -86,7 +86,7 @@ upstream_candidates:
     description: |
       @myst-theme/site's `Document` hard-codes `<html lang="en">` and sets no
       `dir`. The theme carries a local copy (app/components/Document.tsx) that
-      adds the two props and wraps the tree in Radix's DirectionProvider.
+      adds the two props.
     status: pending
     target: jupyter-book/myst-theme
     provenance:

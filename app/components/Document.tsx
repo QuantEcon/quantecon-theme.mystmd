@@ -18,7 +18,6 @@ import {
   renderers as defaultRenderers,
   useTheme,
 } from '@myst-theme/site';
-import { DirectionProvider } from '@radix-ui/react-direction';
 import classNames from 'classnames';
 
 /**
@@ -33,9 +32,12 @@ import classNames from 'classnames';
  * edition -- and they have to be there in the server render: setting them
  * after hydration would paint the first frame left-to-right and then flip it.
  *
- * Radix's `DirectionProvider` follows `dir`, so dropdown menus and tooltips
- * mirror their alignment in a right-to-left edition without per-component
- * work.
+ * No Radix `DirectionProvider` is needed: the floating positioning under
+ * dropdown menus and tooltips reads the computed CSS `direction`, which
+ * `dir` on <html> sets, so they mirror on their own. (A provider was tried
+ * and found inert: the theme's copy of `@radix-ui/react-direction` was a
+ * different instance from the one the menu and select packages pin, so its
+ * context never reached them.)
  *
  * Everything else is upstream's, unchanged, so a future upstream `lang` /
  * `dir` prop (see UPSTREAM-CANDIDATES.yml) lets this file be deleted again.
@@ -149,11 +151,9 @@ export function DocumentWithoutProviders({
         {head}
       </head>
       <body className="m-0 transition-colors duration-500 bg-white dark:bg-stone-900">
-        <DirectionProvider dir={dir ?? 'ltr'}>
-          <BaseUrlProvider baseurl={baseurl}>
-            <SiteProvider config={config}>{children}</SiteProvider>
-          </BaseUrlProvider>
-        </DirectionProvider>
+        <BaseUrlProvider baseurl={baseurl}>
+          <SiteProvider config={config}>{children}</SiteProvider>
+        </BaseUrlProvider>
         <ScrollRestoration />
         <Scripts />
         {liveReloadListener && <LiveReload />}

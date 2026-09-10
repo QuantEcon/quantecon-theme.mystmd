@@ -61,8 +61,8 @@ Derived from `quantecon-book-theme` v0.20.3 (see its `README.md`, `docs/user/*`,
 [v2.1.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.1.0)–[v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0); Phase 1 and the Thebe half of Phase 2
 shipped in [v2.3.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.3.0), and Phase 2's launch-config half shipped in
 [v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0). Phase 3 landed on `main`
-on 2026-09-07 (#89), unreleased; Phases 4–5 and the translator credit (#143) followed the same
-day. **Phase 6 is next.**
+on 2026-09-10 (#89, #171), unreleased; Phases 4–5 and the translator credit (#143) follow in
+#174. **Phase 6 is next.**
 
 ---
 
@@ -373,7 +373,7 @@ properly is tracked as future work — see the enhancement issues linked from #8
 
 ## Phase 3 — Code highlighting + text colour schemes
 
-**Status: complete** *(2026-09-07, #89 via #171)* — defaults only, by design. Before building,
+**Status: complete** *(2026-09-10, #89 via #171)* — defaults only, by design. Before building,
 the scoping pass on #89 found that no lecture repo sets `qetheme_code_style` or
 `color_scheme`: every live site runs the defaults, so parity is the default rendering,
 applied unconditionally, and the switch surface (Pygments toggle, `gruvbox` / `none`,
@@ -412,7 +412,7 @@ between custom QuantEcon token colours and any built-in Pygments style.
 
 ## Phase 4 — Internationalisation (language switcher + hreflang)
 
-**Status: complete** *(2026-09-07, #90; translator credit #143 shipped with it)*. One
+**Status: complete** *(#90 via #174; translator credit #143 shipped with it)*. One
 engine fact shaped the configuration: the MyST CLI validates `site.options` against the
 template's declared options and **drops every undeclared key** (myst-templates
 `validateTemplateOptions`), and it can declare only scalar types. So the options are
@@ -449,7 +449,7 @@ hreflang block + language-switcher markup, `assets/scripts/language-switcher.js`
 
 ## Phase 5 — RTL support
 
-**Status: complete** *(2026-09-07, #91)*.
+**Status: complete** *(#91 via #174)*.
 
 **Goal:** book-theme `enable_rtl` sets `dir="rtl"` on `<body>` and ships `_rtl.scss`.
 **Reference:** book-theme `layout.html` `body_tag` block + `assets/styles/_rtl.scss` +
@@ -457,9 +457,9 @@ hreflang block + language-switcher markup, `assets/scripts/language-switcher.js`
 
 - [x] `enable_rtl` sets `dir="rtl"` (and `current_language` sets `lang`) on `<html>` in the
       server render. Upstream's `Document` hard-codes `lang="en"` and has no `dir`, so the
-      theme carries a local copy (`app/components/Document.tsx`) that adds the two props and
-      wraps the tree in Radix's `DirectionProvider`; an upstream prop is the candidate in
-      `UPSTREAM-CANDIDATES.yml`.
+      theme carries a local copy (`app/components/Document.tsx`) that adds the two props; an
+      upstream prop is the candidate in `UPSTREAM-CANDIDATES.yml`. Radix's floating
+      positioning reads the CSS `direction`, so no `DirectionProvider` is needed.
 - [x] Audit: the theme's own components now use logical utilities (`ms-`, `me-`, `pe-`), and
       `styles/rtl.css` mirrors the physical utilities upstream content markup uses
       (`border-l-4` accents, `pl-*`/`ml-*` spacing, the copy button), flips the drawer's
@@ -497,8 +497,8 @@ Phase 0  (hygiene/deploy + preview harness)  ── prerequisite  ✅ shipped
    │
    ├─▶ Phase 1  Git history in headers          ⭐ ✅ shipped v2.3.0
    ├─▶ Phase 2  Launch parity (Thebe + config)     ✅ shipped v2.2.0 / v2.3.0
-   ├─▶ Phase 3  Code highlight + colour schemes     ✅ on main 2026-09-07 (unreleased)
-   ├─▶ Phase 4  i18n (language switcher) ──▶ Phase 5  RTL     ✅ on main 2026-09-07 (unreleased)
+   ├─▶ Phase 3  Code highlight + colour schemes     ✅ on main 2026-09-10 (unreleased)
+   ├─▶ Phase 4  i18n (language switcher) ──▶ Phase 5  RTL     ✅ via #174 (unreleased)
    └─▶ Phase 6  Meta/SEO + stderr + docs   ← next
 ```
 
