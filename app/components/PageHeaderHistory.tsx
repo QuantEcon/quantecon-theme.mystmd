@@ -1,3 +1,4 @@
+import { parseStructured } from "~/i18n";
 import { ChevronDown } from "lucide-react";
 import React from "react";
 import { usePage } from "./PageProvider";
@@ -67,12 +68,24 @@ const COPY = "text-[0.85rem]";
  *
  * Data sources, in order of precedence:
  *  1. `site.git_metadata` in the page frontmatter (manual override, and how
- *     the visual fixture pins deterministic data), then
+ *     the visual fixture pins deterministic data) -- a declared template
+ *     option, so it arrives as a string holding a YAML block (template
+ *     options are scalar-only; see app/i18n.ts) or, from older content, as
+ *     an object; then
  *  2. `mdast.data.git_metadata` injected at build time by
  *     plugins/git-metadata.mjs.
  *
  * Renders nothing when neither is present.
  */
+
+/** The parsed override only counts when it has the plugin's shape. */
+function asGitMetadata(value: unknown): GitMetadata | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const v = value as Partial<GitMetadata>;
+  if (!v.last_modified && !Array.isArray(v.changelog)) return undefined;
+  return { last_modified: v.last_modified, changelog: Array.isArray(v.changelog) ? v.changelog : [] } as GitMetadata;
+}
+
 export function PageHeaderHistory({ alignEnd = true }: { alignEnd?: boolean } = {}) {
   const page = usePage();
   // `ms-auto` pushes the control to the end of the header row. When the
@@ -89,7 +102,8 @@ export function PageHeaderHistory({ alignEnd = true }: { alignEnd?: boolean } = 
 
   const frontmatter = page?.frontmatter as any;
   const meta: GitMetadata | undefined =
-    frontmatter?.site?.git_metadata ?? (page?.mdast as any)?.data?.git_metadata;
+    asGitMetadata(parseStructured(frontmatter?.site?.git_metadata)) ??
+    (page?.mdast as any)?.data?.git_metadata;
   const changelog = meta?.changelog ?? [];
   const lastModified = meta?.last_modified ?? changelog[0]?.date;
   if (!lastModified) return null;

@@ -20,7 +20,12 @@ site:
   title: QE Theme Visual Fixture
   template: __THEME__
   options:
-    logo_text: QuantEcon Visual Fixture
+    # Site-wide options declared in template.yml (#173). `twitter` and
+    # `favicon` are asserted end to end in theme.spec.ts ("site-options"):
+    # the CLI drops undeclared keys, so this is the fixture's proof that a
+    # declared one reaches the theme.
+    twitter: quantecon
+    favicon: cc-by-sa-4.0-80x15.png
     # Multilingual editions (#90, #143). Two editions make the toolbar's
     # language switcher and the hreflang alternates render on every page; the
     # lists are YAML blocks because template options are scalar-only (see

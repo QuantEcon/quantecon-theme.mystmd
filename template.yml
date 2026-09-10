@@ -21,18 +21,16 @@ parts:
   - id: footer
     description: The site wide footer
 # Site options (`site.options` in myst.yml). The CLI validates against this
-# list and DROPS any key not declared here, and it can only declare scalar
-# types -- so the two lists (`languages`, `translators`) are strings holding a
-# YAML block; app/i18n.ts parses them. Only `translators` and
-# `translators_label` are also read per page (under `site:` in page
-# frontmatter); the rest are site-wide. See README "Multilingual editions".
+# list and DROPS any key not declared here (#173), so every option the theme
+# reads is declared below -- and it can only declare scalar types, so the
+# structured ones (`languages`, `translators`, `git_metadata`) are strings
+# holding a YAML block; app/i18n.ts `parseStructured` turns them back into
+# data. Site-wide unless marked per-page; a per-page value goes under `site:`
+# in the page's frontmatter and is validated against this same list.
 #
-# No `default:` on any option, deliberately. The CLI validates every page's
-# `site:` frontmatter against this list too, and a declared default is written
-# into that validated block even when the page set nothing -- which then
-# replaces the page's raw `site:` block, overriding the site-wide value and
-# discarding undeclared keys such as `git_metadata`. Defaults live in
-# app/i18n.ts instead.
+# No `default:` on any option, deliberately. A declared default is written
+# into every page's validated `site:` block even when the page set nothing,
+# which then overrides the site-wide value. Defaults live in code.
 options:
   - id: current_language
     type: string
@@ -64,6 +62,57 @@ options:
     description: >
       Accessible name and tooltip of the language switcher, in the edition's own
       language ("Switch language" when unset).
+  # --- Meta / SEO ---
+  - id: twitter
+    type: string
+    description: >
+      Twitter/X handle for the `twitter:site` and `twitter:creator` card meta
+      tags, with or without the leading `@`.
+  - id: favicon
+    type: file
+    description: >
+      Site favicon, a path relative to myst.yml. Served at `/favicon.ico`
+      (the QuantEcon lectures favicon when unset).
+  # --- Analytics (rendered by @myst-theme/site's Analytics component) ---
+  - id: analytics_google
+    type: string
+    description: Google Analytics measurement ID (e.g. `G-XXXXXXXXXX`).
+  - id: analytics_plausible
+    type: string
+    description: Plausible analytics domain (e.g. `python.quantecon.org`).
+  # --- Layout (per-page: a page may set either under `site:`) ---
+  - id: hide_toc
+    type: boolean
+    description: Hide the contents drawer and its toolbar toggle.
+  - id: hide_search
+    type: boolean
+    description: Hide the toolbar search control.
+  # --- Notebook launcher (see README "Launch buttons") ---
+  - id: launch_repo_url
+    type: string
+    description: >
+      Explicit notebook repository (full URL or `org/repo`); overrides
+      `<github>` + `launch_repo_suffix`.
+  - id: launch_repo_suffix
+    type: string
+    description: Suffix appended to the source repo to locate the notebook repo (`.notebooks` when unset).
+  - id: launch_branch
+    type: string
+    description: Branch of the notebook repo to launch from (`main` when unset).
+  - id: launch_notebooks_path
+    type: string
+    description: Sub-directory of the notebook repo where the notebooks live.
+  - id: launch_source_path
+    type: string
+    description: Path prefix stripped from the page location (e.g. `lectures/`).
+  # --- Git history (per-page override of plugins/git-metadata.mjs) ---
+  - id: git_metadata
+    type: string
+    description: >
+      YAML block with `last_modified` and a `changelog` list of `{hash,
+      short_hash, author, date, message}`, set under `site:` in a page's
+      frontmatter to pin the "Last changed" control by hand. Normally injected
+      at build time by the git-metadata plugin instead.
 build:
   # `npm ci`, not `npm install`: the release asset ships a lockfile (release.yml
   # generates it with `npm install --package-lock-only` and it is in `files`
