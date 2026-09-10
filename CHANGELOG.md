@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-09-10
+
 ### Added
 - Code blocks are highlighted in QuantEcon's own token palette, the Sphinx
   lecture builds' default `qetheme_code_style`, in light and dark mode. MyST
@@ -543,7 +545,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version of the QuantEcon MyST theme: Remix + `@myst-theme` book theme with QuantEcon branding, toolbar (home, search, fullscreen, font scaling, dark mode, downloads, Colab/JupyterHub launch, edit-on-GitHub), content-driven site footer, and bundled brand assets.
 
-[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.5.0...HEAD
+[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.3.0...v2.3.1

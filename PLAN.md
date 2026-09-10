@@ -61,8 +61,8 @@ Derived from `quantecon-book-theme` v0.20.3 (see its `README.md`, `docs/user/*`,
 [v2.1.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.1.0)–[v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0); Phase 1 and the Thebe half of Phase 2
 shipped in [v2.3.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.3.0), and Phase 2's launch-config half shipped in
 [v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0). Phase 3 landed on `main`
-on 2026-09-10 (#89, #171), unreleased; Phases 4–5 and the translator credit (#143) follow in
-#174. **Phase 6 is next.**
+on 2026-09-10 (#89, #171); Phases 4–5 and the translator credit (#143) followed in #174;
+all shipped in [v2.6.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.6.0). **Phase 6 is next.**
 
 ---
 
@@ -497,8 +497,8 @@ Phase 0  (hygiene/deploy + preview harness)  ── prerequisite  ✅ shipped
    │
    ├─▶ Phase 1  Git history in headers          ⭐ ✅ shipped v2.3.0
    ├─▶ Phase 2  Launch parity (Thebe + config)     ✅ shipped v2.2.0 / v2.3.0
-   ├─▶ Phase 3  Code highlight + colour schemes     ✅ on main 2026-09-10 (unreleased)
-   ├─▶ Phase 4  i18n (language switcher) ──▶ Phase 5  RTL     ✅ via #174 (unreleased)
+   ├─▶ Phase 3  Code highlight + colour schemes     ✅ shipped v2.6.0
+   ├─▶ Phase 4  i18n (language switcher) ──▶ Phase 5  RTL     ✅ shipped v2.6.0
    └─▶ Phase 6  Meta/SEO + stderr + docs   ← next
 ```
 
