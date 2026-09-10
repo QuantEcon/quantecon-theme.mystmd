@@ -1,0 +1,1 @@
+import{g as o}from"/quantecon-theme.mystmd/pr-preview/pr-190/build/_shared/chunk-QVK2A47Y.js";import{a as m}from"/quantecon-theme.mystmd/pr-preview/pr-190/build/_shared/chunk-LBISF65L.js";var g=m((t,e)=>{let n;return e==="sandbox"&&(n=o("#i"+t)),(e==="sandbox"?o(n.nodes()[0].contentDocument.body):o("body")).select(`[id="${t}"]`)},"getDiagramElement");export{g as a};
