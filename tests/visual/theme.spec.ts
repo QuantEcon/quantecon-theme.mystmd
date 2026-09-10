@@ -428,6 +428,29 @@ test.describe("On this page outline (#182)", () => {
     await expect(nav(page).locator("li.qe-outline__sub")).toHaveCount(2);
     await expect(nav(page).locator("li.qe-outline__sub a").first()).toBeHidden();
   });
+
+  test("outline-within-viewport", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "the margin column is desktop-only");
+    // From the 1280px breakpoint to 1328px the fixed grid tracks plus their
+    // column gaps outgrew the content box: LTR pages scrolled sideways with
+    // the panel's end clipped, and in RTL the panel started 28px off-screen.
+    // In both directions the page must fit and the panel sit inside it.
+    const rtlBase = `http://localhost:${process.env.RTL_PORT || "3113"}`;
+    for (const url of ["/features", `${rtlBase}/`]) {
+      for (const width of [1280, 1300, 1328]) {
+        await page.setViewportSize({ width, height: 800 });
+        await page.goto(url, { waitUntil: "domcontentloaded" });
+        await settle(page);
+        const where = `${url} at ${width}px`;
+        const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+        expect(scrollWidth, where).toBeLessThanOrEqual(width);
+        // By class, not role name: the RTL edition translates the label.
+        const box = (await page.locator(".qe-outline").boundingBox())!;
+        expect(box.x, where).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width, where).toBeLessThanOrEqual(width);
+      }
+    }
+  });
 });
 
 test.describe("Meta/SEO and notebook output polish (#92)", () => {
