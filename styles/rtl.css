@@ -15,6 +15,8 @@
  *      button. Each one used is mirrored below with Tailwind's own values.
  *   3. Code and mathematics stay left-to-right, as in the book theme: code
  *      is LTR by nature, and KaTeX lays out LTR.
+ *   4. The theme's own parenthesised list markers (styles/lists.css) hang in
+ *      the gutter with a physical `left` and translate; hung from the right.
  *
  * Unlayered on purpose: every rule targets a class that Tailwind only sees
  * in node_modules or generates at build time, and `@layer` would purge them;
@@ -96,4 +98,13 @@
 [dir='rtl'] .myst-code .right-1 {
   right: 0.25rem;
   left: auto;
+}
+
+/* 4. Parenthesised markers -- (a), (i), A) -- sit outside the list's start
+   edge, which is now the right one. Same offset as lists.css, mirrored. */
+[dir='rtl'] ol.delimiter-parens > li::before,
+[dir='rtl'] ol.delimiter-paren > li::before {
+  left: auto;
+  right: -0.4em;
+  transform: translateX(100%);
 }

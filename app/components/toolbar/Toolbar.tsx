@@ -32,8 +32,14 @@ export function Toolbar() {
         control set switches on at `md`, and at 20px spacing it does not fit
         between 768px and ~856px — the last icons get pushed off the right
         edge. Keep the tighter spacing for that band when adding controls here.
+
+        `gap-x-*`, not `space-x-*`: the latter is a physical `margin-left` on
+        every item after the first, which a right-to-left edition (#91) does
+        not mirror, so the first two icons touch and the margin lands on the
+        outer edge. `gap` is direction-neutral. An empty <li> still takes a
+        gap, hence the `empty:hidden` on the two slots that may render nothing.
       */}
-      <ul className="flex items-center w-full space-x-3 lg:space-x-5 text-qetext-light dark:text-qetext-dark">
+      <ul className="flex items-center w-full gap-x-3 lg:gap-x-5 text-qetext-light dark:text-qetext-dark">
         <li>
           <SidebarToggle />
         </li>
@@ -81,8 +87,11 @@ export function Toolbar() {
         {/* Language switcher (#90): far end of the toolbar, as in the book
             theme, and at every width -- it is the one action a reader of a
             translated edition reaches for, so it stays out of the overflow
-            menu. Renders nothing unless two or more editions are configured. */}
-        <li className="flex items-center">
+            menu. Renders nothing unless two or more editions are configured,
+            and `empty:hidden` keeps the wrapper from taking a gap when it does
+            not -- every single-edition site would otherwise carry dead space
+            here. */}
+        <li className="qe-language-slot flex items-center empty:hidden">
           <LanguageSwitcher size={iconSize} />
         </li>
         <li className="block md:hidden">

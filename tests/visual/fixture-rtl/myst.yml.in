@@ -6,6 +6,10 @@ version: 1
 project:
   title: نظریهٔ نمونه — ویرایش فارسی
   github: https://github.com/QuantEcon/quantecon-theme.mystmd
+  # Stamps `% fancy:` lists with style/delimiter, so intro.md can exercise the
+  # theme's parenthesised markers in RTL whichever mystmd parses it.
+  plugins:
+    - ../fixture/fancy-lists.mjs
   toc:
     - file: intro.md
 site:

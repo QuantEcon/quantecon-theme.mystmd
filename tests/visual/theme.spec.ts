@@ -369,6 +369,22 @@ test.describe("Multilingual editions", () => {
     await expect(trigger).toBeFocused();
   });
 
+  // A site with fewer than two editions (the no-thebe fixture configures
+  // none) renders no switcher, no hreflang tags, and -- the regression this
+  // guards -- no empty toolbar slot taking a gap. The <li> stays in the DOM;
+  // `empty:hidden` must take it out of the flow.
+  test("language-switcher-absent-with-one-edition", async ({ page }) => {
+    const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT}`;
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await expect(page.getByRole("heading", { name: "Notebook outputs" })).toBeVisible();
+    await expect(page.locator(".qe-language-switcher")).toHaveCount(0);
+    await expect(page.locator('head link[rel="alternate"][hreflang]')).toHaveCount(0);
+    const slot = page.locator(".qe-language-slot");
+    await expect(slot).toHaveCount(1);
+    await expect(slot).toBeHidden();
+  });
+
   test("translators", async ({ page }) => {
     const block = page.locator(".qe-page__header-translators");
     // Project-level credit, default English label.
@@ -403,6 +419,15 @@ test.describe("Multilingual editions", () => {
     // Code stays left-to-right inside the right-to-left document.
     const code = page.locator(".myst-code").first();
     await expect(code).toHaveCSS("direction", "ltr");
+    // The toolbar's spacing is direction-neutral (`gap-x`, not a physical
+    // `space-x` margin): the first two items -- now at the right edge -- keep
+    // their gap instead of touching.
+    const toolbar = page.locator("ul:has(> .qe-language-slot)");
+    const first = await toolbar.locator("> li").nth(0).boundingBox();
+    const second = await toolbar.locator("> li").nth(1).boundingBox();
+    expect(first && second).toBeTruthy();
+    // In RTL the first item is the rightmost, so the gap is first.x - second's right edge.
+    expect(first!.x - (second!.x + second!.width)).toBeGreaterThanOrEqual(10);
   });
 
   test("rtl", async ({ page }) => {
