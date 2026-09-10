@@ -36,6 +36,13 @@ if (RTL_PORT === PORT || RTL_PORT === NO_THEBE_PORT) {
   throw new Error(`RTL_PORT (${RTL_PORT}) must differ from PORT and NO_THEBE_PORT`);
 }
 process.env.RTL_PORT = RTL_PORT;
+// Fourth server: a `myst build --html` of the main fixture behind a plain
+// file server (MODE=static, the deployed shape) for static.spec.ts -- #186.
+const STATIC_PORT = process.env.STATIC_PORT || "3114";
+const staticURL = `http://localhost:${STATIC_PORT}`;
+if ([PORT, NO_THEBE_PORT, RTL_PORT].includes(STATIC_PORT)) {
+  throw new Error(`STATIC_PORT (${STATIC_PORT}) must differ from the other fixture ports`);
+}
 
 export default defineConfig({
   testDir: "./tests/visual",
@@ -74,6 +81,14 @@ export default defineConfig({
       testMatch: /fouc\.spec\.ts/,
       use: { ...devices["Desktop Safari"] },
     },
+    // Static-build guard (static.spec.ts): behavioural assertions against the
+    // statically-built fixture, no snapshots. Chromium only -- the defect it
+    // guards is in the router, not the renderer.
+    {
+      name: "static-chrome",
+      testMatch: /static\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], baseURL: staticURL },
+    },
   ],
   webServer: [
     {
@@ -95,6 +110,15 @@ export default defineConfig({
       // snapshot and the multilingual assertions in theme.spec.ts.
       command: `FIXTURE_DIR=fixture-rtl PORT=${RTL_PORT} bash tests/visual/serve.sh`,
       url: rtlURL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 300 * 1000,
+    },
+    {
+      // Static build of the main fixture (tests/visual/serve-static.sh) for
+      // static.spec.ts. Builds with `myst build --html` first, so it is the
+      // slowest of the four to come up.
+      command: `STATIC_PORT=${STATIC_PORT} bash tests/visual/serve-static.sh`,
+      url: staticURL,
       reuseExistingServer: !process.env.CI,
       timeout: 300 * 1000,
     },

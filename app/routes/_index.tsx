@@ -10,6 +10,10 @@ import { getProject } from '@myst-theme/common';
 import { Page } from '~/components/Page';
 import { hreflangLinks } from '~/i18n';
 
+// Never re-run the loader on a navigation that changes neither pathname nor
+// search (Back off an in-page anchor on a static build) -- #186.
+export { shouldRevalidate } from '~/revalidate';
+
 type ManifestProject = Required<SiteManifest>['projects'][0];
 
 export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }) => {

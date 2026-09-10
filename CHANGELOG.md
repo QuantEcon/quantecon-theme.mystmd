@@ -20,6 +20,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Pressing Back after following an in-page anchor no longer replaces a
+  statically-built page with a bare "Application Error" screen. A `myst build
+  --html` site still hydrates a live data router; React Router treats Back
+  off `#anchor` (the hash being *removed*) as a real navigation and re-runs
+  the loaders, a static host answers the `?_data=` fetches with the page's
+  HTML, and the next `data.page` read throws. `root`, `routes/$` and
+  `routes/_index` now export a `shouldRevalidate` that declines to re-run
+  when neither pathname nor search changed (`app/revalidate.ts`). Every
+  lecture page on a static host was one Back press from this
+  ([#186](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/186)).
+- The "↑ Top" control is a plain `href="#top"` fragment link, as in the
+  Sphinx build, instead of a router `Link`. Rendered server-side, the router
+  link resolved `#top` against the un-slashed pathname and on deployed lecture
+  pages went through a 301 and a full document reload -- losing scroll
+  position and any live-compute session -- where every other in-page link
+  scrolled ([#186](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/186)).
+
+### Changed
+- In `myst start` (app mode) a repeated click on the currently-active link no
+  longer refetches the page's loader data: the three page loaders are pure
+  functions of pathname and search, so the `shouldRevalidate` guard above
+  applies in both modes ([#186](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/186)).
+- The Playwright harness gains a fourth server and a `static-chrome` project
+  (`tests/visual/static.spec.ts`, `serve-static.sh`, `static-server.mjs`): a
+  `myst build --html` of the fixture behind a plain file server, the deployed
+  shape the `myst start` servers cannot exercise. It asserts no `?_data=`
+  fetch fires and the page survives Back after an outline entry and after
+  "↑ Top" -- the third static-only defect in a row (#138, #150, #186) to have
+  shipped unguarded ([#186](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/186)).
+
 ## [2.6.0] - 2026-09-10
 
 ### Added

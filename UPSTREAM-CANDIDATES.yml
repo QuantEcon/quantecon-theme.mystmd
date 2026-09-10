@@ -97,3 +97,32 @@ upstream_candidates:
     notes: |
       A two-prop change to src/pages/Root.tsx upstream; once accepted, the
       local copy can be deleted. Small enough to open ahead of the rest.
+
+  - id: static-build-loaders
+    title: Static builds hydrate a loader-bearing data router
+    description: |
+      @myst-theme/site's `Document` responds to `staticBuild` by swapping the
+      link provider to `<Link reloadDocument>`, but renders `<Scripts />`
+      unconditionally, so a `myst build --html` site still hydrates a Remix
+      data router whose loaders only a running server can answer. Any
+      client-side navigation that is not short-circuited -- Back off an
+      in-page anchor removes the hash, which `isHashChangeOnly` deliberately
+      treats as a real navigation -- re-runs the loaders, the static host
+      returns the page's own HTML to `?_data=`, and the routes throw on the
+      string loader value ("Application Error").
+    status: pending
+    target: jupyter-book/myst-theme
+    provenance:
+      - local_pr: 192
+        note: |
+          Workaround only: `shouldRevalidate` exports on the three UI route
+          modules (app/revalidate.ts), plus a static-serve Playwright project
+          that reproduces the failure on the fixture. Tracked locally as #186.
+    upstream:
+      pr: null
+    notes: |
+      The workaround stays here regardless. Upstream, a `staticBuild`
+      Document should either not hydrate live loaders at all or default every
+      route to `shouldRevalidate: () => false`; React Router 7 keeps the same
+      hash-removal semantics, so the migration tracked in #28 does not repair
+      it. No upstream issue found on jupyter-book/myst-theme at filing time.
