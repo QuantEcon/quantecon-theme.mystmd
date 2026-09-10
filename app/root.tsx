@@ -158,7 +158,7 @@ const CRITICAL_CSS = `
 :where(.qe-back-to-top){opacity:0}
 :where(.simple-center-grid){display:grid;grid-template-columns:[screen-start] 1fr [body-start] minmax(300px,800px) [body-end] 1fr [screen-end]}
 :where(.simple-center-grid) > *{grid-column:body-start / body-end}
-@media (min-width:1280px){:where(.simple-center-grid){grid-template-columns:[screen-start] 1fr 200px 20px [body-start] 800px [body-end] 20px [margin-start] 200px [margin-end] 1fr [screen-end]}}
+@media (min-width:1280px){:where(.simple-center-grid){grid-template-columns:[screen-start] 1fr minmax(0,200px) 20px [body-start] 800px [body-end] 20px [margin-start] 200px [margin-end] 1fr [screen-end]}}
 `;
 
 export const links: LinksFunction = () => {

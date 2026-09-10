@@ -35,6 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than the list index. Capped at the viewport with an internal scroll
   behind a mask fade
   ([#182](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/182)) ([#196](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/196)).
+- Desktop pages no longer overflow the viewport between 1280px and 1328px
+  wide. The two-column grid's fixed tracks plus its six column gaps needed
+  1328px, so in that band the grid outgrew its box: left-to-right pages
+  scrolled sideways with the end of the "On this page" panel clipped, and in
+  right-to-left editions the panel started off-screen. The empty track left
+  of the body is now `minmax(0, 200px)` and absorbs the shortfall; from
+  1328px up the layout is unchanged. An `outline-within-viewport` assertion
+  covers 1280, 1300 and 1328px in both directions.
 - Every site option the theme reads is now declared in `template.yml`, so it
   actually arrives. The MyST CLI validates `site.options` against the
   template's declarations and drops every undeclared key, and until now only
