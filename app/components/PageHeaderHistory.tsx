@@ -78,12 +78,24 @@ const COPY = "text-[0.85rem]";
  * Renders nothing when neither is present.
  */
 
-/** The parsed override only counts when it has the plugin's shape. */
+/**
+ * The parsed override only counts when it has the plugin's shape, and only
+ * changelog entries the renderer can use (an object with string `hash` and
+ * `date`) are kept, so a malformed hand-written block degrades to fewer rows
+ * rather than a throw.
+ */
 function asGitMetadata(value: unknown): GitMetadata | undefined {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const v = value as Partial<GitMetadata>;
-  if (!v.last_modified && !Array.isArray(v.changelog)) return undefined;
-  return { last_modified: v.last_modified, changelog: Array.isArray(v.changelog) ? v.changelog : [] } as GitMetadata;
+  const changelog = (Array.isArray(v.changelog) ? v.changelog : []).filter(
+    (entry): entry is GitChangelogEntry =>
+      !!entry &&
+      typeof entry === "object" &&
+      typeof (entry as any).hash === "string" &&
+      typeof (entry as any).date === "string"
+  );
+  if (!v.last_modified && changelog.length === 0) return undefined;
+  return { last_modified: v.last_modified, changelog } as GitMetadata;
 }
 
 export function PageHeaderHistory({ alignEnd = true }: { alignEnd?: boolean } = {}) {

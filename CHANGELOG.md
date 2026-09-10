@@ -32,21 +32,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   declared option reaches the rendered page. Options the theme never read
   (`hide_outline`, `hide_title_block`, `hide_footer_links`, `outline_maxdepth`)
   are dropped from its types rather than declared as dead knobs
-  ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)).
+  ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)) ([#194](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/194)).
 - The `favicon` option now takes effect at all. Beyond being undeclared, it
   was shadowed by a static `public/favicon.ico`, served ahead of the theme's
   favicon route on every request. That file is the QuantEcon lectures favicon
   (byte-identical to the Sphinx sites'), so it moves to
   `public/logos/lectures-favicon.png` and becomes the route's default when no
   option is set; a configured favicon is fetched from the content server as
-  the CLI copied it ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)).
+  the CLI copied it ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)) ([#194](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/194)).
 - The page-level `git_metadata` override is a declared option too, written as
   a YAML block string (template options are scalar-only). It previously
   survived only because the CLI leaves a page's raw `site:` block alone when
   nothing in it validates, so a page that also set any declared key (a
   translator credit, `hide_search`, and the per-lecture live-compute flag to
   come) silently lost its override. An object is still accepted
-  ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)).
+  ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)) ([#194](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/194)).
 
 ### Changed
 - The release bundle's manifest now declares Node `>=20` (it said `>=16`,

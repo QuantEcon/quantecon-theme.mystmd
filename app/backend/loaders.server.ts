@@ -142,7 +142,11 @@ export async function getMystSearchJson(): Promise<MystSearchIndex | null> {
  */
 const DEFAULT_FAVICON = "public/logos/lectures-favicon.png";
 
+// Read once: the file is static, and this runs on every /favicon.ico request.
+let defaultFavicon: { contentType: string; buffer: Buffer } | null | undefined;
+
 function readDefaultFavicon(): { contentType: string; buffer: Buffer } | null {
+  if (defaultFavicon !== undefined) return defaultFavicon;
   // The theme server runs from the bundle directory (`build.start` in
   // template.yml), where public/ sits beside build/; the second candidate
   // covers being launched from elsewhere.
@@ -150,14 +154,16 @@ function readDefaultFavicon(): { contentType: string; buffer: Buffer } | null {
     path.resolve(process.cwd(), DEFAULT_FAVICON),
     path.resolve(__dirname, "..", DEFAULT_FAVICON),
   ];
+  defaultFavicon = null;
   for (const file of candidates) {
     try {
-      return { contentType: "image/png", buffer: fs.readFileSync(file) };
+      defaultFavicon = { contentType: "image/png", buffer: fs.readFileSync(file) };
+      break;
     } catch {
       // try the next location
     }
   }
-  return null;
+  return defaultFavicon;
 }
 
 export async function getFavicon(): Promise<{
