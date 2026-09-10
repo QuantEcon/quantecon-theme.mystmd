@@ -21,15 +21,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Per-lecture live compute: a `live_compute` site option, set `false` under
-  `site:` in a lecture's frontmatter (or notebook metadata) to withhold the
-  in-page compute control on lectures Pyodide cannot run, or site-wide to make
-  the default opt-in. Page value over site value over on, so projects without
-  the flag change nothing. The gate is broad: a gated page loses the toolbar
-  toggle, the execute scope and the error tray together. Phase 4 of the
-  book-theme parity plan ([#114](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/114)).
+- The full OpenGraph / Twitter card set the Sphinx lecture sites emit, on every
+  page: `og:type`, `og:site_name`, `og:url` (from a new `site_url` option; myst's `site.domains` never reaches the theme), a site-level
+  `og:image` / `twitter:image` when the page has no thumbnail (new
+  `og_logo_url` / `twitter_logo_url` options, named as in the book theme),
+  `twitter:site`, and `og:locale` from `current_language`. `twitter:site` had
+  never rendered: upstream puts it in the root route's meta, which the article
+  route's replaces under Remix v2 semantics. Phase 6 of the book-theme parity
+  plan ([#92](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/92)) ([#197](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/197)).
+- Collapsible stderr: a notebook cell's stderr stream is folded behind a
+  "⚠ Code warnings" disclosure, closed by default, as the Sphinx build's
+  `stderr-warnings.js` does. A native `<details>` around the stream at render
+  time rather than DOM surgery after load, so it holds in server-rendered HTML
+  without a script; stdout in the same cell stays visible
+  ([#92](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/92)) ([#197](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/197)).
+- A `docs/` feature reference mirroring the book theme's `docs/user/*` pages
+  (configuration, layout, authors, launch, notebooks, git metadata, code
+  highlighting, text colour schemes, dark mode, RTL and editions,
+  announcements), each naming its `myst.yml` keys and what has no counterpart
+  ([#92](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/92)) ([#197](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/197)).
+- Per-lecture live compute: an `enable_live_compute` site option, set `false`
+  under `site:` in a lecture's frontmatter (or notebook metadata) to withhold
+  the in-page compute control on lectures Pyodide cannot run, or site-wide to
+  make the default opt-in. Page value over site value over on, so projects
+  without the flag change nothing. The gate is broad: a gated page loses the
+  toolbar toggle, the execute scope and the error tray together
+  ([#114](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/114)).
 
 ### Fixed
+- The "On this page" panel is pinned, tracks scrolling and lists subsections,
+  as the Sphinx sites' `sticky_contents` panel does. It scrolled off with the
+  page, never marked the current section (the hook computed an active id the
+  component threw away) and listed h2 headings only. It is now `position:
+  fixed` in the margin track (not `sticky`, which has no travel inside the
+  `self-start` wrapper); the current section follows the Sphinx scrollspy rule
+  (the last heading past 120px, the last section at the page bottom) and is
+  marked with `aria-current`, QuantEcon blue, weight 600 and an inset rule;
+  h3 entries nest under their h2 and collapse to the current branch as
+  `contents_autoexpand` does, with the parent of a current subsection
+  expanded but not marked; each entry's number comes from the heading itself
+  rather than the list index. Capped at the viewport with an internal scroll
+  behind a mask fade
+  ([#182](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/182)) ([#196](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/196)).
+- Desktop pages no longer overflow the viewport between 1280px and 1328px
+  wide. The two-column grid's fixed tracks plus its six column gaps needed
+  1328px, so in that band the grid outgrew its box: left-to-right pages
+  scrolled sideways with the end of the "On this page" panel clipped, and in
+  right-to-left editions the panel started off-screen. The empty track left
+  of the body is now `minmax(0, 200px)` and absorbs the shortfall; from
+  1328px up the layout is unchanged. An `outline-within-viewport` assertion
+  covers 1280, 1300 and 1328px in both directions
+  ([#198](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/198)).
 - Every site option the theme reads is now declared in `template.yml`, so it
   actually arrives. The MyST CLI validates `site.options` against the
   template's declarations and drops every undeclared key, and until now only
@@ -58,6 +100,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)) ([#194](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/194)).
 
 ### Changed
+- The QuantEcon logo in the "On this page" panel is smaller (100px), so it
+  reads as a quiet brand mark; it stays below the list and above "Powered
+  by", where the Sphinx panel keeps it
+  ([#96](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/96)). Its
+  entries are 15px, navigation chrome rather than reading copy, and the
+  outline's inert `useOutlineHeight` scroll listener is gone
+  ([#182](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/182)) ([#196](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/196)).
 - The release bundle's manifest now declares Node `>=20` (it said `>=16`,
   contradicting CONTRIBUTING.md and every real floor in the repo) and installs
   the shipped lockfile with `npm ci` instead of `npm install`, so consumer

@@ -1,5 +1,4 @@
 import type { PageLoader } from '@myst-theme/common';
-import { useOutlineHeight } from '@myst-theme/site';
 import { useLoaderData } from '@remix-run/react';
 import { useCallback } from 'react';
 import type { SiteManifest } from 'myst-config';
@@ -14,7 +13,6 @@ import { PageProvider } from './PageProvider';
 type ManifestProject = Required<SiteManifest>['projects'][0];
 
 export function Page() {
-  const { container } = useOutlineHeight();
   const data = useLoaderData() as {
     page: PageLoader;
     project: ManifestProject;
@@ -52,7 +50,7 @@ export function Page() {
               }}
             >
               <ThebeLoaderAndServer baseurl={baseurl}>
-                <main className="pt-[72px] px-2" ref={container}>
+                <main className="pt-[72px] px-2">
                   <PageContent article={data.page} />
                 </main>
               </ThebeLoaderAndServer>

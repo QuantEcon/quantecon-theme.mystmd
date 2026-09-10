@@ -359,6 +359,176 @@ test.describe("QuantEcon theme — visual regression", () => {
  * translator with a page-level override on `/` and a suppression on
  * `/lists`; `fixture-rtl` is the Persian edition with `enable_rtl`.
  */
+test.describe("On this page outline (#182)", () => {
+  // The full-page snapshots cannot see this (they stitch a scrolled page, and
+  // the file records above why a fixed element breaks that), so it is
+  // asserted behaviourally. The no-thebe fixture carries the numbered,
+  // nested page; the main fixture's /features has unnumbered h2/h3.
+  const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+  const nav = (page: Page) => page.getByRole("navigation", { name: "On this page" });
+  const current = (page: Page) => nav(page).locator('a[aria-current="location"]');
+
+  test("outline-pinned-and-nested", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "the margin column is desktop-only");
+    await page.goto(`${noThebeBase}/outline`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const entries = nav(page).locator("ul a");
+    // Two h2 + two h3 + one h2 = five entries, with the heading's own
+    // enumerator, never a list-index number.
+    await expect(entries).toHaveCount(5);
+    // (`titles: true` numbers nothing on this fixture's pages, so the
+    // enumerators are section-only; the lecture repos get "3.1." from the
+    // same span.)
+    await expect(entries.nth(0)).toHaveText(/^1\. First section$/);
+    await expect(entries.nth(1)).toHaveText(/^1\.1\. First subsection$/);
+    await expect(entries.nth(4)).toHaveText(/^3\. Last section$/);
+    // Autoexpand: at the top of the page only the sections show.
+    const subs = nav(page).locator("li.qe-outline__sub a");
+    await expect(subs).toHaveCount(2);
+    await expect(subs.first()).toBeHidden();
+    // Scrolling into the first section expands its subsections, indented:
+    // the anchors are block-level, so compare their start padding.
+    await page.evaluate(() => {
+      const el = document.getElementById("first-section")!;
+      window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 100);
+    });
+    await expect(subs.first()).toBeVisible();
+    const pad = async (i: number) =>
+      parseFloat(await entries.nth(i).evaluate((a) => getComputedStyle(a).paddingInlineStart));
+    expect(await pad(1)).toBeGreaterThan(await pad(0));
+    expect(await pad(3)).toBe(await pad(0));
+    // Pinned: the panel's top is the same before and after a long scroll.
+    const top = async () => Math.round((await nav(page).boundingBox())!.y);
+    const before = await top();
+    await page.evaluate(() => window.scrollTo(0, 1500));
+    await page.waitForTimeout(300);
+    expect(await top()).toBe(before);
+    // And it never outgrows the viewport: capped, scrolling internally.
+    const box = (await nav(page).boundingBox())!;
+    expect(box.y + box.height).toBeLessThanOrEqual(800);
+  });
+
+  test("outline-tracks-scroll", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "the margin column is desktop-only");
+    await page.goto(`${noThebeBase}/outline`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    // Nothing is current above the first heading.
+    await expect(current(page)).toHaveCount(0);
+    // The Sphinx rule: a section is current once its heading has passed
+    // 120px from the top, and stays current until the next one does.
+    const scrollTo = (id: string, y: number) =>
+      page.evaluate(([i, yy]) => {
+        const el = document.getElementById(i)!;
+        window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - yy);
+      }, [id, y] as [string, number]);
+    await scrollTo("second-section", 100);
+    await expect(current(page)).toHaveAttribute("href", /#second-section$/);
+    await expect(current(page)).toHaveCSS("font-weight", "600");
+    // ...and the first section's sub-list has collapsed again.
+    await expect(nav(page).locator("li.qe-outline__sub a").first()).toBeHidden();
+    // 20px short of the line: the previous section (a subsection) still holds.
+    await scrollTo("second-section", 140);
+    await expect(current(page)).toHaveAttribute("href", /#second-subsection$/);
+    await scrollTo("first-subsection", 100);
+    // A current subsection is marked itself; its parent is expanded, not marked.
+    await expect(current(page)).toHaveAttribute("href", /#first-subsection$/);
+    const parent = nav(page).locator("li.qe-outline__expanded > a");
+    await expect(parent).toHaveAttribute("href", /#first-section$/);
+    await expect(parent).not.toHaveAttribute("aria-current", "location");
+    // The last section is too short to reach the activation window; the
+    // bottom-of-page rule marks it, as Sphinx's scrollspy does.
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect(current(page)).toHaveAttribute("href", /#last-section$/);
+    // Exactly one entry is current at a time.
+    await expect(current(page)).toHaveCount(1);
+  });
+
+  test("outline-unnumbered", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "the margin column is desktop-only");
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const entries = nav(page).locator("ul a");
+    // No numbering configured: bare titles, no invented "1." prefixes.
+    await expect(entries.first()).toHaveText(/^Mathematics$/);
+    await expect(entries.filter({ hasText: /^\d/ })).toHaveCount(0);
+    // The two h3s nest under "Admonitions" and are hidden until it is current.
+    await expect(nav(page).locator("li.qe-outline__sub")).toHaveCount(2);
+    await expect(nav(page).locator("li.qe-outline__sub a").first()).toBeHidden();
+  });
+
+  test("outline-within-viewport", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "the margin column is desktop-only");
+    // From the 1280px breakpoint to 1328px the fixed grid tracks plus their
+    // column gaps outgrew the content box: LTR pages scrolled sideways with
+    // the panel's end clipped, and in RTL the panel started 28px off-screen.
+    // In both directions the page must fit and the panel sit inside it.
+    const rtlBase = `http://localhost:${process.env.RTL_PORT || "3113"}`;
+    for (const url of ["/features", `${rtlBase}/`]) {
+      for (const width of [1280, 1300, 1328]) {
+        await page.setViewportSize({ width, height: 800 });
+        await page.goto(url, { waitUntil: "domcontentloaded" });
+        await settle(page);
+        const where = `${url} at ${width}px`;
+        const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+        expect(scrollWidth, where).toBeLessThanOrEqual(width);
+        // By class, not role name: the RTL edition translates the label.
+        const box = (await page.locator(".qe-outline").boundingBox())!;
+        expect(box.x, where).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width, where).toBeLessThanOrEqual(width);
+      }
+    }
+  });
+});
+
+test.describe("Meta/SEO and notebook output polish (#92)", () => {
+  const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+  const meta = (page: Page, sel: string) => page.locator(`head meta[${sel}]`);
+
+  // The Sphinx lecture sites' OpenGraph / Twitter set, on a lecture page. The
+  // no-thebe fixture declares `site_url`, `twitter`, both logo URLs and
+  // `current_language`; nothing here depends on the page having a thumbnail.
+  test("social-meta", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    const expectTag = async (sel: string, content: string | RegExp) =>
+      expect(meta(page, sel)).toHaveAttribute("content", content);
+    await expectTag('property="og:type"', "website");
+    await expectTag('property="og:site_name"', "QE Theme No-Thebe Fixture");
+    await expectTag('property="og:url"', "https://example.org/notebook");
+    await expectTag('property="og:image"', "https://assets.example.org/qe-og-logo.png");
+    await expectTag('property="og:locale"', "en_US");
+    await expectTag('name="twitter:site"', "@quantecon");
+    await expectTag('name="twitter:creator"', "@quantecon");
+    await expectTag('name="twitter:card"', "summary");
+    await expectTag('name="twitter:image"', "https://assets.example.org/qe-twitter-logo.png");
+    // Replaced, not duplicated: one og:image, one twitter:card.
+    await expect(meta(page, 'property="og:image"')).toHaveCount(1);
+    await expect(meta(page, 'name="twitter:card"')).toHaveCount(1);
+  });
+
+  // A cell's stderr stream is folded behind a "Code warnings" disclosure,
+  // closed by default, as the Sphinx build's stderr-warnings.js does; stdout
+  // in the same cell stays visible. A native <details>, so it holds in the
+  // server-rendered HTML too.
+  test("stderr-collapsed", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const fold = page.locator("details.qe-stderr");
+    await expect(fold).toHaveCount(1);
+    await expect(fold).not.toHaveAttribute("open", "");
+    await expect(fold.locator("summary")).toContainText("Code warnings");
+    await expect(fold.locator("pre.jupyter-error")).toBeHidden();
+    // The output, not the source cell that also carries the string.
+    await expect(
+      page.locator("pre.jupyter-output", { hasText: "and a normal line on stdout, left visible" })
+    ).toBeVisible();
+    await fold.locator("summary").click();
+    await expect(fold.locator("pre.jupyter-error")).toBeVisible();
+    await expect(fold.locator("pre.jupyter-error")).toContainText("a deliberate warning on stderr");
+  });
+});
+
 test.describe("Site options reach the theme (#173)", () => {
   // The CLI validates `site.options` against template.yml and DROPS every key
   // the template does not declare, so a theme that reads an undeclared option

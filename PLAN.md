@@ -55,7 +55,8 @@ Derived from `quantecon-book-theme` v0.20.3 (see its `README.md`, `docs/user/*`,
 | Translator credit (`translators` + localisable label; #143, QuantEcon/workspace-themes#3) | ✅ | ✅ | **4** |
 | Collapsible stderr warnings in notebook cells | ✅ | ❓ verify | **6** |
 | Full OpenGraph / Twitter card meta tags | ✅ | ⚠️ partial | **6** |
-| **Already at parity:** dark mode, font scaling, fullscreen, search, "On this page" TOC + back-to-top, contents sidebar, downloads (PDF/notebook), Colab launch, edit-on-GitHub, author header, content-driven footer, responsive/mobile | ✅ | ✅ | — |
+| Pinned, scroll-tracking "On this page" outline with nested entries (`sticky_contents`, scrollspy, `contents_autoexpand`) | ✅ | ✅ (#182: pinned + scroll-spy + h3 sub-lists collapsed to the current branch) | **—** |
+| **Already at parity:** dark mode, font scaling, fullscreen, search, back-to-top, contents sidebar, downloads (PDF/notebook), Colab launch, edit-on-GitHub, author header, content-driven footer, responsive/mobile | ✅ | ✅ | — |
 
 **Shipped state (2026-08-20).** Phase 0 completed across
 [v2.1.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.1.0)–[v2.2.0](https://github.com/QuantEcon/quantecon-theme.mystmd/releases/tag/v2.2.0); Phase 1 and the Thebe half of Phase 2
@@ -483,16 +484,20 @@ for the same translated sites).
 
 **Goal:** close the smaller gaps and verify assumptions.
 
-- [ ] **OpenGraph/Twitter parity:** the book-theme emits a full OG + Twitter card set;
+- [x] **OpenGraph/Twitter parity:** the book-theme emits a full OG + Twitter card set;
       `root.tsx` currently uses `getMetaTagsForSite` (title/description/twitter). Add
       `og:image`/`twitter:image` (logo), `og:type`, `og:site_name`, etc., driven from
-      site config.
-- [ ] **Collapsible stderr warnings:** confirm whether `@myst-theme/jupyter` already
+      site config. *Done (#92): `app/seo.ts` adds `og:type`, `og:site_name`, `og:url`
+      (from a `site_url` option), site-level images (`og_logo_url` / `twitter_logo_url`),
+      `twitter:site` and `og:locale` on top of upstream's article tags.*
+- [x] **Collapsible stderr warnings:** confirm whether `@myst-theme/jupyter` already
       renders notebook stderr in a collapsible/styled way (it may — verify before
-      porting). If not, add an output transform/renderer.
-- [ ] **Docs:** add a `docs/`-style feature reference for the MyST theme mirroring the
+      porting). If not, add an output transform/renderer. *Verified (#92): upstream
+      renders stderr as a plain `<pre class="jupyter-error">`; ported as a native
+      `<details>` around the stderr `output` node (`STDERR_RENDERERS`).*
+- [x] **Docs:** add a `docs/`-style feature reference for the MyST theme mirroring the
       book-theme's `docs/user/*` set, so downstream lecture maintainers have parity
-      documentation.
+      documentation. *Done (#92): `docs/` with one page per book-theme user page.*
 
 **Effort:** S–M. **Risk:** low. **Deps:** none.
 

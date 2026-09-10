@@ -8,6 +8,8 @@ QuantEcon lectures and books, distributed as a zip attached to each
 - Notebook launch (Google Colab) with configurable repo, branch and paths
 - In-page live compute via Thebe (JupyterLite / Pyodide by default)
 - Git history in page headers ("Last changed" plus an inline changelog)
+- Full OpenGraph / Twitter card meta tags, and collapsible stderr on notebook cells
+- A `docs/` feature reference mirroring the book theme's user guide
 - Page Footer based on MyST Content
 - Bundled QuantEcon brand assets
 
@@ -232,6 +234,24 @@ One trap: a page whose `site:` frontmatter sets any of these keys has its whole
 `site:` block replaced by the validated keys, so an undeclared `site.git_metadata`
 on the same page is lost. Keep the two on different pages.
 
+### Meta tags
+
+Every page carries the OpenGraph and Twitter card set the Sphinx lecture sites
+emit: `og:title`, `og:description`, `og:type` (`website`), `og:site_name`,
+`og:url`, `og:image`, `og:locale`, and `twitter:card`, `twitter:site`,
+`twitter:creator`, `twitter:title`, `twitter:description`, `twitter:image`.
+Four `site.options` keys feed them: `site_url` (the public URL, for
+`og:url`; myst's `site.domains` does not reach the theme), `twitter`, and
+the two image URLs `og_logo_url` / `twitter_logo_url`, named as in the book
+theme so a lecture repo copies its values across. A page's own thumbnail takes precedence for
+`og:image`.
+
+### Collapsible stderr
+
+A notebook cell's stderr stream is folded behind a "⚠ Code warnings"
+disclosure, closed by default, as on the Sphinx sites; stdout in the same cell
+stays visible. It is a native `<details>`, so it works without JavaScript.
+
 ## Site options
 
 Everything the theme reads from `site.options` is declared in
@@ -245,6 +265,8 @@ block inside a string (`key: |`), which the theme parses.
 | Option | Scope | Purpose |
 | ------ | ----- | ------- |
 | `twitter` | site | Handle for the `twitter:site` / `twitter:creator` card meta tags |
+| `site_url` | site | The site's public URL, for `og:url` ([Meta tags](#meta-tags)) |
+| `og_logo_url`, `twitter_logo_url` | site | Site-level images for `og:image` / `twitter:image` when a page has no thumbnail ([Meta tags](#meta-tags)) |
 | `favicon` | site | Favicon file, relative to `myst.yml`; served at `/favicon.ico` (the QuantEcon lectures favicon when unset) |
 | `analytics_google`, `analytics_plausible` | site | Analytics IDs, rendered by `@myst-theme/site` |
 | `hide_toc`, `hide_search` | site or page | Hide the contents drawer / the search control |

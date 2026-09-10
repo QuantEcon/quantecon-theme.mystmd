@@ -20,7 +20,7 @@ import type { ISearch, MystSearchIndex } from '@myst-theme/search';
 import { SEARCH_ATTRIBUTES_ORDERED } from '@myst-theme/search';
 import { useCallback } from 'react';
 import { JUPYTER_RENDERERS } from '@myst-theme/jupyter';
-import { LIST_RENDERERS } from './renderers';
+import { LIST_RENDERERS, STDERR_RENDERERS } from './renderers';
 import { Document } from './components/Document';
 import { htmlDir, htmlLang } from './i18n';
 import type { TemplateOptions } from './types';
@@ -33,6 +33,8 @@ const RENDERERS: NodeRenderers = mergeRenderers([
   defaultRenderers,
   JUPYTER_RENDERERS,
   LIST_RENDERERS,
+  // After JUPYTER_RENDERERS: wraps upstream's `output` renderer (#92).
+  STDERR_RENDERERS,
 ]);
 
 export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
@@ -158,7 +160,7 @@ const CRITICAL_CSS = `
 :where(.qe-back-to-top){opacity:0}
 :where(.simple-center-grid){display:grid;grid-template-columns:[screen-start] 1fr [body-start] minmax(300px,800px) [body-end] 1fr [screen-end]}
 :where(.simple-center-grid) > *{grid-column:body-start / body-end}
-@media (min-width:1280px){:where(.simple-center-grid){grid-template-columns:[screen-start] 1fr 200px 20px [body-start] 800px [body-end] 20px [margin-start] 200px [margin-end] 1fr [screen-end]}}
+@media (min-width:1280px){:where(.simple-center-grid){grid-template-columns:[screen-start] 1fr minmax(0,200px) 20px [body-start] 800px [body-end] 20px [margin-start] 200px [margin-end] 1fr [screen-end]}}
 `;
 
 export const links: LinksFunction = () => {

@@ -15,6 +15,9 @@ export interface TemplateOptions {
 
   // Meta / SEO and analytics, passed through to @myst-theme/site.
   twitter?: string; // handle for twitter:site / twitter:creator, `@` optional
+  site_url?: string; // public URL, for og:url (#92); site.domains never reaches the manifest
+  og_logo_url?: string; // og:image when the page has no thumbnail (#92)
+  twitter_logo_url?: string; // twitter:image; falls back to og_logo_url (#92)
   favicon?: string; // declared `file`: the CLI copies it and rewrites this to its served path
   analytics_google?: string;
   analytics_plausible?: string;
