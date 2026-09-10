@@ -1,18 +1,29 @@
 import type { GitMetadata } from './components/PageHeaderHistory';
 
 export interface TemplateOptions {
+  // Every key here is declared in template.yml: the CLI drops any
+  // `site.options` key the template does not declare (#173), so an option
+  // that is read but not declared never arrives. Keep the two in step.
+
+  // Layout. Both are per-page: Page.tsx merges a page's `site:` block over
+  // the site-wide options.
   hide_toc?: boolean;
-  hide_outline?: boolean;
   hide_search?: boolean;
-  hide_footer_links?: boolean;
-  outline_maxdepth?: number;
-  hide_title_block?: boolean;
+
+  // Meta / SEO and analytics, passed through to @myst-theme/site.
+  twitter?: string; // handle for twitter:site / twitter:creator, `@` optional
+  favicon?: string; // declared `file`: the CLI copies it and rewrites this to its served path
+  analytics_google?: string;
+  analytics_plausible?: string;
+
   /**
    * Page-level override for the "Last changed" header control, normally
    * injected at build time by plugins/git-metadata.mjs (set under `site:` in
-   * page frontmatter).
+   * page frontmatter). Declared as a string holding a YAML block, like the
+   * lists below, because template options are scalar-only; a real object is
+   * accepted too (app/i18n.ts `parseStructured`).
    */
-  git_metadata?: GitMetadata;
+  git_metadata?: string | GitMetadata;
 
   // Notebook launcher configuration (set under `site.options` in myst.yml).
   // Generalises the previously hardcoded Colab launch URLs so
@@ -35,10 +46,10 @@ export interface TemplateOptions {
   // PageContent); the other four are site-wide -- `current_language` and
   // `enable_rtl` come from the root loader's config, `languages` and the
   // switcher label from the site manifest -- and a page value is ignored.
-  // Caution: a page that sets any declared key here has its whole `site:`
-  // block replaced by the validated keys, so an undeclared `git_metadata` on
-  // the same page is lost -- keep the two on different pages, as the visual
-  // fixture does.
+  // A page that sets any declared key has its whole `site:` block replaced
+  // by the validated keys, which is why `git_metadata` above is declared too:
+  // undeclared, it was silently lost from any page that also set one of
+  // these.
   current_language?: string; // BCP 47 code of this edition; document `lang`, active switcher entry
   enable_rtl?: boolean; // dir="rtl" on the document
   languages?: string | unknown[]; // YAML block of `{code, name, url}`; needs 2+ entries to render

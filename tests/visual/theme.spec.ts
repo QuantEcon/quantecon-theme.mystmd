@@ -332,6 +332,49 @@ test.describe("QuantEcon theme — visual regression", () => {
  * translator with a page-level override on `/` and a suppression on
  * `/lists`; `fixture-rtl` is the Persian edition with `enable_rtl`.
  */
+test.describe("Site options reach the theme (#173)", () => {
+  // The CLI validates `site.options` against template.yml and DROPS every key
+  // the template does not declare, so a theme that reads an undeclared option
+  // silently runs on its default. These assert, end to end, that a declared
+  // site-wide option arrives: the fixture sets `twitter` and `favicon` in
+  // myst.yml.in. The page-level path (`site:` in a page's frontmatter) is
+  // covered by the `history-open` snapshot above, whose "Last changed" control
+  // exists only because features.md's `git_metadata` block survives
+  // validation.
+  test("site-options", async ({ page, request }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    // `twitter:creator`, not `twitter:site`: the article routes' meta() emits
+    // the former, and under Remix v2 meta semantics the leaf route's tags
+    // replace the root's (where `twitter:site` lives) rather than merging.
+    // That gap is Phase 6's (#92); what is asserted here is only that the
+    // declared option reached the theme at all.
+    await expect(page.locator('head meta[name="twitter:creator"]')).toHaveAttribute(
+      "content",
+      "@quantecon"
+    );
+    // `favicon` is a `file` option: the CLI copies the fixture's PNG into the
+    // build and the theme serves it at /favicon.ico. Match on the bytes, not
+    // just the status -- the mystmd default favicon is also a 200.
+    const served = await request.get("/favicon.ico");
+    expect(served.status()).toBe(200);
+    expect(served.headers()["content-type"]).toContain("image/png");
+    const fs = await import("node:fs");
+    const fixture = fs.readFileSync("tests/visual/fixture/cc-by-sa-4.0-80x15.png");
+    expect(Buffer.from(await served.body()).equals(fixture)).toBe(true);
+    // And the default when the option is unset (the no-thebe fixture): the
+    // QuantEcon lectures favicon, byte-identical to the Sphinx sites' one.
+    // It used to sit at public/favicon.ico, where the static file shadowed the
+    // route and the option with it.
+    const noThebe = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+    const fallback = await request.get(`${noThebe}/favicon.ico`);
+    expect(fallback.status()).toBe(200);
+    expect(fallback.headers()["content-type"]).toContain("image/png");
+    const lectures = fs.readFileSync("public/logos/lectures-favicon.png");
+    expect(Buffer.from(await fallback.body()).equals(lectures)).toBe(true);
+  });
+});
+
 test.describe("Multilingual editions", () => {
   const rtlBase = `http://localhost:${process.env.RTL_PORT || "3113"}`;
 

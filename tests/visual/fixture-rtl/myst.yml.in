@@ -16,7 +16,6 @@ site:
   title: QE Theme RTL Fixture
   template: __THEME__
   options:
-    logo_text: QE RTL Fixture
     current_language: fa
     enable_rtl: true
     language_switcher_label: تغییر زبان

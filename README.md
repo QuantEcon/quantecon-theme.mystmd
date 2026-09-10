@@ -67,8 +67,9 @@ lecture repo had ever configured one. For running cells without leaving the
 page, see [Live compute](#live-compute-thebe--jupyterlite) below.
 
 The repo/branch/path conventions are configurable under `site.options` in
-`myst.yml` (MyST's theme-options section). All keys are optional and the
-defaults reproduce the behaviour above, so existing projects need no changes:
+`myst.yml` (MyST's theme-options section; see [Site options](#site-options)
+for the full list). All keys are optional and the defaults reproduce the
+behaviour above, so existing projects need no changes:
 
 | Option | Default | Purpose |
 | ------ | ------- | ------- |
@@ -143,6 +144,10 @@ Notes:
 
 - The header control renders nothing when no metadata is present, so projects
   without the plugin are unaffected.
+- A page can pin the control by hand with the same shape under `site:` in its
+  frontmatter, as a YAML block string (`git_metadata: |` then the indented
+  `last_modified` and `changelog`); it takes precedence over the injected data.
+  `tests/visual/fixture/features.md` is an example.
 - The plugin is a silent no-op for untracked files, non-git checkouts, missing
   `git`, or a `git log` timeout (5s). Shallow CI clones (`fetch-depth: 1`)
   produce truncated history — use `fetch-depth: 0` when building for deploy.
@@ -199,6 +204,32 @@ one through.
 One trap: a page whose `site:` frontmatter sets any of these keys has its whole
 `site:` block replaced by the validated keys, so an undeclared `site.git_metadata`
 on the same page is lost. Keep the two on different pages.
+
+## Site options
+
+Everything the theme reads from `site.options` is declared in
+[`template.yml`](./template.yml). That list is not documentation only: the MyST
+CLI validates `site.options` against it and **drops any key the template does
+not declare**, so an undeclared option never reaches the theme
+([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)).
+Template options are scalar-only, so the structured ones are written as a YAML
+block inside a string (`key: |`), which the theme parses.
+
+| Option | Scope | Purpose |
+| ------ | ----- | ------- |
+| `twitter` | site | Handle for the `twitter:site` / `twitter:creator` card meta tags |
+| `favicon` | site | Favicon file, relative to `myst.yml`; served at `/favicon.ico` (the QuantEcon lectures favicon when unset) |
+| `analytics_google`, `analytics_plausible` | site | Analytics IDs, rendered by `@myst-theme/site` |
+| `hide_toc`, `hide_search` | site or page | Hide the contents drawer / the search control |
+| `launch_repo_url`, `launch_repo_suffix`, `launch_branch`, `launch_notebooks_path`, `launch_source_path` | site | Notebook launcher conventions ([Launch buttons](#launch-buttons)) |
+| `current_language`, `enable_rtl`, `languages`, `language_switcher_label` | site | Multilingual editions ([below](#multilingual-editions)) |
+| `translators`, `translators_label` | site or page | Translator credit in the page header |
+| `git_metadata` | page | YAML block pinning the "Last changed" control by hand ([Git history](#git-history-in-page-headers)) |
+
+A page-level value goes under `site:` in the page's frontmatter and is
+validated against the same list. Options carry no defaults in `template.yml`
+(a declared default would be written into every page's validated block and
+override the site-wide value); defaults live in the code that reads each one.
 
 ## Usage with MyST
 

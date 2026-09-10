@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import fetch from "node-fetch";
 import type { SiteManifest } from "myst-config";
 import {
@@ -131,13 +133,53 @@ export async function getMystSearchJson(): Promise<MystSearchIndex | null> {
   return await response.json();
 }
 
+/**
+ * The QuantEcon lectures favicon (byte-identical to the Sphinx sites'
+ * `_static/lectures-favicon.ico`), served when no `favicon` option is set.
+ * It lives under public/logos/ rather than at public/favicon.ico: a static
+ * file at that path is served ahead of the `[favicon.ico]` route, which is
+ * why the `favicon` site option never took effect before #173.
+ */
+const DEFAULT_FAVICON = "public/logos/lectures-favicon.png";
+
+// Read once: the file is static, and this runs on every /favicon.ico request.
+let defaultFavicon: { contentType: string; buffer: Buffer } | null | undefined;
+
+function readDefaultFavicon(): { contentType: string; buffer: Buffer } | null {
+  if (defaultFavicon !== undefined) return defaultFavicon;
+  // The theme server runs from the bundle directory (`build.start` in
+  // template.yml), where public/ sits beside build/; the second candidate
+  // covers being launched from elsewhere.
+  const candidates = [
+    path.resolve(process.cwd(), DEFAULT_FAVICON),
+    path.resolve(__dirname, "..", DEFAULT_FAVICON),
+  ];
+  defaultFavicon = null;
+  for (const file of candidates) {
+    try {
+      defaultFavicon = { contentType: "image/png", buffer: fs.readFileSync(file) };
+      break;
+    } catch {
+      // try the next location
+    }
+  }
+  return defaultFavicon;
+}
+
 export async function getFavicon(): Promise<{
   contentType: string | null;
   buffer: Buffer;
 } | null> {
   // We are always fetching this at run time, so we don't want the rewritten links
   const config = await getConfig({ rewriteStaticFolder: false });
-  const url = config.options?.favicon || "https://mystmd.org/favicon.ico";
+  // A declared `file` option: the CLI copied the site's file into its public
+  // folder and getConfig rewrote the path onto the content server.
+  const url = config.options?.favicon;
+  if (!url) return readDefaultFavicon() ?? fetchFavicon("https://mystmd.org/favicon.ico");
+  return fetchFavicon(url);
+}
+
+async function fetchFavicon(url: string) {
   const response = await fetch(url).catch(() => null);
   if (!response || response.status === 404) return null;
   return {
