@@ -20,6 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- The release bundle's manifest now declares Node `>=20` (it said `>=16`,
+  contradicting CONTRIBUTING.md and every real floor in the repo) and installs
+  the shipped lockfile with `npm ci` instead of `npm install`, so consumer
+  installs from the release asset are reproducible and never mutate the
+  lockfile in place ([#162](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/162)).
+
 ## [2.6.1] - 2026-09-10
 
 ### Fixed
