@@ -601,6 +601,56 @@
     border-inline-start-color: #6cb6ff;
   }
 
+  /* Collapsible stderr (#92): the Sphinx build's amber "Code warnings"
+     fold (_stderr.scss), as a native <details>. Colours are the book
+     theme's: #ffc107 border and icon, #856404 label (7.0:1 on white). */
+  .qe-stderr {
+    margin: 0.5rem 0;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .qe-stderr > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #856404;
+    list-style: none;
+  }
+  .qe-stderr > summary::-webkit-details-marker {
+    display: none;
+  }
+  .qe-stderr > summary::after {
+    content: "\25B6"; /* the chevron, rotated when open */
+    margin-inline-start: auto;
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+  }
+  .qe-stderr[open] > summary::after {
+    transform: rotate(90deg);
+  }
+  .qe-stderr > summary:hover {
+    background-color: #fff9e6;
+  }
+  .qe-stderr > summary:focus-visible {
+    outline: 2px solid #ffc107;
+    outline-offset: -2px;
+  }
+  .qe-stderr__icon {
+    color: #ffc107;
+    font-size: 1.1rem;
+  }
+  .dark .qe-stderr > summary {
+    color: #ffd54f;
+  }
+  .dark .qe-stderr > summary:hover {
+    background-color: rgba(255, 193, 7, 0.08);
+  }
+
   .qe-back-to-top a {
     /* `rem` for the same reason as the footer: pinned to the Sphinx button's
        size, not the content base. The awkward figure is exactly .85rem of the

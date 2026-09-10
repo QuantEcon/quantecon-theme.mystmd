@@ -22,3 +22,10 @@ site:
   title: QE Theme No-Thebe Fixture
   template: __THEME__
   options:
+    # Social meta (#92), asserted in theme.spec.ts ("social-meta"). `site_url`
+    # feeds og:url; myst's own `site.domains` never reaches the theme's manifest.
+    site_url: https://example.org
+    twitter: quantecon
+    og_logo_url: https://assets.example.org/qe-og-logo.png
+    twitter_logo_url: https://assets.example.org/qe-twitter-logo.png
+    current_language: en

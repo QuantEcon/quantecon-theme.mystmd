@@ -13,6 +13,7 @@ import type { SiteManifest } from 'myst-config';
 import { ErrorPage } from '~/components/ErrorPage';
 import { Page } from '~/components/Page';
 import { hreflangLinks } from '~/i18n';
+import { mergeMeta, socialMetaTags } from '~/seo';
 
 // Never re-run the loader on a navigation that changes neither pathname nor
 // search (Back off an in-page anchor on a static build) -- #186.
@@ -37,8 +38,17 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
   );
   const baseurl = rootMatch?.data?.BASE_URL;
 
+  // Phase 6 (#92): the Sphinx sites' full OpenGraph / Twitter set on top of
+  // upstream's article tags -- see app/seo.ts for what upstream leaves out.
+  const social = socialMetaTags({
+    domains: config?.domains,
+    siteTitle: config?.title ?? project?.title,
+    pageImage: (page?.thumbnailOptimized || page?.thumbnail) ?? (project?.thumbnailOptimized || project?.thumbnail) ?? undefined,
+    pathname: `${baseurl ?? ''}${location.pathname}`,
+    options: config?.options as any,
+  });
   return [
-    ...getMetaTagsForArticle({
+    ...mergeMeta(getMetaTagsForArticle({
       origin: '',
       url: location.pathname,
       title: page?.title ? `${page.title}${siteTitle ? ` - ${siteTitle}` : ''}` : siteTitle,
@@ -49,7 +59,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
         undefined,
       twitter: config?.options?.twitter,
       keywords: page?.keywords ?? project?.keywords ?? config?.keywords ?? [],
-    }),
+    }), social),
     // hreflang alternates for the translated editions (Phase 4, #90).
     ...hreflangLinks(config?.options, location.pathname, baseurl),
   ];

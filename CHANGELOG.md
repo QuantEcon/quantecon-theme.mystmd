@@ -20,6 +20,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- The full OpenGraph / Twitter card set the Sphinx lecture sites emit, on every
+  page: `og:type`, `og:site_name`, `og:url` (from a new `site_url` option; myst's `site.domains` never reaches the theme), a site-level
+  `og:image` / `twitter:image` when the page has no thumbnail (new
+  `og_logo_url` / `twitter_logo_url` options, named as in the book theme),
+  `twitter:site`, and `og:locale` from `current_language`. `twitter:site` had
+  never rendered: upstream puts it in the root route's meta, which the article
+  route's replaces under Remix v2 semantics. Phase 6 of the book-theme parity
+  plan ([#92](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/92)) ([#197](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/197)).
+- Collapsible stderr: a notebook cell's stderr stream is folded behind a
+  "⚠ Code warnings" disclosure, closed by default, as the Sphinx build's
+  `stderr-warnings.js` does. A native `<details>` around the stream at render
+  time rather than DOM surgery after load, so it holds in server-rendered HTML
+  without a script; stdout in the same cell stays visible
+  ([#92](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/92)) ([#197](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/197)).
+- A `docs/` feature reference mirroring the book theme's `docs/user/*` pages
+  (configuration, layout, authors, launch, notebooks, git metadata, code
+  highlighting, text colour schemes, dark mode, RTL and editions,
+  announcements), each naming its `myst.yml` keys and what has no counterpart
+  ([#92](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/92)) ([#197](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/197)).
+
 ### Fixed
 - The "On this page" panel is pinned, tracks scrolling and lists subsections,
   as the Sphinx sites' `sticky_contents` panel does. It scrolled off with the
