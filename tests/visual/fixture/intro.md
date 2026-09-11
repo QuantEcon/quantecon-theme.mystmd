@@ -1,6 +1,6 @@
 ---
-# Page-level translator override (#143): replaces the project's translator on
-# this page only. Written as a YAML block string, like the site option.
+# Page-level translator override: replaces the project's translator on this
+# page only. Written as a YAML block string, like the site option.
 site:
   translators: |
     - name: Page-level Translator

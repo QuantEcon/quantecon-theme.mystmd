@@ -17,8 +17,8 @@ async function settle(page: Page) {
 const pages = [
   { name: "intro", path: "/" },
   { name: "features", path: "/features" },
-  // Fancy ordered lists: markers stamped by the fixture's
-  // fancy-lists.mjs plugin, so coverage is independent of the CLI's parser.
+  // Fancy ordered lists: markers stamped by the fixture's fancy-lists.mjs
+  // plugin, so coverage is independent of the CLI's parser.
   { name: "lists", path: "/lists" },
   { name: "notebook", path: "/notebook" },
 ];
@@ -449,9 +449,9 @@ test.describe("Meta/SEO and notebook output", () => {
   const meta = (page: Page, sel: string) => page.locator(`head meta[${sel}]`);
 
   // The OpenGraph / Twitter tags app/seo.ts adds to upstream's article set
-  // (and upstream's `twitter:creator`), on a lecture page. The no-thebe
-  // fixture declares `site_url`, `twitter`, both logo URLs and
-  // `current_language`; nothing here depends on the page having a thumbnail.
+  // (and upstream's `twitter:creator`), on a lecture page. The no-thebe fixture
+  // declares `site_url`, `twitter`, both logo URLs and `current_language`;
+  // nothing here depends on the page having a thumbnail.
   test("social-meta", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
     await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });

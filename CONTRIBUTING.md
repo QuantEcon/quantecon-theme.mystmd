@@ -157,18 +157,32 @@ in git — the commit message, the PR and `CHANGELOG.md` — where it stays
 accurate; a comment that narrates a project phase goes stale once the work is
 done.
 
-- **No project framing.** No phase numbers, `PLAN.md` items, milestones or
-  tracker issues. `git log -L` traces any line back through the PRs that
-  shaped it.
-- **No issue numbers as labels.** Don't tag a block with the issue that
-  introduced it. Link an issue or PR only when it holds detail the comment
-  cannot give in a line — an upstream bug being worked around, a field a fork
-  adds, the regression a test exists to catch, the measurements a claim rests
-  on — and state the point itself in the comment as well.
-- **Reasons, not comparisons.** "Matches the Sphinx build" does not tell the
-  next reader what breaks if the value changes. Give the reason: the
-  measurement, the contrast ratio, the layout constraint. Code ported from
-  another project gets one line of provenance where the port starts.
+This applies to comments in code — including the comments in YAML, shell and
+fixture files. Prose documentation (`README.md`, `docs/`, `PLAN.md`, the test
+suite's own `README.md`) is written for a reader who wants the project's
+history, and keeps it.
+
+- **No project framing.** No phase numbers, `PLAN.md` items or milestones, and
+  no issue number used as a label for the work that produced the code.
+  `git log -L` traces any line back through the PRs that shaped it.
+- **Link an issue only when the thread carries more than the comment can.**
+  An upstream bug being worked around, a field a fork adds, the regression a
+  test exists to catch, the measurements a claim rests on, an open decision
+  that will change the code. State the point itself in the comment as well, so
+  the comment stands on its own if the link rots.
+- **Reasons, not comparisons.** "Matches the Sphinx build" on its own does not
+  tell the next reader what breaks if the value changes. Give the reason: the
+  measurement, the contrast ratio, the layout constraint.
+
+  A constraint from another system *is* a reason, and naming it is not project
+  framing — this theme reproduces the deployed Sphinx lecture sites, so for a
+  value derived by measuring them, that derivation is the reason and belongs in
+  the comment: `/* 14.4px: the lecture builds' .8rem of an 18px root */`. What
+  the rule rules out is the bare comparison that leaves the number unexplained.
+  Record a deliberate divergence the same way, so nobody "fixes" it later.
+
+  Code ported from another project gets one line of provenance where the port
+  starts.
 
 ## Commit Convention
 

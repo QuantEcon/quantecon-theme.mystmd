@@ -37,9 +37,9 @@ export const PageContent = React.memo(function ({ article }: { article: PageLoad
   const keywords = article.frontmatter?.keywords ?? [];
   const parts = extractKnownParts(tree, article.frontmatter?.parts);
   const projectParts = config?.parts ?? {};
-  // Translator credit: the site option, overridden per page under
-  // `site:` in the page's frontmatter (replace, never merge; an explicit empty
-  // value suppresses). See app/i18n.ts for the rules and the string form.
+  // Translator credit: the site option, overridden per page under `site:` in
+  // the page's frontmatter (replace, never merge; an explicit empty value
+  // suppresses). See app/i18n.ts for the rules and the string form.
   const siteOptions = ((config as any)?.options ?? {}) as Record<string, unknown>;
   const pageOptions = ((article.frontmatter as any)?.site ?? undefined) as
     | Record<string, unknown>

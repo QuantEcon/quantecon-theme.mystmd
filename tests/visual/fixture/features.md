@@ -8,8 +8,8 @@ site:
   # Deterministic stand-in for plugins/git-metadata.mjs output, so the header
   # history control renders identically on every run (real git dates would
   # change with each commit and churn the snapshots). A YAML block string,
-  # because it is a declared template option and those are scalar-only
-  # (#173); PageHeaderHistory parses it.
+  # because it is a declared template option and those are scalar-only;
+  # PageHeaderHistory parses it.
   git_metadata: |
     last_modified: '2026-01-15T10:30:00Z'
     changelog:
@@ -28,8 +28,8 @@ site:
         author: Matt McKay
         date: '2025-09-20T14:45:00Z'
         message: Initial features fixture
-  # A declared per-page option on the same page: before #173 this would have
-  # replaced the page's `site:` block and silently dropped the override above.
+  # A declared per-page option on the same page. Undeclared, it would replace
+  # the page's `site:` block and silently drop the override above.
   hide_search: false
 ---
 

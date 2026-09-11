@@ -4,8 +4,8 @@ title: Outline page
 
 # Outline page
 
-This page exercises the "On this page" panel (#182): two levels of headings
-under project numbering, so entries carry the heading's own enumerator.
+This page exercises the "On this page" panel: two levels of headings under
+project numbering, so entries carry the heading's own enumerator.
 
 ## First section
 

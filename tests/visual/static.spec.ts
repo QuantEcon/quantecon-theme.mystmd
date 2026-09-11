@@ -81,9 +81,9 @@ test.describe("Static build -- in-page anchors", () => {
       const watched = watch(page);
       const title = await open(page, path);
 
-      // A bare fragment, not the provider `Link`, which resolves against the
-      // un-slashed SSR pathname and turns "Top" into a full reload through a
-      // 301 on every lecture page.
+      // A bare fragment, not the provider `Link`: the provider would resolve
+      // against the un-slashed SSR pathname and turn "Top" into a full reload
+      // through a 301 on every lecture page.
       const top = page.locator(".qe-back-to-top a");
       await expect(top).toHaveAttribute("href", "#top");
 

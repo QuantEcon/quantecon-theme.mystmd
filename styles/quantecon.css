@@ -4,6 +4,11 @@
  * hand-edit -- content design lives here as plain CSS, not in
  * `tailwind.config.js`.
  *
+ * Many values here are measurements of the deployed Sphinx lecture sites
+ * (python-programming.quantecon.org), which this theme reproduces. Where a
+ * value is one of those, the comment says so: that derivation is the reason
+ * it has the value it has, and changing it changes how the lectures read.
+ *
  * Imported from `styles/app.css` after `@myst-theme/styles`, so rules here are
  * emitted after that package's own.
  *
@@ -211,9 +216,11 @@
   .article :not(pre) > code {
     font-weight: 400;
     color: var(--qe-literal-color, #af5f5f);
-    /* No `font-family` on purpose: the monospace family that Tailwind's
-       preflight and JupyterLab's stylesheet already put on `code` is the right
-       one -- the same stack the code blocks use. */
+    /* No `font-family` on purpose: the lectures set inline literals in Source
+       Code Pro, monospace, so the monospace stack that Tailwind's preflight
+       and JupyterLab's stylesheet already put on `code` is the right one --
+       the same stack the code blocks use. Self-hosting Source Code Pro so the
+       first family in that stack resolves is a separate change. */
     /* Root-relative on purpose: this must NOT scale with `.article`. Inline
        code is a fixed 16px regardless of the surrounding text -- including
        inside headings. `1em` would inherit the heading scale and blow code in
@@ -370,7 +377,11 @@
 
    `text-decoration-color: currentColor` replaces upstream's separate blue
    decoration utilities in one declaration per rule -- the underline always
-   draws in the link's own colour. */
+   draws in the link's own colour.
+
+   Two deliberate divergences from the lecture builds, so they are not "fixed"
+   later: they underline on hover only, where these underline always, and they
+   colour `:visited` links #004979, which these leave alone. */
 @layer components {
   .link,
   .hover-link {
@@ -411,7 +422,9 @@
 @layer components {
   .article .qe-site-footer {
     /* `rem`, not `em`: this is chrome at a fixed size, so it must not track
-       the content base. */
+       the content base. 14.4px is the lecture builds' footer size (.8rem of
+       their 18px root), which 0.9rem reproduces against this theme's 16px
+       root. */
     font-size: 0.9rem; /* 14.4px */
     line-height: 1.5; /* 21.6px */
     /* This overrides the element's `text-qetext-light text-opacity-80`
@@ -426,9 +439,11 @@
        here: this is the last grid child, and a bottom margin on it does not
        extend the document. */
     padding-bottom: 2.5em; /* 36px */
-    /* Opacity on the whole element fades the rule, badge and text together:
-       the colours above are declared at full strength, and this renders them
-       softer (the #0072bc rule samples as about rgb(75 155 207) on white). */
+    /* 0.7 is the lecture footer's own opacity, on the whole element, so the
+       rule, badge and text fade together: the colours above are declared at
+       full strength and render softer here (the #0072bc rule samples as about
+       rgb(75 155 207) on white). Declaring the faded colours directly would
+       not reproduce it -- the badge image fades too. */
     opacity: 0.7;
   }
 
@@ -456,7 +471,8 @@
     margin: 0;
   }
 
-  /* The 5px rule itself: an 18px gap below it, in place of its 20px `mb-5`. */
+  /* The 5px rule itself: an 18px gap below it, the lecture builds' figure, in
+     place of the 20px its `mb-5` utility gives. */
   .article .qe-site-footer > div:first-child {
     margin-bottom: 1.25em; /* 18px */
   }
@@ -467,8 +483,9 @@
 
    `BackToTop` (app/components/Outline.tsx) renders a bare `<a>` inside
    `.article`, so it inherits the content size and the surrounding text
-   colour. The rules below make it a small blue pill: #0072bc / 15.3px / 600
-   with 9px 18px padding and a 4px radius.
+   colour. The rules below make it a small blue pill, at the lecture builds'
+   measured values: #0072bc / 15.3px / 600 with 9px 18px padding and a 4px
+   radius.
 
    The colour selector is deliberately only (0,1,1). `.dark .article :where(a)`
    is (0,2,0) and so still wins in dark mode, keeping the existing white link
@@ -619,8 +636,9 @@
 
   .qe-back-to-top a {
     /* `rem` for the same reason as the footer: a fixed size, not the content
-       base. The awkward figure is .85 of the 18px content size, expressed in
-       `rem` against the 16px root. */
+       base -- it must not move if `.article` does. The awkward figure is the
+       button's own 15.3px (the lecture builds' .85rem of their 18px root)
+       expressed against this theme's 16px root. */
     font-size: 0.95625rem; /* 15.3px */
     font-weight: 600;
     line-height: 1.5; /* 22.95px; prose otherwise gives this 1.75 (26.8px) */
@@ -687,11 +705,16 @@
    `content`, and `hljs-*` classes are generated at runtime by lowlight,
    never written in any scanned file.
 
-   Six light values fall short of WCAG AA on a white ground; the two found
-   in almost every code cell are comments #60a0b0 (2.9:1) and numbers
-   #40a070 (3.2:1). They stay as the palette defines them: changing the
-   palette is an open decision, with measurements and AA-passing candidates
-   in #172.
+   Six light values fall short of WCAG AA (4.5:1) on a white ground: subst
+   #70a0d0 (2.8:1), comments #60a0b0 (2.9:1), numbers #40a070 (3.2:1), diff
+   additions #00a000 (3.5:1), variables #bb60d5 (3.6:1) and class names
+   #0e84b5 (4.2:1). The first three appear in almost every code cell.
+
+   They stay as the palette defines them rather than being corrected here:
+   the values are inherited from quantecon-book-theme, which paints the same
+   tokens on the deployed lecture sites, so changing them is a decision for
+   both themes and not a fix one of them makes alone. Measurements and
+   AA-passing candidates are in #172.
    --------------------------------------------------------------------------- */
 .hljs-comment,
 .hljs-quote {
