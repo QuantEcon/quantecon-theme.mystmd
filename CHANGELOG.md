@@ -20,6 +20,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `scripts/rewrite-raw-blocks.mjs`, which rewrites Sphinx `{raw}` directives
+  out of lecture sources: it deletes the notebook logo header in both its
+  `{raw} jupyter` and `{raw} html` forms, turns an Our World in Data chart into
+  the native `{iframe}` directive, and unfences a `colspan`/`rowspan` table so
+  mystmd's HTML transform renders it. Any other `{raw}` block is reported with
+  its file and line and nothing is written. mystmd renders no `raw` node, so
+  until now a block's own source reached the reader as escaped text under the
+  page title. The PR preview runs the script over the lecture content it
+  builds, so previews show post-cutover sources and every theme PR exercises it
+  ([#204](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/204)).
+
 ## [2.7.0] - 2026-09-11
 
 ### Added
