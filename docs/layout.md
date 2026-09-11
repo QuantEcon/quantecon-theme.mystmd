@@ -4,12 +4,17 @@ The page chrome, matched to the deployed Sphinx lecture sites.
 
 ## Header
 
-A fixed 50px toolbar: the QuantEcon logo and site title, the contents-drawer
-toggle, and on the right the search trigger, launch button, downloads, dark-mode
-toggle, full-screen toggle and, when configured, the language switcher and the
-live-compute control. Below it, the page header carries the title, the author
-line, the translator credit and the "Last changed" control, above a QuantEcon
-blue rule.
+A fixed 50px toolbar. On the left: the contents-drawer toggle, a Home link to
+the site root, and the QuantEcon logo, which links to quantecon.org. On the
+right: the search trigger, the full-screen toggle, the font-size control, the
+dark-mode toggle, downloads, and — each only when the site configures it — the
+live-compute control, the launch button and the language switcher, with a
+GitHub link beside them. The toolbar carries no site title. Below `md` the
+full-screen toggle, font-size control, downloads, launch and GitHub move into
+an overflow menu.
+
+Below the toolbar, the page header carries the title, the author line, the
+translator credit and the "Last changed" control, above a QuantEcon blue rule.
 
 ## Contents drawer
 
@@ -49,5 +54,7 @@ site:
 
 ## Widths
 
-An 800px body column with a 200px margin column on each side at 1280px and up;
-below `lg` (1024px) the outline column is hidden and the layout is single-column.
+An 800px body column with a 200px margin column on each side at 1280px and up.
+Below 1280px the margin column is hidden and the layout is single-column, so
+the "On this page" outline appears only from 1280px. Between 1280px and 1328px
+the left track absorbs the shortfall rather than overflowing the grid.
