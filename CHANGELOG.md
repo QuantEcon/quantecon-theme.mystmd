@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Images in a notebook cell's outputs are centred in the content column, as
+  they are on the Sphinx lecture sites. An inline matplotlib figure is narrower
+  than the column, so it sat against the left edge with all the spare width
+  beside it — 0px to its left and 232px to its right, for a 568px plot in the
+  800px column. Both the stored outputs and the ones re-rendered when a reader
+  starts live compute are covered. Tables and text outputs stay left-aligned
+  ([#206](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/206)).
+
 ## [2.7.0] - 2026-09-11
 
 ### Added
