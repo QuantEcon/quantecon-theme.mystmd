@@ -23,9 +23,15 @@ jobs:
       #
       # One letter of each alternative is bracketed so this file, which holds
       # the pattern, is not itself a match -- the scan covers .github/workflows.
+      #
+      # --exclude=README.md: prose docs keep their history, and tests/visual's
+      # README sits inside a scanned path (it carries eight issue references
+      # today). -I: skip the binary snapshots under tests/visual/__snapshots__,
+      # where grep would report "Binary file ... matches" and fail the step.
       - name: No project framing in code comments
         run: |
-          if grep -rnE '(Phas[e] [0-9]|PLA[N]\.md|parit[y] milestone|open questio[n] [0-9])' \
+          if grep -rnIE --exclude=README.md \
+               '(Phas[e] [0-9]|PLA[N]\.md|parit[y] milestone|open questio[n] [0-9])' \
                app styles plugins scripts tests template.yml tailwind.config.js \
                playwright.config.ts .github/workflows; then
             echo "::error::Project framing in a code comment -- see CONTRIBUTING.md 'Code comments'."
