@@ -77,7 +77,7 @@ function DefaultFooterContent() {
   return (
     <div className="col-body">
       <p>
-        <a href={LICENSE_URL}>
+        <a href={LICENSE_URL} rel="license">
           <LicenseBadge />
         </a>
       </p>
