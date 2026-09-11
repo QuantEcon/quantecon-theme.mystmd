@@ -3,16 +3,18 @@
 // Kept free of React so the logic can be unit-tested in isolation
 // (see tests/unit/launch-urls.test.mjs). Ported from the URL construction in
 // quantecon-book-theme's `launch.py` (`nb_path_to_notebooks`, `path_to_docs`).
+//
+// The notebook repository is always configured, never derived: a guessed name
+// that happens not to exist sends the reader to a 404 on a site that never
+// asked for the control.
 
 export interface LaunchConfig {
-  repoUrl?: string; // launch_repo_url — explicit notebook repo, overrides the derived one
-  repoSuffix?: string; // launch_repo_suffix — appended to the source repo (default ".notebooks")
-  branch?: string; // launch_branch — notebook repo branch (default "main")
-  notebooksPath?: string; // launch_notebooks_path — subdir within the notebook repo
-  sourcePath?: string; // launch_source_path — prefix stripped from the page path
+  repo: string; // launch_notebook_repo — full URL or `org/repo`
+  branch?: string; // launch_notebook_branch — notebook repo branch (default "main")
+  dir?: string; // launch_notebook_dir — subdir within the notebook repo
+  sourceDir?: string; // launch_notebook_source_dir — prefix stripped from the page path
 }
 
-export const DEFAULT_REPO_SUFFIX = '.notebooks';
 export const DEFAULT_BRANCH = 'main';
 const COLAB_BASE_URL = 'https://colab.research.google.com/github/';
 
@@ -21,56 +23,43 @@ function trimSlashes(value: string): string {
 }
 
 /**
- * org/repo for the notebook repository. Derived from the source repo plus the
- * configured suffix, unless an explicit `launch_repo_url` (full URL or
- * `org/repo` string) is given.
+ * org/repo for the notebook repository, from a full URL or a bare `org/repo`.
  */
-export function notebookOrgRepo(sourceOrgRepo: string, config: LaunchConfig = {}): string {
-  const { repoUrl } = config;
-  if (repoUrl) {
-    let path = repoUrl;
-    try {
-      path = new URL(repoUrl).pathname;
-    } catch {
-      // Not a full URL — treat the value as a bare `org/repo` string.
-    }
-    return trimSlashes(path).replace(/\.git$/, '');
+export function notebookOrgRepo(repo: string): string {
+  let path = repo;
+  try {
+    path = new URL(repo).pathname;
+  } catch {
+    // Not a full URL — treat the value as a bare `org/repo` string.
   }
-  const suffix = config.repoSuffix ?? DEFAULT_REPO_SUFFIX;
-  return `${sourceOrgRepo}${suffix}`;
+  return trimSlashes(path).replace(/\.git$/, '');
 }
 
 /**
  * Path of the notebook within the notebook repo, relative to its root
  * (no leading slash). Strips the source file extension robustly (handles dots
- * in directory names), removes the `source_path` prefix, and prepends
- * `notebooks_path`.
+ * in directory names), removes the `source_dir` prefix, and prepends `dir`.
  */
-export function notebookRelPath(location: string, config: LaunchConfig = {}): string {
+export function notebookRelPath(location: string, config: Partial<LaunchConfig> = {}): string {
   // Strip leading slash and the trailing source extension only (not every dot).
   let path = location.replace(/^\/+/, '').replace(/\.[^/.]+$/, '');
 
-  // Strip the source_path prefix if the page lives under it.
-  const sourcePath = trimSlashes(config.sourcePath ?? '');
-  if (sourcePath && (path === sourcePath || path.startsWith(`${sourcePath}/`))) {
-    path = trimSlashes(path.slice(sourcePath.length));
+  // Strip the source_dir prefix if the page lives under it.
+  const sourceDir = trimSlashes(config.sourceDir ?? '');
+  if (sourceDir && (path === sourceDir || path.startsWith(`${sourceDir}/`))) {
+    path = trimSlashes(path.slice(sourceDir.length));
   }
 
-  // Prepend the notebooks_path subdir.
-  const notebooksPath = trimSlashes(config.notebooksPath ?? '');
-  const prefix = notebooksPath ? `${notebooksPath}/` : '';
+  // Prepend the notebook subdir.
+  const dir = trimSlashes(config.dir ?? '');
+  const prefix = dir ? `${dir}/` : '';
   return `${prefix}${path}.ipynb`;
 }
 
 /** Public Google Colab launch URL for the given page. */
-export function buildColabUrl(
-  sourceOrgRepo: string,
-  location: string,
-  config: LaunchConfig = {},
-): string {
-  const orgRepo = notebookOrgRepo(sourceOrgRepo, config);
+export function buildColabUrl(location: string, config: LaunchConfig): string {
+  const orgRepo = notebookOrgRepo(config.repo);
   const branch = config.branch ?? DEFAULT_BRANCH;
   const relPath = notebookRelPath(location, config);
   return `${COLAB_BASE_URL}${orgRepo}/blob/${branch}/${relPath}`;
 }
-

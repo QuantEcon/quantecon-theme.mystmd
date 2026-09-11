@@ -260,9 +260,8 @@ test.describe("QuantEcon theme — visual regression", () => {
   // Launch is a direct link to Colab, the only launch target by design: Binder
   // and JupyterHub are not offered. Asserting the anchor's href rather than a
   // stubbed window.open keeps this offline and deterministic, and pins that the
-  // control is a *link*, so a chooser in its place would fail here. The repo
-  // part comes from the fixture's `github` field, so only the stable pieces
-  // (host, .notebooks convention, branch, path) are matched.
+  // control is a *link*, so a chooser in its place would fail here. The repo is
+  // the fixture's own `launch_notebook_repo`: nothing is derived from `github`.
   test("launch-colab", async ({ page }, testInfo) => {
     test.skip(
       testInfo.project.name !== "desktop-chrome",
@@ -275,8 +274,27 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(launch).toHaveAttribute("target", "_blank");
     await expect(launch).toHaveAttribute(
       "href",
-      /^https:\/\/colab\.research\.google\.com\/github\/QuantEcon\/[\w.-]+\.notebooks\/blob\/main\/notebook\.ipynb$/
+      "https://colab.research.google.com/github/QuantEcon/quantecon-theme.notebooks/blob/main/notebook.ipynb"
     );
+  });
+
+  // The opt-in default. `fixture-no-thebe` sets `project.github` but neither
+  // launch option, which is the shape of a lecture repo with no notebooks
+  // repository: there must be no control and no gap where one would sit, on
+  // the toolbar or in the mobile overflow menu.
+  test("launch-absent-without-config", async ({ page }, testInfo) => {
+    const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await expect(page.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
+    // No dead link to a repository the site never named, either.
+    await expect(page.locator('a[href*="colab.research.google.com"]')).toHaveCount(0);
+    // And no gap where the control would have been: the slot collapses rather
+    // than sitting empty between the controls on either side.
+    for (const slot of await page.locator(".qe-launch-slot").all()) {
+      const box = await slot.boundingBox();
+      expect(box?.width ?? 0).toBe(0);
+    }
   });
 
   // Live compute: the fixture sets `project.thebe: { lite: true }`, which
