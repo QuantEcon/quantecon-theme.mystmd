@@ -7,7 +7,11 @@
  * What upstream's set leaves out, sets differently, or emits where it never
  * renders:
  *
- *   og:type        "website"
+ *   og:type        "website" on every page, lecture pages included. "article"
+ *                  would be the usual choice for a page with a byline, but it
+ *                  commits to `article:published_time` / `author` / `section`
+ *                  metadata the lectures do not carry, and the deployed sites
+ *                  declare "website" throughout
  *   og:site_name   the site title
  *   og:url         upstream needs an `origin`, which the routes never had.
  *                  It comes from the `site_url` option; `site.domains` would
