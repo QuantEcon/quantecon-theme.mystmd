@@ -1,0 +1,1 @@
+import{a as t}from"/quantecon-theme.mystmd/pr-preview/pr-228/build/_shared/chunk-LBISF65L.js";var s=class{constructor(i){this.init=i,this.records=this.init()}static{t(this,"ImperativeState")}reset(){this.records=this.init()}};export{s as a};
