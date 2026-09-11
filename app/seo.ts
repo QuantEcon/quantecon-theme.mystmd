@@ -16,8 +16,13 @@
  *   og:url         upstream needs an `origin`, which the routes never had.
  *                  It comes from the `site_url` option; `site.domains` would
  *                  be the natural source, but the CLI's site manifest does
- *                  not carry it, so it is only a fallback should that change
- *   og:image       `og_logo_url` when the page has no thumbnail
+ *                  not carry it, so it is only a fallback should that change.
+ *                  Built by `pageUrl`, the same function as the canonical
+ *                  link, so the two cannot disagree
+ *   canonical      a `<link>`, not a meta tag, but built from the same URL
+ *   og:image       `og_logo_url` when the page has no thumbnail, made absolute
+ *                  against the site origin: a social scraper cannot resolve a
+ *                  root-relative path
  *   twitter:image  `twitter_logo_url` when set, even over a page thumbnail;
  *                  otherwise the og:image
  *   twitter:card   "summary" whenever `twitter` is set, in place of upstream's
@@ -46,9 +51,70 @@ export interface SeoInput {
   siteTitle?: string;
   /** The page's own image, if any (thumbnail); site-level images fill in. */
   pageImage?: string;
-  /** Path of the page, including the static build's base URL. */
-  pathname: string;
+  /** The page's public URL, from `pageUrl`; og:url is omitted without one. */
+  url?: string;
   options?: SeoSiteOptions;
+}
+
+export interface PageUrlInput {
+  /** Site origin, from `siteOrigin`. Without it there is no public URL. */
+  origin?: string;
+  /** Site-relative page path, with any base URL already stripped. */
+  path: string;
+  /** The static build's base URL, if the site has one. */
+  baseurl?: string;
+  /** `config.index`: the slug whose page the site root serves. */
+  indexSlug?: string;
+}
+
+/**
+ * The page's public URL. The canonical link and og:url are both built here, so
+ * that the two rules below apply to both and they cannot drift apart.
+ *
+ * The home page resolves to the site root. With a base URL, mystmd renders the
+ * root `index.html` by requesting the index slug, so the page's render-time
+ * path is that slug -- and the slug's own URL is not served at all, so naming
+ * it would point every home page at a 404.
+ *
+ * Every URL takes the trailing-slash form, which is what the export writes
+ * (`<slug>/index.html`) and what a host redirects the slashless form to; a URL
+ * taken straight from the render-time path would name a redirect.
+ *
+ * Returns undefined when the site sets no `site_url`, as Sphinx emits nothing
+ * without `html_baseurl`.
+ */
+export function pageUrl({ origin, path, baseurl, indexSlug }: PageUrlInput): string | undefined {
+  if (!origin) return undefined;
+  const base = (baseurl ?? '').trim().replace(/\/+$/, '');
+  const slug = (path || '/').replace(/^\/+|\/+$/g, '');
+  const isHome = slug === '' || (!!indexSlug && slug === indexSlug);
+  return `${origin}${base}${isHome ? '/' : `/${slug}/`}`;
+}
+
+export interface CanonicalLink {
+  tagName: 'link';
+  rel: 'canonical';
+  href: string;
+  // Remix's meta descriptor type is an open record; the index signature lets
+  // this spread into a route's `meta` return without a cast, as the hreflang
+  // alternates do.
+  [key: string]: unknown;
+}
+
+/**
+ * `<link rel="canonical">` for the page, in the shape Remix's v2 `meta`
+ * renders. Empty without a URL, so a site that sets no `site_url` emits
+ * nothing -- what Sphinx does without `html_baseurl`.
+ */
+export function canonicalLink(url?: string): CanonicalLink[] {
+  return url ? [{ tagName: 'link', rel: 'canonical', href: url }] : [];
+}
+
+/** An image URL a social scraper can fetch: root-relative paths take the origin. */
+export function absoluteImage(image?: string, origin?: string): string | undefined {
+  if (!image) return undefined;
+  if (!origin || !image.startsWith('/')) return image;
+  return `${origin}${image}`;
 }
 
 /**
@@ -93,20 +159,20 @@ export function ogLocale(code?: string): string | undefined {
  * so a site-level image does not sit beside a missing page image and
  * twitter:image follows the site's Twitter logo when one is configured.
  */
-export function socialMetaTags({ domains, siteTitle, pageImage, pathname, options }: SeoInput): V2_MetaDescriptor[] {
+export function socialMetaTags({ domains, siteTitle, pageImage, url, options }: SeoInput): V2_MetaDescriptor[] {
   const origin = siteOrigin(options?.site_url, domains);
-  const image = pageImage || options?.og_logo_url;
-  const twitterImage = options?.twitter_logo_url || image;
+  const image = absoluteImage(pageImage || options?.og_logo_url, origin);
+  const twitterImage = absoluteImage(options?.twitter_logo_url, origin) || image;
   const tags: V2_MetaDescriptor[] = [{ property: 'og:type', content: 'website' }];
   if (siteTitle) tags.push({ property: 'og:site_name', content: siteTitle });
-  if (origin) tags.push({ property: 'og:url', content: `${origin}${pathname}` });
+  if (url) tags.push({ property: 'og:url', content: url });
   if (image) tags.push({ property: 'og:image', content: image });
   const site = handle(options?.twitter);
   if (site) {
     tags.push({ name: 'twitter:site', content: site });
     tags.push({ name: 'twitter:card', content: 'summary' });
   }
-  if (twitterImage && (site || twitterImage !== pageImage)) {
+  if (twitterImage && (site || twitterImage !== absoluteImage(pageImage, origin))) {
     tags.push({ name: 'twitter:image', content: twitterImage });
   }
   const locale = ogLocale(options?.current_language);

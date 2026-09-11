@@ -459,7 +459,8 @@ test.describe("Meta/SEO and notebook output", () => {
       expect(meta(page, sel)).toHaveAttribute("content", content);
     await expectTag('property="og:type"', "website");
     await expectTag('property="og:site_name"', "QE Theme No-Thebe Fixture");
-    await expectTag('property="og:url"', "https://example.org/notebook");
+    // The trailing-slash form, which is the URL the build actually serves.
+    await expectTag('property="og:url"', "https://example.org/notebook/");
     await expectTag('property="og:image"', "https://assets.example.org/qe-og-logo.png");
     await expectTag('property="og:locale"', "en_US");
     await expectTag('name="twitter:site"', "@quantecon");
@@ -469,6 +470,27 @@ test.describe("Meta/SEO and notebook output", () => {
     // Replaced, not duplicated: one og:image, one twitter:card.
     await expect(meta(page, 'property="og:image"')).toHaveCount(1);
     await expect(meta(page, 'name="twitter:card"')).toHaveCount(1);
+
+    // The canonical link, from the same `site_url` and the same builder as
+    // og:url, so the two agree on every page.
+    const canonical = page.locator('head link[rel="canonical"]');
+    await expect(canonical).toHaveCount(1);
+    await expect(canonical).toHaveAttribute("href", "https://example.org/notebook/");
+    // The home page's canonical is the site root, not the index slug's URL.
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      "https://example.org/"
+    );
+  });
+
+  // A site that sets no `site_url` emits neither, as Sphinx emits nothing
+  // without `html_baseurl`. The main fixture sets none.
+  test("no-canonical-without-site-url", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    await expect(page.locator('head link[rel="canonical"]')).toHaveCount(0);
+    await expect(meta(page, 'property="og:url"')).toHaveCount(0);
   });
 
   // A cell's stderr stream is folded behind a "Code warnings" disclosure,

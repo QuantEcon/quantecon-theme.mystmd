@@ -20,6 +20,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- A `<link rel="canonical">` on every page, from `site_url`, as the Sphinx
+  lecture sites emit from `html.baseurl`. The home page's canonical is the site
+  root, and every URL takes the trailing-slash form the build actually serves,
+  so no canonical names a redirect. `og:url` is built by the same function, so
+  the two cannot disagree. Nothing is emitted without `site_url`
+  ([#207](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/207)).
+
+### Fixed
+- Head links that assumed the domain root now carry the static build's base
+  URL, so they resolve on a site served under a sub-path instead of 404ing at
+  the domain root: the favicon and `/myst-theme.css`. `og:image` is made
+  absolute against `site_url`, which a social scraper needs
+  ([#207](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/207)).
+
 ## [2.7.0] - 2026-09-11
 
 ### Added

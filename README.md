@@ -219,6 +219,12 @@ the two image URLs `og_logo_url` / `twitter_logo_url`, named as in the book
 theme so a lecture repo copies its values across. A page's own thumbnail takes precedence for
 `og:image`.
 
+Every page also carries a `<link rel="canonical">`, from the same `site_url`
+and built by the same function as `og:url`, so the two always agree. The home
+page's canonical is the site root, and every URL takes the trailing-slash form
+the build actually serves. With `site_url` unset neither is emitted — what
+Sphinx does without `html_baseurl`.
+
 ### Collapsible stderr
 
 A notebook cell's stderr stream is folded behind a "⚠ Code warnings"
@@ -238,7 +244,7 @@ block inside a string (`key: |`), which the theme parses.
 | Option | Scope | Purpose |
 | ------ | ----- | ------- |
 | `twitter` | site | Handle for the `twitter:site` / `twitter:creator` card meta tags |
-| `site_url` | site | The site's public URL, for `og:url` ([Meta tags](#meta-tags)) |
+| `site_url` | site | The site's public URL, for the canonical link and `og:url` ([Meta tags](#meta-tags)) |
 | `og_logo_url`, `twitter_logo_url` | site | Site-level images for `og:image` / `twitter:image` when a page has no thumbnail ([Meta tags](#meta-tags)) |
 | `favicon` | site | Favicon file, relative to `myst.yml`; served at `/favicon.ico` (the QuantEcon lectures favicon when unset) |
 | `analytics_google`, `analytics_plausible` | site | Analytics IDs, rendered by `@myst-theme/site` |

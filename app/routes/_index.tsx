@@ -8,8 +8,8 @@ import type { SiteManifest } from 'myst-config';
 import { getProject } from '@myst-theme/common';
 
 import { Page } from '~/components/Page';
-import { hreflangLinks } from '~/i18n';
-import { mergeMeta, socialMetaTags } from '~/seo';
+import { hreflangLinks, stripBaseurl } from '~/i18n';
+import { canonicalLink, mergeMeta, pageUrl, siteOrigin, socialMetaTags } from '~/seo';
 
 // Never re-run the loader on a navigation that changes neither pathname nor
 // search (Back off an in-page anchor on a static build).
@@ -28,13 +28,22 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
   );
   const baseurl = rootMatch?.data?.BASE_URL;
 
+  // The page's public URL, shared by og:url and the canonical link -- see the
+  // article route for why the base is stripped before it is re-applied.
+  const url = pageUrl({
+    origin: siteOrigin((config?.options as any)?.site_url, config?.domains),
+    path: stripBaseurl(location.pathname, baseurl),
+    baseurl,
+    indexSlug: project?.index,
+  });
+
   // The OpenGraph / Twitter tags this theme adds to (or replaces in) upstream's
   // article set -- see app/seo.ts.
   const social = socialMetaTags({
     domains: config?.domains,
     siteTitle: config?.title ?? project?.title,
     pageImage: (project.thumbnailOptimized || project.thumbnail) ?? undefined,
-    pathname: `${baseurl ?? ''}${location.pathname}`,
+    url,
     options: config?.options as any,
   });
   return [
@@ -49,6 +58,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
     }), social),
     // hreflang alternates for the translated editions.
     ...hreflangLinks(config?.options, location.pathname, baseurl),
+    ...canonicalLink(url),
   ];
 };
 

@@ -163,6 +163,12 @@ const CRITICAL_CSS = `
 
 export const links: LinksFunction = () => {
   return [
+    // The root-absolute fallback. It is wrong on a site served under a
+    // sub-path, where it resolves to the domain root, but it is the only icon
+    // link that also applies when the root ErrorBoundary renders -- that
+    // boundary is upstream's, with upstream's own Document and no base URL.
+    // The local Document emits the base-aware one after this, and a later
+    // `rel="icon"` wins, so only error pages fall back to this.
     {
       rel: 'icon',
       href: '/favicon.ico',
@@ -178,7 +184,10 @@ export const links: LinksFunction = () => {
     ...PTSerifCSS,
     { rel: 'stylesheet', href: tailwind },
     { rel: 'stylesheet', href: thebeCoreCss },
-    { rel: 'stylesheet', href: '/myst-theme.css' },
+    // `/myst-theme.css` (the consumer's own stylesheet slot) is NOT declared
+    // here: its href has to carry the static build's base URL, and `links()`
+    // takes no arguments in Remix 1.17 while BASE_URL reaches the app only
+    // through the root loader. The local Document emits it instead.
     // jupyter-matplotlib's stylesheet is vendored into the Tailwind bundle
     // (styles/mpl-widget.css) rather than linked from jsdelivr here: that
     // would be a render-blocking request to a third-party CDN that is
