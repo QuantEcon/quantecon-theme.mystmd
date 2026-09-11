@@ -1,6 +1,6 @@
 /**
  * Unit tests for the multilingual helpers (app/i18n.ts): option parsing for
- * the YAML-block string form, the book-theme resolution rules for people and
+ * the YAML-block string form, the resolution rules for people and
  * labels, and the cross-edition URLs behind the language switcher and the
  * hreflang alternates. Plain TypeScript with no React, run under `node --test`
  * with type stripping like launch-urls.test.mjs (Node >= 23.6).

@@ -7,7 +7,8 @@
 # The `myst start` servers Playwright also launches (serve.sh) run the theme
 # in MODE=app, where every loader is live. This one is the deployed shape --
 # MODE=static, loaders unreachable -- which is where a whole class of defects
-# (#138, #150, #186) only ever shows up.
+# (asset URLs that only resolve under `myst start`, loader fetches a static
+# host cannot answer) only ever shows up.
 #
 #   THEME_TEMPLATE   theme under test (local build dir or zip URL), as serve.sh
 #   FIXTURE_DIR      fixture project to build (default `fixture`)

@@ -4,8 +4,8 @@
  *
  * The module is plain (erasable) TypeScript and free of React, so Node's
  * built-in type stripping runs it directly under `node --test` — no build
- * step. Covers the generalisation of the previously hardcoded `.notebooks`
- * suffix / `main` branch and the nested lecture-dir path handling.
+ * step. Covers the `.notebooks` suffix and `main` branch defaults, each
+ * `launch_*` override, and the nested lecture-dir path handling.
  *
  * Requires Node >= 23.6 (type stripping of the imported `.ts` is on by
  * default), matching the CI Node 24 runner. The theme runtime itself still
@@ -51,7 +51,8 @@ test('nested lecture dirs are preserved in the path', () => {
 });
 
 test('only the trailing extension is stripped (dots in dir names survive)', () => {
-  // The old `location.split('.')[0]` truncated this to `/python`.
+  // Splitting at the first dot (`location.split('.')[0]`) would truncate
+  // this to `/python`.
   assert.equal(notebookRelPath('/python.programming/intro.md'), 'python.programming/intro.ipynb');
 });
 

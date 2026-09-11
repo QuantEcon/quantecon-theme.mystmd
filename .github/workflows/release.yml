@@ -1,6 +1,6 @@
 name: Release
 
-# Tag-triggered build → zip → GitHub Release pipeline (PLAN.md Phase 0, #71).
+# Tag-triggered build → zip → GitHub Release pipeline.
 #
 # Pushing a `vX.Y.Z` tag builds the theme, assembles the same bundle that
 # `make build-theme` ships (adapted from upstream jupyter-book/myst-theme's
@@ -10,7 +10,7 @@ name: Release
 #
 # The zip contains:
 #   build/, public/                 (from `npm run prod:build`)
-#   template.yml                    (version stamped from package.json — #71)
+#   template.yml                    (version stamped from package.json)
 #   server.js, package.json, LICENSE, README.md, thumbnail.png, qe-logo.png
 #                                   (from template/, with VERSION substituted)
 #   package-lock.json               (generated; node_modules is NOT shipped)
@@ -19,10 +19,6 @@ name: Release
 # Guards (both fail the release):
 #   - the tag must match `package.json` `version`
 #   - CHANGELOG.md must have a `## [X.Y.Z]` section — it becomes the release notes
-#
-# This replaces the Changesets release.yml (removed in #72). The legacy
-# `make deploy` push to QuantEcon/quantecon-theme remains only until consumers
-# are repointed to pinned release URLs (PLAN.md Phase 0 consumer migration).
 
 on:
   push:
@@ -88,8 +84,8 @@ jobs:
       # the published artifact.
       - run: npm run test:unit
       - name: Build
-        # esbuild occasionally deadlocks (QuantEcon/quantecon-theme-src — known
-        # flake); time out fast so the run can simply be retried.
+        # esbuild occasionally deadlocks: the build hangs rather than failing.
+        # Time out fast so the run can simply be retried.
         timeout-minutes: 20
         run: npm run prod:build
 
@@ -103,7 +99,7 @@ jobs:
           cp -r build "$DIST/build"
           cp CHANGELOG.md "$DIST/CHANGELOG.md"
           # Stamp both version fields from package.json so the shipped bundle
-          # cannot drift (#71).
+          # cannot drift.
           sed -i "s/VERSION/$VERSION/g" "$DIST/package.json"
           sed -E "s/^version: .*/version: $VERSION/" template.yml > "$DIST/template.yml"
           # Lockfile for reproducible consumer installs, without shipping node_modules.

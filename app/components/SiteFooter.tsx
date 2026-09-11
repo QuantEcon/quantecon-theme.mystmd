@@ -13,9 +13,9 @@ export function SiteFooter({ content, className }: { content: GenericParent; cla
       )}
     >
       <div className="border-t-[5px] border-t-qeborder-blue col-body mb-5" />
-      {/* col-body, not col-screen: the Sphinx footer is content-column width, and
-          the 5px rule above is already col-body -- col-screen here left the text
-          running wider than its own rule. */}
+      {/* col-body, not col-screen: the footer text keeps to the content column,
+          the same width as the 5px rule above -- col-screen would run the text
+          wider than its own rule. */}
       <MyST ast={content} className="col-body" />
     </div>
   );

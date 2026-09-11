@@ -34,13 +34,14 @@ import classNames from 'classnames';
  *
  * No Radix `DirectionProvider` is needed: the floating positioning under
  * dropdown menus and tooltips reads the computed CSS `direction`, which
- * `dir` on <html> sets, so they mirror on their own. (A provider was tried
- * and found inert: the theme's copy of `@radix-ui/react-direction` was a
- * different instance from the one the menu and select packages pin, so its
- * context never reached them.)
+ * `dir` on <html> sets, so they mirror on their own. (A provider would not
+ * reach them anyway: in this lockfile `@radix-ui/react-menu`,
+ * `react-roving-focus` and `react-select` each nest their own copy of
+ * `@radix-ui/react-direction`, so a context from any other copy is invisible
+ * to them.)
  *
  * Everything else is upstream's, unchanged, so a future upstream `lang` /
- * `dir` prop (see UPSTREAM-CANDIDATES.yml) lets this file be deleted again.
+ * `dir` prop (see UPSTREAM-CANDIDATES.yml) lets this file be deleted.
  * Kept in step with @myst-theme/site 1.3.0.
  */
 export function Document({

@@ -21,8 +21,8 @@ import ptSerif700ItalicCss from '@fontsource/pt-serif/700-italic.css';
  *      blocked the maths markup still renders but is completely unstyled —
  *      fractions, radicals and matrices collapse into run-together text — so
  *      the lectures become unreadable exactly where they matter most.
- *   2. The critical path. It was a render-blocking stylesheet on a third
- *      origin, so first paint waited on a DNS lookup and TLS handshake.
+ *   2. The critical path. Upstream's is a render-blocking stylesheet on a
+ *      third origin, so first paint waits on a DNS lookup and TLS handshake.
  *
  * Remix fingerprints this import and emits it, plus the 60 font files it
  * references, into `public/build/_assets/` — served at `/myst_assets_folder/`
@@ -41,16 +41,16 @@ export const KatexCSS: HtmlLinkDescriptor = {
 };
 
 /**
- * Self-hosted Source Sans 3 (variable), replacing the
- * `@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3…')` that
- * used to open `styles/app.css`.
+ * Self-hosted Source Sans 3 (variable), rather than an
+ * `@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3…')` at
+ * the top of `styles/app.css`.
  *
  * Same two reasons as KaTeX above, both sharper here. Google Fonts is blocked
  * in mainland China, and this is the *body* font on every page rather than the
  * maths on some of them. And an `@import` is the worst shape a critical-path
  * request can have: it is discovered only once `app.css` has downloaded and
- * parsed, so it cannot be preloaded, and the chain ran app.css → Google's CSS →
- * gstatic woff2 across two extra origins.
+ * parsed, so it cannot be preloaded, and the chain would run app.css →
+ * Google's CSS → gstatic woff2 across two extra origins.
  *
  * The import lives here rather than in `styles/app.css` because Tailwind does
  * not rebase `url()` inside an `@import`ed stylesheet — the font paths would be
@@ -74,17 +74,15 @@ export const SourceSans3CSS: HtmlLinkDescriptor[] = [
 ];
 
 /**
- * Self-hosted PT Serif, the heading face of the Sphinx lecture builds
- * (python-programming.quantecon.org sets `h1,h2,h3` in `"PT Serif",serif`).
- * `styles/quantecon.css` applies it to `.article` headings here.
+ * Self-hosted PT Serif, the lecture heading face: `styles/quantecon.css`
+ * applies it to the `.article` h1-h3 headings.
  *
  * Self-hosted for the same reasons as Source Sans 3 above, and routed through
  * the same Remix/esbuild pipeline. The static (non-variable) package: PT Serif
  * only ships 400 and 700. Four stylesheets because the package splits every
  * weight/style pair; each is a handful of `@font-face` rules and the browser
- * only downloads the faces a page actually uses. The Sphinx build asks for
- * weight 900 on headings, which resolves to the 700 face -- the same face
- * these files provide.
+ * only downloads the faces a page actually uses. Heading weights from 600 up
+ * resolve to the 700 face these files provide.
  */
 export const PTSerifCSS: HtmlLinkDescriptor[] = [
   { rel: 'stylesheet', href: ptSerif400Css },

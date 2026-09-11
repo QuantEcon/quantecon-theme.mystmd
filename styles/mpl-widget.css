@@ -1,9 +1,9 @@
 /**
  * jupyter-matplotlib (ipympl) widget styles — vendored.
  *
- * Verbatim copy of jupyter-matplotlib@0.11.3 `css/mpl_widget.css`, which the
- * theme previously loaded from jsdelivr as a render-blocking <link>. It is
- * inlined into the Tailwind bundle instead so that:
+ * Verbatim copy of jupyter-matplotlib@0.11.3 `css/mpl_widget.css`, inlined
+ * into the Tailwind bundle rather than loaded from jsdelivr as a
+ * render-blocking <link>, so that:
  *   - it costs no extra request (this file is @imported by styles/app.css), and
  *   - the page does not depend on a third-party CDN, which is intermittently
  *     unreachable in mainland China (a significant share of QuantEcon readers).

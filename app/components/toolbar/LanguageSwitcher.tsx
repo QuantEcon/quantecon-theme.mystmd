@@ -10,10 +10,9 @@ import { Tooltip } from './Tooltip';
 
 /**
  * Globe-icon dropdown that switches between the translated editions of a
- * site (Phase 4, #90), the MyST port of the book theme's language switcher.
- * Each entry links to the *same page* in the other edition -- that edition's
- * site root plus this page's path -- and the entry whose code matches
- * `current_language` is marked as the current one.
+ * site. Each entry links to the *same page* in the other edition -- that
+ * edition's site root plus this page's path -- and the entry whose code
+ * matches `current_language` is marked as the current one.
  *
  * Renders nothing unless `languages` lists two or more editions; a single
  * edition has nothing to switch to.

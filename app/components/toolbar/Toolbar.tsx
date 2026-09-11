@@ -34,8 +34,8 @@ export function Toolbar() {
         edge. Keep the tighter spacing for that band when adding controls here.
 
         `gap-x-*`, not `space-x-*`: the latter is a physical `margin-left` on
-        every item after the first, which a right-to-left edition (#91) does
-        not mirror, so the first two icons touch and the margin lands on the
+        every item after the first, which a right-to-left edition does not
+        mirror, so the first two icons touch and the margin lands on the
         outer edge. `gap` is direction-neutral. An empty <li> still takes a
         gap, hence the `empty:hidden` on the two slots that may render nothing.
       */}
@@ -84,13 +84,12 @@ export function Toolbar() {
         <li className="hidden md:block">
           <GitHubButton sizeClasses="w-5 h-5" />
         </li>
-        {/* Language switcher (#90): far end of the toolbar, as in the book
-            theme, and at every width -- it is the one action a reader of a
-            translated edition reaches for, so it stays out of the overflow
-            menu. Renders nothing unless two or more editions are configured,
-            and `empty:hidden` keeps the wrapper from taking a gap when it does
-            not -- every single-edition site would otherwise carry dead space
-            here. */}
+        {/* Language switcher: far end of the toolbar, and at every width -- it
+            is the one action a reader of a translated edition reaches for, so
+            it stays out of the overflow menu. Renders nothing unless two or
+            more editions are configured, and `empty:hidden` keeps the wrapper
+            from taking a gap when it does not -- every single-edition site
+            would otherwise carry dead space here. */}
         <li className="qe-language-slot flex items-center empty:hidden">
           <LanguageSwitcher size={iconSize} />
         </li>

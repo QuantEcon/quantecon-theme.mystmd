@@ -1,9 +1,13 @@
 /* QuantEcon content styles.
  *
- * Typography and content styling for the lectures, matched to the Sphinx
- * lecture builds (python-programming.quantecon.org). This is the file to
+ * Typography and content styling for the lectures. This is the file to
  * hand-edit -- content design lives here as plain CSS, not in
  * `tailwind.config.js`.
+ *
+ * Many values here are measurements of the deployed Sphinx lecture sites
+ * (python-programming.quantecon.org), which this theme reproduces. Where a
+ * value is one of those, the comment says so: that derivation is the reason
+ * it has the value it has, and changing it changes how the lectures read.
  *
  * Imported from `styles/app.css` after `@myst-theme/styles`, so rules here are
  * emitted after that package's own.
@@ -54,23 +58,19 @@
  *
  * UNITS
  *
- * The Sphinx builds step the *root* size by viewport -- 16px below 992px, 18px
- * at and above it -- and reach 18px content that way. This theme sets a flat
- * 18px on `.article` instead and leaves the root at 16px, so the browser's own
+ * Content is a flat 1.125rem (18px at the default 16px root), set on
+ * `.article`. The theme never sets the root in px, so the browser's own
  * font-size preference still applies (overriding it with a px root is a WCAG
- * 1.4.4 problem, which is why the Sphinx theme has to ship its own
- * font-plus/font-minus controls to make up for it).
- *
- * Content therefore matches the Sphinx build at desktop widths, and runs larger
- * than it below 992px, where Sphinx drops back to a 16px root. Flat was chosen
- * over a matching breakpoint so the size never shifts under the reader.
+ * 1.4.4 problem); the toolbar's font-size control steps the root to 0.9rem or
+ * 1.1rem, and every `em` and `rem` size here scales with it. The size is the
+ * same at every width, with no breakpoint step, so it never shifts under the
+ * reader.
  *
  * `em` (18px, off `.article`) and `rem` (16px, off the root) differ here, so the
  * choice carries meaning. Use `em` for anything that should scale with the
  * content. Use `rem` where the value is pinned to a fixed size regardless of
- * content -- the footer, the back-to-top button, and inline code, all of which
- * track the Sphinx build's own root-relative sizes. Note the px equivalent
- * either way.
+ * content -- the footer, the back-to-top button, and inline code. Note the px
+ * equivalent either way.
  */
 
 /* ---------------------------------------------------------------------------
@@ -79,34 +79,30 @@
    is the way to give a token a dark-mode variant.
    --------------------------------------------------------------------------- */
 :root {
-  /* Inline literals, matching the Sphinx build's `code.literal`. */
+  /* Inline literals. */
   --qe-literal-color: #af5f5f; /* 4.54:1 on white -- AA, but only just */
-  /* Emphasis, strong text and definition terms: the Sphinx build's default
-     `seoul256` text colour scheme (`_colors.scss`). Every live lecture site
-     runs that default -- none sets `color_scheme` -- so it applies
-     unconditionally here; see TEXT COLOUR SCHEME below. */
+  /* Emphasis, strong text and definition terms, in the `seoul256` text
+     colour scheme; see TEXT COLOUR SCHEME below. */
   --qe-emphasis-color: #005f5f; /* seoul256 #23, teal; 7.5:1 on white */
   --qe-strong-color: #875f00; /* seoul256 #94, amber; 5.7:1 on white */
   --qe-definition-color: var(--qe-strong-color);
-  /* Content links, matching the Sphinx build's `a` / `a:hover`. */
-  --qe-link-color: #0072bc; /* 5.05:1 on white -- AA */
+  /* Content links, resting and hover. */
+  --qe-link-color: #0072bc; /* 5.08:1 on white -- AA */
   --qe-link-hover-color: #004979;
 }
 
-/* Dark mode. The Sphinx theme defines its own dark literal colour under
-   `body.dark-theme code.literal`; this is that value. The light #af5f5f scores
-   only 3.85:1 on stone-900, below the 4.5:1 AA floor, where #d78787 is 6.42:1.
-   `.dark` and `:root` are both (0,1,0), so this wins on source order -- it has
-   to stay below the block above.
+/* Dark mode. Inline literals take their own dark colour: the light #af5f5f
+   scores only 3.50:1 on the #222 content panel, below the 4.5:1 AA floor,
+   where #d78787 is 5.84:1. `.dark` and `:root` are both (0,1,0), so this
+   wins on source order -- it has to stay below the block above.
 
-   Links go white, as the Sphinx dark theme paints them (`&.dark-theme a
-   { color: #fff !important }`) -- and as `.dark .article :where(a)` below
-   already does for every anchor that is not a `.link`. Hover stays white too:
-   the Sphinx dark theme has no hover colour change. */
+   Links go white, as `.dark .article :where(a)` below already paints every
+   anchor that is not a `.link`. Hover stays white too, with no colour
+   change. */
 .dark {
   --qe-literal-color: #d78787;
-  /* The Sphinx dark theme's own seoul256 values (`_colors.scss`, `*-dark`):
-     6.9:1 and 8.5:1 on stone-900. */
+  /* seoul256's dark emphasis and strong colours: 6.2:1 and 7.7:1 on the
+     #222 content panel. */
   --qe-emphasis-color: #5fafaf;
   --qe-strong-color: #d7af5f;
   --qe-link-color: #fff;
@@ -114,16 +110,14 @@
 }
 
 @layer base {
-  /* Heading face. The Sphinx build sets `h1,h2,h3,h4,h5` in `"PT Serif",serif`
-     and then puts h4/h5 back to Source Sans Pro at weight 900 -- so serif is
-     h1-h3 only, and that split is reproduced here. The face is self-hosted via
-     app/links.ts (@fontsource/pt-serif) and mirrored in CRITICAL_CSS
-     (app/root.tsx) so the first WebKit paint is serif too.
+  /* Heading face. h1-h3 are set in PT Serif; h4/h5 stay in the Source Sans
+     body face, at weight 900 (see h4/h5 weight below). The face is
+     self-hosted via app/links.ts (@fontsource/pt-serif) and mirrored in
+     CRITICAL_CSS (app/root.tsx) so the first WebKit paint is serif too.
 
-     Family only here -- sizes are matched in the block below. The typography
-     plugin's heading weights (800/700/600) resolve against PT Serif's 400+700
-     faces to the same 700 the Sphinx build renders -- it asks for 900, which
-     also resolves to 700.
+     Family only here -- sizes are set in the block below. The typography
+     plugin's heading weights (800/700/600) all resolve against PT Serif's
+     400+700 faces to 700, so h1-h3 need no weight rule.
 
      The plugin's own heading rules are `.article :where(h1)` etc at (0,1,0);
      `.article h1` at (0,1,1) wins outright, and no utility on the rendered
@@ -134,15 +128,12 @@
     font-family: 'PT Serif', serif;
   }
 
-  /* Heading scale, matching the Sphinx build's content headings: h1 2em of
-     the body size, then h2 1.7rem / h3 1.4rem / h4 1.2rem / h5 1rem of its
-     root -- which is 18px at desktop widths, the same 18px this theme sets on
-     `.article`. So each value carries over as the same number in `em`, and
+  /* Heading scale: h1 2em / h2 1.7em / h3 1.4em / h4 1.2em of the content
+     size, in place of the plugin's h1 2.25em / h2 1.5em / h3 1.25em / h4 1em.
      `em` (not `rem`) keeps the whole scale tracking the content size, per
-     UNITS above. h5 has no size rule: the plugin leaves it at 1em, already
-     the match. The plugin's own scale was h1 2.25em / h2 1.5em / h3 1.25em /
-     h4 1em. Mirrored in CRITICAL_CSS (app/root.tsx) so the first WebKit paint
-     lays out at the final sizes.
+     UNITS above. h5 has no size rule: the plugin already leaves it at 1em.
+     Mirrored in CRITICAL_CSS (app/root.tsx) so the first WebKit paint lays
+     out at the final sizes.
 
      The plugin's heading *margins* are left alone, deliberately: they are
      declared in `em`, so they resolve against these new sizes and keep their
@@ -163,10 +154,9 @@
     font-size: 1.2em; /* 21.6px */
   }
 
-  /* Heading line-height. Measured computed on the live Sphinx build (every
-     level renders line-height = 1.15 x its font-size: 41.4px at h1's 36px
-     down to 20.7px at h5's 18px), replacing the plugin's per-level values
-     (1.11 / 1.33 / 1.6 / 1.5, and prose's 1.75 on the unstyled h5). */
+  /* Heading line-height: 1.15 x the font-size at every level (41.4px at h1's
+     36px down to 20.7px at h5's 18px), replacing the plugin's per-level
+     values (1.11 / 1.33 / 1.6 / 1.5, and prose's 1.75 on the unstyled h5). */
   .article h1,
   .article h2,
   .article h3,
@@ -175,34 +165,32 @@
     line-height: 1.15;
   }
 
-  /* h4/h5 weight. The Sphinx build sets both at 900 in Source Sans. Unlike
-     h1-h3 -- where any weight from 600 up resolves to PT Serif's single 700
-     face, so the plugin's values already render identically -- the sans here
-     is a variable font with a real weight axis, and the plugin's 600 (h4) and
-     unstyled 400 (h5) draw visibly lighter than the Sphinx build's 900. */
+  /* h4/h5 weight: 900 in Source Sans. Unlike h1-h3 -- where any weight from
+     600 up resolves to PT Serif's single 700 face, so the plugin's values
+     already render identically -- the sans here is a variable font with a
+     real weight axis, and the plugin's 600 (h4) and unstyled 400 (h5) would
+     draw visibly lighter. */
   .article h4,
   .article h5 {
     font-weight: 900;
   }
 
   /* Paragraph rhythm. The plugin ships `.article :where(p)` at 1.25em (22.5px).
-     The Sphinx build leaves `p` at `margin: revert`, i.e. the UA default of
-     `1em 0` measured against its own text size, so `1em` keeps that proportion.
-     `.article p` is (0,1,1) and beats the plugin's (0,1,0). */
+     This tightens it to the UA default of `1em 0`, a gap equal to the content
+     size. `.article p` is (0,1,1) and beats the plugin's (0,1,0). */
   .article p {
     margin: 1em 0; /* 18px at 18px content */
   }
 
-  /* Anchors. Ported out of `tailwind.config.js`'s `typography.DEFAULT.css.a`
-     and `invert.css.a` when the broken `typography` spread was removed -- see
-     the note there. Upstream prose otherwise sets `font-weight: 500` and
-     underlines every anchor.
+  /* Anchors. Upstream prose sets `font-weight: 500` and underlines every
+     anchor; these keep anchors at the surrounding weight and underline them
+     on hover only.
 
-     `:where(a)` keeps these at (0,1,0), matching the rules they replace. That
-     matters: heading anchors carry a `font-normal` utility and `.link` carries
-     its own colour and underline, both emitted later in the sheet, so they win
-     the tie -- exactly as they did before. A plain `.article a` would be
-     (0,1,1) and would wrongly override both. */
+     `:where(a)` keeps these at (0,1,0), the same as the plugin's own anchor
+     rules. That matters: heading anchors carry a `font-normal` utility and
+     `.link` carries its own colour and underline, both emitted later in the
+     sheet, so they win the tie. A plain `.article a` would be (0,1,1) and
+     would wrongly override both. */
   .article :where(a) {
     font-weight: inherit;
     text-decoration: none;
@@ -220,49 +208,47 @@
     font-weight: 600;
   }
 
-  /* Inline literals. `:not(pre) > code` keeps this off code blocks, which the
-     Sphinx build leaves as plain monospace -- applying the literal colour there
-     would fight the syntax highlighting. Code inside headings is deliberately
-     included: Sphinx styles those as literals too. At (0,1,2) this outranks
-     both `:where(code)` and `:where(h3 code)`, which are (0,1,0). */
+  /* Inline literals. `:not(pre) > code` keeps this off code blocks, where the
+     literal colour would fight the syntax highlighting. Code inside headings
+     is deliberately included, so a literal looks the same in a heading as in
+     prose. At (0,1,2) this outranks both `:where(code)` and
+     `:where(h3 code)`, which are (0,1,0). */
   .article :not(pre) > code {
     font-weight: 400;
     color: var(--qe-literal-color, #af5f5f);
-    /* No `font-family` on purpose. The Sphinx build sets inline literals in
-       Source Code Pro, monospace (measured on python-programming.quantecon.org),
-       so the monospace family that Tailwind's preflight and JupyterLab's
-       stylesheet already put on `code` is the right one -- the same stack the
-       code blocks use. Self-hosting Source Code Pro is a separate change. */
-    /* Root-relative on purpose: this must NOT scale with `.article`. The
-       Sphinx build sizes inline code at `.9rem` off its own root (16.2px),
-       fixed regardless of the surrounding text -- including inside headings.
-       Against this theme's 16px root, `1rem` is the same 16px. `1em` would
-       inherit the heading scale and blow code in an h2/h3 up to match it. */
-    font-size: 1rem; /* 16px; the Sphinx build renders 16.2px */
+    /* No `font-family` on purpose: the lectures set inline literals in Source
+       Code Pro, monospace, so the monospace stack that Tailwind's preflight
+       and JupyterLab's stylesheet already put on `code` is the right one --
+       the same stack the code blocks use. Self-hosting Source Code Pro so the
+       first family in that stack resolves is a separate change. */
+    /* Root-relative on purpose: this must NOT scale with `.article`. Inline
+       code is a fixed 16px regardless of the surrounding text -- including
+       inside headings. `1em` would inherit the heading scale and blow code in
+       an h2/h3 up to match it. */
+    font-size: 1rem; /* 16px */
     font-style: normal;
     letter-spacing: 0.01rem;
     overflow-wrap: break-word;
   }
 
   /* The typography plugin wraps inline code in literal backticks via
-     `:where(code)::before/::after`, (0,1,1). The Sphinx build renders none, so
-     suppress them. `content: none` stops the boxes being generated at all.
-     Upstream @myst-theme already fixes this in `themeExtensions.typography`,
-     but that never reaches the build -- see the note in tailwind.config.js. */
+     `:where(code)::before/::after`, (0,1,1); suppress them. `content: none`
+     stops the boxes being generated at all. Upstream @myst-theme also blanks
+     them in `themeExtensions.typography`; this rule does not depend on that
+     config reaching the build. */
   .article :not(pre) > code::before,
   .article :not(pre) > code::after {
     content: none;
   }
 
-  /* TEXT COLOUR SCHEME. The Sphinx build colours emphasis, strong text and
-     definition terms rather than slanting or thickening them: `em` and
-     `strong` both render upright at weight 550, in the seoul256 teal and
-     amber (`_base.scss`). Same here, through the tokens above, so a scheme
-     is a re-pointing of four custom properties -- the shape
-     `quantecon-book-theme` gives its `gruvbox` / `none` schemes and its
-     `custom_color_scheme.css` hook. Those switches have no user (no lecture
-     repo sets `color_scheme`), so only the default ships; a second scheme
-     would be a class on the root that re-points the tokens.
+  /* TEXT COLOUR SCHEME. Emphasis, strong text and definition terms are
+     coloured rather than slanted or thickened: `em` and `strong` both render
+     upright at weight 550, in the seoul256 teal and amber. The colours come
+     through the tokens above, so a scheme is a re-pointing of four custom
+     properties: `--qe-emphasis-color`, `--qe-strong-color` and
+     `--qe-definition-color`, plus `--qe-literal-color` for inline literals.
+     Only seoul256 ships, since no site uses another; a second scheme would
+     be a class on the root that re-points the tokens.
 
      `.article em` and `.article strong` are (0,1,1). The typography plugin's
      `:where(strong)` (weight 600, `--tw-prose-bold`) is (0,1,0), and it has
@@ -282,7 +268,7 @@
   /* Definition terms take the definition colour, which defaults to the strong
      colour. myst-to-react wraps a text-only term in <strong>; that inner
      element inherits so the term follows `--qe-definition-color` if the two
-     tokens are ever split, as the Sphinx build's `dl dt` does. */
+     tokens are ever split. */
   .article dt {
     color: var(--qe-definition-color);
   }
@@ -291,28 +277,28 @@
     color: inherit;
   }
 
-  /* Emphasis inside a link keeps the link's colour and weight -- the Sphinx
-     build's `a.reference em` reset, there so the "et al." of a textual
-     citation does not go teal. Covers `.hover-link` (citations and
-     cross-references) and `.link` alike; in dark mode it inherits the white
-     that `.dark .article :where(a)` paints on the anchor. */
+  /* Emphasis inside a link keeps the link's colour and weight, so the
+     "et al." of a textual citation does not go teal. Covers `.hover-link`
+     (citations and cross-references) and `.link` alike; in dark mode it
+     inherits the white that `.dark .article :where(a)` paints on the
+     anchor. */
   .article a em {
     color: inherit;
     font-weight: inherit;
   }
 
-  /* Figures: no space above, 1rem below. Scoped to `.article` because the
+  /* Figures: no space above, 1em below. Scoped to `.article` because the
      plugin's `:where(figure)` is (0,1,0) and a bare `figure` at (0,0,1) would
      lose to it. Top/bottom longhands only -- the shorthand's left/right would
      outrank `.auto`/`.terminal` at (0,1,0) and cancel the auto margins that
      centre these same figures. */
   .article figure {
     margin-top: 0;
-    margin-bottom: 1em; /* 16px, matching the paragraph rhythm */
-    padding: 0.5em; /* 8px; box-sizing is border-box, so width is unchanged */
+    margin-bottom: 1em; /* 18px, matching the paragraph rhythm */
+    padding: 0.5em; /* 9px; box-sizing is border-box, so width is unchanged */
   }
 
-  /* Lists sit flush -- the surrounding paragraphs' 1rem margins define the
+  /* Lists sit flush -- the surrounding paragraphs' 1em margins define the
      space before and after. This clears three plugin rules at once:
      `:where(ul)`, `:where(ol)` and `:where(ul ul, ul ol, ol ul, ol ol)`. All
      three are (0,1,0), because `:where()` contributes no specificity whatever
@@ -327,10 +313,8 @@
 
   /* List spacing. The plugin sets these via `.article :where(li)`, which is
      (0,1,0), so `.article li` at (0,1,1) wins outright -- no need to mirror its
-     `ul > li` shape (that selector carries only `padding-inline-start`). The
-     Sphinx build uses `li { margin: .5rem 0 }`, half its root size (9px at its
-     18px desktop root); `0.5em` keeps that proportion against the content size
-     here. */
+     `ul > li` shape (that selector carries only `padding-inline-start`).
+     `0.5em` is half the content size, so the spacing tracks it. */
   .article li {
     margin: 0.5em 0; /* 9px at 18px content */
   }
@@ -351,9 +335,8 @@
      matches the UA default, so there is no first-paint size change to guard
      against -- nothing needs to pin it in `CRITICAL_CSS`.
 
-     No `--tw-prose-links` here, deliberately. The anchor colour that came off
-     `tailwind.config.js` with the broken `typography` spread looks like a
-     regression but is not: it never reached the page, before or after.
+     No `--tw-prose-links` here, deliberately: the token never reaches a
+     rendered anchor.
 
      The typography plugin colours anchors with
      `.article :where(a):not(...) { color: var(--tw-prose-links) }`, (0,1,0),
@@ -379,10 +362,9 @@
    myst-to-react colours content anchors through two classes: `.link` (plain
    links) and `.hover-link` (cross-references, citations, footnotes). Upstream
    defines both in `@myst-theme/styles` as blue-700/blue-400 with blue
-   decoration colours; the Sphinx builds render links in QuantEcon blue
-   instead. These rules re-colour the classes to the measured Sphinx values --
-   colour only. The underline itself (always-on, dotted for `.hover-link`) is
-   left as upstream ships it.
+   decoration colours. These rules re-colour the classes to QuantEcon blue
+   (the `--qe-link-*` tokens) -- colour only. The underline itself
+   (always-on, dotted for `.hover-link`) is left as upstream ships it.
 
    Specificity is matched to the upstream rules this overrides, with source
    order breaking each tie (this file is @import-ed after `@myst-theme/styles`,
@@ -395,10 +377,11 @@
 
    `text-decoration-color: currentColor` replaces upstream's separate blue
    decoration utilities in one declaration per rule -- the underline always
-   draws in the link's own colour, as the Sphinx build's plain underline does.
+   draws in the link's own colour.
 
-   Known differences from the Sphinx build, deliberately out of scope here:
-   it underlines only on hover, and colours `:visited` links #004979. */
+   Two deliberate divergences from the lecture builds, so they are not "fixed"
+   later: they underline on hover only, where these underline always, and they
+   colour `:visited` links #004979, which these leave alone. */
 @layer components {
   .link,
   .hover-link {
@@ -427,8 +410,8 @@
 
    The footer part (`site.parts.footer`) renders *inside* `.article`, so it
    inherits the content typography set above -- the content size and rhythm,
-   prose link colours, centred images. These rules put it back to the Sphinx
-   build's footer, measured off python-programming.quantecon.org.
+   prose link colours, centred images. These rules restyle it as small, faded
+   page chrome.
 
    Selectors are `.article .qe-site-footer`, (0,2,0), on purpose. At (0,1,0) a
    bare `.qe-site-footer` loses to the utilities already on the element
@@ -438,9 +421,10 @@
    --------------------------------------------------------------------------- */
 @layer components {
   .article .qe-site-footer {
-    /* `rem`, not `em`: this is chrome pinned to the Sphinx footer's own size,
-       so it must not track the content base. 0.9rem against this theme's 16px
-       root is the 14.4px the Sphinx build renders (its .8rem of an 18px root). */
+    /* `rem`, not `em`: this is chrome at a fixed size, so it must not track
+       the content base. 14.4px is the lecture builds' footer size (.8rem of
+       their 18px root), which 0.9rem reproduces against this theme's 16px
+       root. */
     font-size: 0.9rem; /* 14.4px */
     line-height: 1.5; /* 21.6px */
     /* This overrides the element's `text-qetext-light text-opacity-80`
@@ -451,15 +435,15 @@
        `margin-top: 0 !important` on every `.simple-center-grid > *`, and this
        footer is a direct child of that grid. */
     padding-top: 2.5em; /* 36px */
-    /* The Sphinx footer sets `margin: 36px 0`, so it also clears 36px below the
-       last line. Padding rather than margin here: this is the last grid child,
-       and a bottom margin on it does not extend the document. */
+    /* The same 36px clears the last line below. Padding rather than margin
+       here: this is the last grid child, and a bottom margin on it does not
+       extend the document. */
     padding-bottom: 2.5em; /* 36px */
-    /* The Sphinx footer carries `opacity: .7` on the whole element, so its rule,
-       badge and text all render faded. Without this the colours above are
-       correct as *declared* but render too strong: the rule samples
-       rgb(0 114 188) against the Sphinx build's rgb(75 155 207), and the text
-       likewise. Matching the opacity reproduces both exactly. */
+    /* 0.7 is the lecture footer's own opacity, on the whole element, so the
+       rule, badge and text fade together: the colours above are declared at
+       full strength and render softer here (the #0072bc rule samples as about
+       rgb(75 155 207) on white). Declaring the faded colours directly would
+       not reproduce it -- the badge image fades too. */
     opacity: 0.7;
   }
 
@@ -474,8 +458,8 @@
 
   /* Dark mode. The rule above is (0,2,1), so it beats both `.link`'s dark
      colour utility and `.dark .article :where(a)` -- and #0072bc drawn at the
-     footer's 70% opacity on stone-900 is about 2.3:1. blue-300, the theme's
-     dark `.link` hover colour, lands near 5.3:1 at the same opacity. */
+     footer's 70% opacity on the #222 content panel is about 2.2:1; blue-300
+     lands near 5.0:1 at the same opacity. */
   .dark .article .qe-site-footer a {
     color: #93c5fd;
   }
@@ -487,7 +471,8 @@
     margin: 0;
   }
 
-  /* The 5px rule itself; its `mb-5` utility is 20px, the Sphinx gap is 18px. */
+  /* The 5px rule itself: an 18px gap below it, the lecture builds' figure, in
+     place of the 20px its `mb-5` utility gives. */
   .article .qe-site-footer > div:first-child {
     margin-bottom: 1.25em; /* 18px */
   }
@@ -498,24 +483,23 @@
 
    `BackToTop` (app/components/Outline.tsx) renders a bare `<a>` inside
    `.article`, so it inherits the content size and the surrounding text
-   colour. The Sphinx build styles this as a small blue pill
-   (`.qe-page__toc .back-to-top-btn`), measured live at #0072bc / 15.3px / 600
-   with 9px 18px padding and a 4px radius.
+   colour. The rules below make it a small blue pill, at the lecture builds'
+   measured values: #0072bc / 15.3px / 600 with 9px 18px padding and a 4px
+   radius.
 
    The colour selector is deliberately only (0,1,1). `.dark .article :where(a)`
    is (0,2,0) and so still wins in dark mode, keeping the existing white link
    there rather than painting this blue on a dark background.
    --------------------------------------------------------------------------- */
 @layer components {
-  /* "On this page" outline (#182) -- pinned, scroll-tracking, nested. The
-     Sphinx build pins its panel with `position: fixed` behind a class named
-     `sticky`; `sticky` itself cannot work here (the wrapper is `self-start`,
-     so a sticky child has no travel). `left`/`right` stay `auto` so the
-     panel keeps its static position in the 200px margin track.
-     `top` is this theme's own first-content line at 1280x800 -- the navbar
-     (50px) plus main's 72px padding -- measured, not Sphinx's 7rem, so the
-     panel does not jump on load. Past `max-height` it scrolls internally,
-     behind a mask fade, with the scrollbar only on hover/focus as in Sphinx. */
+  /* "On this page" outline -- pinned, scroll-tracking, nested. The panel is
+     pinned with `position: fixed`; `sticky` cannot work here (the wrapper is
+     `self-start`, so a sticky child has no travel). `left`/`right` stay
+     `auto` so the panel keeps its static position in the 200px margin track.
+     `top` is the first-content line at 1280x800 -- the navbar (50px) plus
+     main's 72px padding -- so the panel does not jump on load. Past
+     `max-height` it scrolls internally, behind a mask fade, with the
+     scrollbar only on hover/focus. */
   .qe-outline {
     position: fixed;
     top: 122px;
@@ -524,8 +508,8 @@
     overflow-x: hidden;
     overflow-y: hidden;
     mask-image: linear-gradient(180deg, #000 calc(100% - 2rem), transparent);
-    /* Navigation chrome, not reading copy: Sphinx sets .9rem of its 18px
-       root (16.2px); 15px is that intent against this theme's base. */
+    /* Navigation chrome, not reading copy: a fixed 15px, a step below the
+       18px content and not tracking it. */
     font-size: 15px;
     line-height: 1.5;
   }
@@ -550,20 +534,20 @@
     margin: 0;
   }
   .qe-outline__list a {
-    /* The inline-start rule is reserved on every entry so the active one
-       does not shift the text; Sphinx uses the same 3px inset. Logical
-       padding, like the rule, so both mirror together in RTL editions. */
+    /* The 3px inline-start rule is reserved on every entry so the active
+       one does not shift the text. Logical padding, like the rule, so both
+       mirror together in RTL editions. */
     display: block;
     padding-block: 0.2rem;
     padding-inline: 0.75rem 0;
     border-inline-start: 3px solid transparent;
     text-decoration: none;
-    /* Resting: the prose colour (#44403c, 10.3:1). Sphinx composites its
-       resting entries to 4.47:1, under AA -- not copied. */
+    /* Resting: the prose colour (#44403c, 10.3:1), undimmed, so resting
+       entries stay well clear of the 4.5:1 AA floor. */
     color: inherit;
   }
-  /* Autoexpand (Sphinx `contents_autoexpand`, on by default there): nested
-     sub-lists are hidden until their branch is the current one. */
+  /* Autoexpand: nested sub-lists are hidden until their branch is the
+     current one. */
   .qe-outline__list ul {
     display: none;
     margin: 0;
@@ -574,15 +558,14 @@
     display: block;
   }
   .qe-outline__sub a {
-    padding-inline-start: 1.75rem; /* Sphinx: `ul ul { padding-left: 1rem }` */
+    padding-inline-start: 1.75rem; /* 0.75rem entry padding + 1rem indent */
   }
   .qe-outline__list a:hover {
     color: var(--qe-link-color);
   }
-  /* Active: the book theme's *intent* (QuantEcon blue, bold), which
-     pydata-sphinx-theme outranks on the deployed sites; here it is the same
-     blue as content links, so the panel reads as one system. Weight and the
-     rule keep the state from being colour-only (WCAG 1.4.1). */
+  /* Active: QuantEcon blue and bold -- the same blue as content links, so
+     the panel reads as one system. Weight and the rule keep the state from
+     being colour-only (WCAG 1.4.1). */
   .qe-outline__list a[aria-current] {
     color: var(--qe-link-color);
     font-weight: 600;
@@ -594,16 +577,16 @@
   }
   .dark .qe-outline__list a:hover,
   .dark .qe-outline__list a[aria-current] {
-    /* Sphinx's dark link blue; 7.4:1 on this theme's #222 ground. The
-       dark `--qe-link-color` is white, which would not distinguish the
-       active entry from the rest. */
+    /* A light blue, 7.4:1 on the #222 ground. The dark `--qe-link-color`
+       is white, which would not distinguish the active entry from the
+       rest. */
     color: #6cb6ff;
     border-inline-start-color: #6cb6ff;
   }
 
-  /* Collapsible stderr (#92): the Sphinx build's amber "Code warnings"
-     fold (_stderr.scss), as a native <details>. Colours are the book
-     theme's: #ffc107 border and icon, #856404 label (7.0:1 on white). */
+  /* Collapsible stderr: a stderr stream folded in a native <details>,
+     closed by default. Amber #ffc107 border and icon, #856404 label (5.5:1
+     on white). */
   .qe-stderr {
     margin: 0.5rem 0;
     border: 1px solid #ffc107;
@@ -652,17 +635,17 @@
   }
 
   .qe-back-to-top a {
-    /* `rem` for the same reason as the footer: pinned to the Sphinx button's
-       size, not the content base. The awkward figure is exactly .85rem of the
-       Sphinx build's 18px root expressed against this theme's 16px one. */
+    /* `rem` for the same reason as the footer: a fixed size, not the content
+       base -- it must not move if `.article` does. The awkward figure is the
+       button's own 15.3px (the lecture builds' .85rem of their 18px root)
+       expressed against this theme's 16px root. */
     font-size: 0.95625rem; /* 15.3px */
     font-weight: 600;
     line-height: 1.5; /* 22.95px; prose otherwise gives this 1.75 (26.8px) */
     color: #0072bc;
     /* `inline-block` so the vertical padding actually takes; the anchor is
-       inline by default, and Sphinx uses `display: block` inside its own fixed
-       wrapper. Padding in px because it is `.5rem 1rem` against Sphinx's 18px
-       root, which no em against this element's own 15.3px reproduces cleanly. */
+       inline by default. Padding in px because 9px 18px has no clean `em`
+       equivalent against this element's own 15.3px. */
     display: inline-block;
     padding: 9px 18px;
     border-radius: 4px;
@@ -673,11 +656,9 @@
 /* ---------------------------------------------------------------------------
    CODE HIGHLIGHTING
 
-   The Sphinx build highlights with Pygments and, with `qetheme_code_style`
-   at its default of true, paints the tokens in QuantEcon's own palette
-   (`_code.scss`, light and dark). No lecture repo turns that option off, so
-   the palette is the whole of what parity means here: it ships
-   unconditionally, and there is no toggle.
+   Code tokens are painted in QuantEcon's own palette, light and dark, taken
+   from quantecon-book-theme's Pygments styles (`_code.scss`). It ships
+   unconditionally; there is no toggle.
 
    MyST highlights with highlight.js, not Pygments. myst-to-react's CodeBlock
    renders react-syntax-highlighter's async build, which tokenises with
@@ -694,7 +675,7 @@
    mapping, not a port. Where Pygments has a class and highlight.js has no
    scope, the token renders in the base text colour:
 
-     Pygments (Sphinx)                          highlight.js (here)
+     Pygments                                   highlight.js (here)
      .c .c1 .cm   comments                      .hljs-comment
      .k .kn .kr   keywords; .ow and/or/not/in   .hljs-keyword
      .kc          True / False / None           .hljs-literal
@@ -724,11 +705,16 @@
    `content`, and `hljs-*` classes are generated at runtime by lowlight,
    never written in any scanned file.
 
-   The light values are the Sphinx build's as shipped. Two fall short of
-   WCAG AA on a white ground -- comments #60a0b0 (2.9:1) and numbers
-   #40a070 (3.4:1) -- and are reproduced for parity; revisiting them is a
-   decision for both themes, not a fix for one. Measured in full, with
-   AA-passing candidates and the options, on #172.
+   Six light values fall short of WCAG AA (4.5:1) on a white ground: subst
+   #70a0d0 (2.8:1), comments #60a0b0 (2.9:1), numbers #40a070 (3.2:1), diff
+   additions #00a000 (3.5:1), variables #bb60d5 (3.6:1) and class names
+   #0e84b5 (4.2:1). The first three appear in almost every code cell.
+
+   They stay as the palette defines them rather than being corrected here:
+   the values are inherited from quantecon-book-theme, which paints the same
+   tokens on the deployed lecture sites, so changing them is a decision for
+   both themes and not a fix one of them makes alone. Measurements and
+   AA-passing candidates are in #172.
    --------------------------------------------------------------------------- */
 .hljs-comment,
 .hljs-quote {
@@ -808,7 +794,7 @@
   font-weight: 700;
 }
 
-/* Diff lines are coloured text in the Sphinx palette, not filled rows. */
+/* Diff lines are coloured text, not filled rows. */
 .hljs-addition {
   color: #00a000;
   background-color: transparent;
@@ -824,9 +810,9 @@
   font-weight: 700;
 }
 
-/* Dark mode: the Sphinx theme's `body.dark-theme` palette (`_code.scss`),
-   chosen for its #1e1e32 code ground; upstream's `.dark .hljs` ground here
-   is #1e1e1e, close enough that the same values read the same. */
+/* Dark mode: the palette's dark variant, chosen for a #1e1e32 code ground;
+   upstream's `.dark .hljs` ground here is #1e1e1e, close enough that the
+   same values read the same. */
 .dark .hljs-comment,
 .dark .hljs-quote {
   color: #7c8a9e;

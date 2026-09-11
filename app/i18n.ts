@@ -1,8 +1,8 @@
 /**
- * Multilingual editions: the language switcher and `hreflang` alternates
- * (Phase 4, #90), document direction (Phase 5, #91) and translator credit
- * (#143). Pure TypeScript with no React, so tests/unit/i18n.test.mjs runs it
- * under `node --test` with type stripping, the way launchUrls.ts is tested.
+ * Multilingual editions: the language switcher and `hreflang` alternates,
+ * document direction and translator credit. Pure TypeScript with no React, so
+ * tests/unit/i18n.test.mjs runs it under `node --test` with type stripping,
+ * the way launchUrls.ts is tested.
  *
  * WHY THE LISTS ARE STRINGS
  *
@@ -22,10 +22,9 @@
  * page's `site:` frontmatter goes through the same validation, so the same
  * form applies there.
  *
- * The shapes and the resolution rules are quantecon-book-theme's
+ * The shapes and the resolution rules are ported from quantecon-book-theme
  * (`_process_languages`, `_normalise_people`, `_resolve_people`,
- * `_resolve_label` in its __init__.py), so a translated edition configures the
- * two themes with the same values.
+ * `_resolve_label` in its __init__.py).
  */
 import { parse as parseYaml } from 'yaml';
 
@@ -77,7 +76,7 @@ function asString(value: unknown): string {
 /**
  * The languages to offer. Entries need all of `code`, `name` and `url`;
  * trailing slashes come off the URL so page paths join cleanly. Fewer than two
- * valid entries means no switcher and no alternates, as in the book theme.
+ * valid entries means no switcher and no alternates.
  */
 export function normaliseLanguages(raw: unknown): Language[] {
   const value = parseStructured(raw);

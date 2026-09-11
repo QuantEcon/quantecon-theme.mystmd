@@ -3,15 +3,16 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Visual-regression config for the QuantEcon MyST theme.
  *
- * Unlike the Sphinx book-theme (static HTML), this theme is a runtime Remix
- * server, so tests run against a live `myst start` of the fixture in
- * `tests/visual/fixture`, with the theme under test selected via the
- * `THEME_TEMPLATE` env var (see `tests/visual/serve.sh` and the README).
+ * This theme is a runtime Remix server, so tests run against a live
+ * `myst start` of the fixture in `tests/visual/fixture` (static.spec.ts
+ * instead runs against a `myst build --html` of it), with the theme under
+ * test selected via the `THEME_TEMPLATE` env var (see `tests/visual/serve.sh`
+ * and the README).
  *
- * Before/after the 2.0.0 upgrade:
- *   1. baseline (v1.1.1): THEME_TEMPLATE=<deployed main zip>  npm run test:visual:update
- *   2. candidate (2.0.0): THEME_TEMPLATE=<local build dir>    npm run test:visual
- * Diffs in step 2 are exactly what the upgrade changed.
+ * To diff one theme build against another:
+ *   1. baseline:  THEME_TEMPLATE=<released bundle zip>  npm run test:visual:update
+ *   2. candidate: THEME_TEMPLATE=<local build dir>      npm run test:visual
+ * Diffs in step 2 are exactly what changed between the two.
  */
 const PORT = process.env.PORT || "3111";
 const baseURL = `http://localhost:${PORT}`;
@@ -37,7 +38,7 @@ if (RTL_PORT === PORT || RTL_PORT === NO_THEBE_PORT) {
 }
 process.env.RTL_PORT = RTL_PORT;
 // Fourth server: a `myst build --html` of the main fixture behind a plain
-// file server (MODE=static, the deployed shape) for static.spec.ts -- #186.
+// file server (MODE=static, the deployed shape) for static.spec.ts.
 const STATIC_PORT = process.env.STATIC_PORT || "3114";
 const staticURL = `http://localhost:${STATIC_PORT}`;
 if ([PORT, NO_THEBE_PORT, RTL_PORT].includes(STATIC_PORT)) {

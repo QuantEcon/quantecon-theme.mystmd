@@ -55,8 +55,7 @@ function relativeTime(iso: string, now: number) {
 const COPY = "text-[0.85rem]";
 
 /**
- * "Last changed" page-header control that expands an inline changelog,
- * mirroring the quantecon-book-theme header.
+ * "Last changed" page-header control that expands an inline changelog.
  *
  * Layout: the root is `display: contents`, so the trigger and the panel become
  * flex items of the header's author row rather than nesting inside a box. The
@@ -70,8 +69,8 @@ const COPY = "text-[0.85rem]";
  *  1. `site.git_metadata` in the page frontmatter (manual override, and how
  *     the visual fixture pins deterministic data) -- a declared template
  *     option, so it arrives as a string holding a YAML block (template
- *     options are scalar-only; see app/i18n.ts) or, from older content, as
- *     an object; then
+ *     options are scalar-only; see app/i18n.ts), though a real object is
+ *     accepted too; then
  *  2. `mdast.data.git_metadata` injected at build time by
  *     plugins/git-metadata.mjs.
  *
@@ -148,8 +147,8 @@ export function PageHeaderHistory({ alignEnd = true }: { alignEnd?: boolean } = 
   return (
     <div
       className="contents"
-      // Esc closes from anywhere inside, returning focus to the trigger —
-      // the disclosure equivalent of the modal's Esc handling.
+      // Esc closes from anywhere inside and returns focus to the trigger, so
+      // focus on a panel link is not dropped when the panel unmounts.
       onKeyDown={(event) => {
         if (event.key === "Escape" && open) {
           setOpen(false);

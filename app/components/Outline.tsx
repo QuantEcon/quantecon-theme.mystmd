@@ -18,18 +18,17 @@ export function BackToTop() {
             }
           )}
         >
-          {/* Label matches the Sphinx build's back-to-top button exactly:
-              U+2191 + space + "Top". `aria-label` is deliberately kept -- the
-              Sphinx original leans on `title` alone, which screen readers
-              announce inconsistently, so the visible label can shorten without
-              the accessible name going with it.
+          {/* Visible label: U+2191 + space + "Top". `aria-label` is kept
+              deliberately -- `title` alone is announced inconsistently by
+              screen readers, so the visible label can stay short without the
+              accessible name going with it.
               A plain fragment link, not the provider `Link`: this control is
-              rendered server-side, and the provider resolved `#top` against
-              the un-slashed SSR pathname while the outline (built after mount)
-              resolved against the slashed one -- so on the deployed lecture
-              sites "Top" was the one in-page control that left the document
-              (301 + full reload, #186). A bare `href="#top"` is what the Sphinx
-              build renders and never needs path resolution. */}
+              rendered server-side, where the provider would resolve `#top`
+              against the un-slashed SSR pathname rather than the slashed one
+              the outline (built after mount) sees -- so on a static host that
+              redirects to the slashed URL, "Top" would leave the document
+              (301 + full reload) instead of scrolling. A bare `href="#top"`
+              never needs path resolution. */}
           <a href="#top" title="Back to top" aria-label="Back to top">
             ↑ Top
           </a>
@@ -40,34 +39,28 @@ export function BackToTop() {
 }
 
 /**
- * The right-hand "On this page" panel (#182). Pinned, scroll-tracking and
- * nested, matching the Sphinx build's `sticky_contents` panel:
+ * The right-hand "On this page" panel -- pinned, scroll-tracking and nested:
  *
- *  - The current entry is chosen by `useActiveHeading`, a port of the Sphinx
- *    build's scrollspy rule (the last heading whose top has passed 120px
- *    from the viewport top; the final one within 50px of the page bottom),
- *    rather than by `useHeaders`' own `activeId`. That id is computed from an
- *    IntersectionObserver pass against the theme's navbar offset, and in this
- *    theme the hook reads that offset as 0 (measured on the fixture: the
- *    topmost heading in the upper third wins, even one hidden under the
- *    navbar), so the deployed sites' rule is both more predictable and the
- *    parity target.
+ *  - The current entry is chosen by `useActiveHeading` (the last heading whose
+ *    top has passed 120px from the viewport top; the final one within 50px of
+ *    the page bottom) rather than by `useHeaders`' own `activeId`. That id is
+ *    computed from an IntersectionObserver pass against the theme's navbar
+ *    offset, and in this theme the hook reads that offset as 0 (measured on the
+ *    fixture: the topmost heading in the upper third wins, even one hidden
+ *    under the navbar), so a fixed scroll offset is the more predictable rule.
  *  - Pinning is `position: fixed` in styles/quantecon.css (`.qe-outline`), not
  *    `sticky`: the wrapper is `self-start`, so a sticky child would have zero
  *    travel, and the grid declares no rows for it to span. `left`/`right` stay
  *    `auto`, so the panel keeps its static position in the margin track.
- *  - h3 entries nest under their h2 and collapse to the active branch, as the
- *    Sphinx panel does under `contents_autoexpand` (on by default there and
- *    on every lecture site): at the top of the page only the sections show;
- *    scrolling into a section expands its subsections, the current one
- *    (section or subsection) is marked, and the parent of a current
- *    subsection is expanded but not marked. Past `max-height` the panel
- *    scrolls internally.
+ *  - h3 entries nest under their h2 and collapse to the active branch: at the
+ *    top of the page only the sections show; scrolling into a section expands
+ *    its subsections, the current one (section or subsection) is marked, and
+ *    the parent of a current subsection is expanded but not marked. Past
+ *    `max-height` the panel scrolls internally.
  *  - Enumerators come from the heading itself (`span.select-none`, "3.1"),
- *    plus the period the h1 and the Sphinx panel use -- never a number
- *    computed from the list index, which was wrong as soon as h3s existed.
- *  - The logo sits below the list and above "Powered by", where the Sphinx
- *    panel keeps it (decided on review of #196); smaller, per #96.
+ *    plus the period the h1 uses -- never a number computed from the list
+ *    index, which miscounts as soon as h3s are listed.
+ *  - The logo sits below the list and above "Powered by".
  */
 export function Outline({
   containerClassName,
@@ -81,8 +74,8 @@ export function Outline({
   const { headings } = useHeaders('main h2, main h3', 3);
   const currentId = useActiveHeading(headings);
   const tree = nest(headings);
-  // Sphinx's autoexpand: the current item's own sub-list, and every ancestor
-  // of the current item, are expanded; nothing else is.
+  // The current item's own sub-list, and every ancestor of the current item,
+  // are expanded; nothing else is.
   const expandedId = tree.find(
     (branch) => branch.id === currentId || branch.children.some((c) => c.id === currentId)
   )?.id;
@@ -162,8 +155,8 @@ function Entry({
   currentId?: string;
   Link: ReturnType<typeof useLinkProvider>;
 }) {
-  // The heading's own enumerator ("3.1"), plus the period the h1 and the
-  // Sphinx panel use; the bare title when the project sets no numbering.
+  // The heading's own enumerator ("3.1"), plus the period the h1 uses; the
+  // bare title when the project sets no numbering.
   const enumerator = heading.element.querySelector('span.select-none')?.textContent?.trim();
   return (
     <Link to={`#${heading.id}`} aria-current={heading.id === currentId ? 'location' : undefined}>
@@ -172,17 +165,17 @@ function Entry({
   );
 }
 
-/** Sphinx's `scrollspy.js` constants: a section is current once its heading
- *  has passed this many px from the top; the last section is forced current
- *  this close to the page bottom. */
+/** From quantecon-book-theme's `scrollspy.js`, as is `useActiveHeading`: a
+ *  section is current once its heading has passed this many px from the top;
+ *  the last section is forced current this close to the page bottom. */
 const ACTIVATION_OFFSET_PX = 120;
 const BOTTOM_THRESHOLD_PX = 50;
 
 /**
- * The id of the heading the reader is in, by the Sphinx rule: the last heading
- * whose top is at or above the activation line, or the last heading of all
- * once the page is scrolled to its bottom. Nothing is current above the first
- * heading. Recomputed on scroll and resize, one read per animation frame.
+ * The id of the heading the reader is in: the last heading whose top is at or
+ * above the activation line, or the last heading of all once the page is
+ * scrolled to its bottom. Nothing is current above the first heading.
+ * Recomputed on scroll and resize, one read per animation frame.
  */
 function useActiveHeading(headings: { id: string; element: HTMLElement }[]) {
   const [currentId, setCurrentId] = useState<string | undefined>(undefined);

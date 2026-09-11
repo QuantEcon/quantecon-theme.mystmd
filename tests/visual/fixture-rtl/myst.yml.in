@@ -1,4 +1,4 @@
-# Template for the right-to-left visual-regression fixture (#91): a Persian
+# Template for the right-to-left visual-regression fixture: a Persian
 # edition with `enable_rtl`, the language switcher marking `fa` as current,
 # and a translator credit with a Persian label. `serve.sh` copies this to
 # myst.yml, substituting __THEME__ (FIXTURE_DIR=fixture-rtl).

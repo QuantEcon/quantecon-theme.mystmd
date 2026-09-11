@@ -1,5 +1,5 @@
 /**
- * Unit tests for the social/SEO meta helpers (app/seo.ts, #92). Run with
+ * Unit tests for the social/SEO meta helpers (app/seo.ts). Run with
  * `npm run test:unit` (node --test with type stripping, Node >= 23.6).
  */
 import assert from 'node:assert/strict';
@@ -29,7 +29,7 @@ test('ogLocale: BCP 47 to OpenGraph', () => {
   assert.equal(ogLocale(undefined), undefined);
 });
 
-test('the Sphinx set, on a lecture page with the site-level images', () => {
+test('the full set, on a lecture page with the site-level images', () => {
   const tags = byKey(
     socialMetaTags({
       siteTitle: 'Python Programming for Economics and Finance',

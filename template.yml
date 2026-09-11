@@ -21,8 +21,8 @@ parts:
   - id: footer
     description: The site wide footer
 # Site options (`site.options` in myst.yml). The CLI validates against this
-# list and DROPS any key not declared here (#173), so every option the theme
-# reads is declared below -- and it can only declare scalar types, so the
+# list and DROPS any key not declared here, so every option the theme reads
+# is declared below -- and it can only declare scalar types, so the
 # structured ones (`languages`, `translators`, `git_metadata`) are strings
 # holding a YAML block; app/i18n.ts `parseStructured` turns them back into
 # data. Site-wide unless marked per-page; a per-page value goes under `site:`
@@ -103,7 +103,7 @@ options:
   - id: hide_search
     type: boolean
     description: Hide the toolbar search control.
-  # --- Notebook launcher (see README "Launch buttons") ---
+  # --- Notebook launcher (see docs/launch.md) ---
   - id: launch_repo_url
     type: string
     description: >

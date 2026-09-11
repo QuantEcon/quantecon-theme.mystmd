@@ -149,6 +149,64 @@ Sphinx-era repos), but the theme treats both styles identically. Making gated
 cells genuinely root-level in the AST would be an upstream mystmd transform
 change, not a theme or content fix.
 
+## Code comments
+
+Comments explain the code as it stands: what it does, and why it is written
+that way when the code alone does not say. How it came to be written belongs
+in git — the commit message, the PR and `CHANGELOG.md` — where it stays
+accurate; a comment that narrates a project phase goes stale once the work is
+done.
+
+This applies to comments in code — including the comments in YAML, shell and
+fixture files. Prose documentation (`README.md`, `docs/`, `PLAN.md`, the test
+suite's own `README.md`) is written for a reader who wants the project's
+history, and keeps it.
+
+- **No project framing.** No phase numbers, `PLAN.md` items or milestones, and
+  no issue number used as a label for the work that produced the code.
+  `git log -L` traces any line back through the PRs that shaped it.
+- **Link an issue only when the thread carries more than the comment can.**
+  An upstream bug being worked around, a field a fork adds, the regression a
+  test exists to catch, the measurements a claim rests on, an open decision
+  that will change the code. State the point itself in the comment as well, so
+  the comment stands on its own if the link rots.
+- **Reasons, not comparisons.** "Matches the Sphinx build" on its own does not
+  tell the next reader what breaks if the value changes. Give the reason: the
+  measurement, the contrast ratio, the layout constraint.
+
+  A constraint from another system *is* a reason, and naming it is not project
+  framing — this theme reproduces the deployed Sphinx lecture sites, so for a
+  value derived by measuring them, that derivation is the reason and belongs in
+  the comment: `/* 14.4px: the lecture builds' .8rem of an 18px root */`. What
+  the rule rules out is the bare comparison that leaves the number unexplained.
+
+  Code ported from another project gets one line of provenance where the port
+  starts.
+
+### Matching the lecture builds, and when not to
+
+Most values in `styles/quantecon.css` are measurements of the deployed Sphinx
+lecture sites, and most inherited colours come from `quantecon-book-theme`'s
+own palettes. The rule the theme follows is: **match them, except where
+matching them would fail WCAG.** Where it diverges it says so, with the
+measurement, so the next reader does not "restore parity" and reintroduce the
+problem. The existing divergences are the model:
+
+- the outline's resting entries stay undimmed at 10.3:1, where the Sphinx panel
+  composites its own to 4.47:1;
+- the outline's active entry carries weight and a rule as well as colour, so the
+  state is not colour-only (WCAG 1.4.1);
+- the dark footer link is blue-300, because the inherited `#0072bc` composites
+  to 2.2:1 at the footer's opacity;
+- content is a flat 18px off a `rem` root, rather than the Sphinx builds'
+  px root, which is a WCAG 1.4.4 problem.
+
+Changing an inherited value for any *other* reason is a two-theme decision, not
+a fix this repo makes alone — it would reintroduce a difference against the live
+sites. Open an issue instead (see #172 for the code palette, #201 for the
+footer). When you compute a contrast ratio, composite any `opacity` on the
+element first: the declared colour is not what the reader sees.
+
 ## Commit Convention
 
 We use conventional commits:

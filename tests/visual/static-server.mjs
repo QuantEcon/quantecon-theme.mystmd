@@ -3,7 +3,7 @@
  * A plain static file server, for the `static-chrome` Playwright project.
  *
  * Deliberately dumb: no routing, no awareness of Remix's `?_data=` requests.
- * That is the point -- it behaves like the hosts the lecture sites deploy to
+ * That is the point -- it behaves like the static hosts a site deploys to
  * (Netlify, GitHub Pages, `python3 -m http.server`), where a loader fetch gets
  * the page's own HTML back with a 200. Directory requests without a trailing
  * slash 301 to the slashed form, as those hosts do.

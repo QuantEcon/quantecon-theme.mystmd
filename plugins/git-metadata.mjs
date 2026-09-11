@@ -17,7 +17,7 @@
  * set the same shape manually under `site.git_metadata` in their frontmatter,
  * which takes precedence over the injected data. Write it as a YAML block
  * string (`git_metadata: |` followed by the indented YAML): it is a declared
- * template option, and the CLI can only declare scalar types (#173).
+ * template option, and the CLI can only declare scalar types.
  *
  * Mirrors quantecon-book-theme's get_git_last_modified/get_git_changelog:
  * per-file `git log --follow`, a hard timeout, and a silent no-op when the
@@ -25,9 +25,8 @@
  * the command times out. Shallow clones (e.g. CI checkouts with depth 1)
  * yield truncated history rather than an error.
  *
- * Usage in a lecture repo's myst.yml — this repo is the plugin's permanent home
- * (PLAN.md, open question 2): reference it by URL, with <tag> pinned to the
- * theme release the repo builds with (e.g. v2.3.0), rather than vendoring a
+ * Usage in a lecture repo's myst.yml: reference it by URL, with <tag> pinned to
+ * the theme release the repo builds with (e.g. v2.3.0), rather than vendoring a
  * copy:
  *
  *   project:

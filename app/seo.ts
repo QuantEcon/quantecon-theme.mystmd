@@ -1,25 +1,30 @@
 /**
- * Social / SEO meta tags (Phase 6, #92) -- the full OpenGraph and Twitter
- * card set the Sphinx lecture sites emit, on top of what @myst-theme/site's
- * `getMetaTagsForArticle` already produces (title, description, keywords,
- * og:title/description/url/image, twitter:card/creator/title/description/
- * image/alt).
+ * Social / SEO meta tags: the OpenGraph and Twitter card tags this theme adds
+ * on top of what @myst-theme/site's `getMetaTagsForArticle` already produces
+ * (title, description, keywords, og:title/description/url/image,
+ * twitter:card/creator/title/description/image/alt).
  *
- * What upstream leaves out, and the Sphinx sites ship on every page:
+ * What upstream's set leaves out, sets differently, or emits where it never
+ * renders:
  *
- *   og:type        "website" (Sphinx: every lecture page)
+ *   og:type        "website" on every page, lecture pages included. "article"
+ *                  would be the usual choice for a page with a byline, but it
+ *                  commits to `article:published_time` / `author` / `section`
+ *                  metadata the lectures do not carry, and the deployed sites
+ *                  declare "website" throughout
  *   og:site_name   the site title
  *   og:url         upstream needs an `origin`, which the routes never had.
- *                  It comes from the `site_url` option (the Sphinx sites'
- *                  `html_baseurl`); `site.domains` would be the natural
- *                  source, but the CLI's site manifest does not carry it, so
- *                  it is only a fallback should that change
- *   og:image /     a site-level image when the page has no thumbnail --
- *   twitter:image  `og_logo_url` and `twitter_logo_url`, the book theme's
- *                  option names, so a lecture repo copies its values across
+ *                  It comes from the `site_url` option; `site.domains` would
+ *                  be the natural source, but the CLI's site manifest does
+ *                  not carry it, so it is only a fallback should that change
+ *   og:image       `og_logo_url` when the page has no thumbnail
+ *   twitter:image  `twitter_logo_url` when set, even over a page thumbnail;
+ *                  otherwise the og:image
+ *   twitter:card   "summary" whenever `twitter` is set, in place of upstream's
+ *                  own card type
  *   twitter:site   upstream puts it in the root route's meta, which Remix v2
- *                  replaces with the article route's, so it never rendered
- *   og:locale      from `current_language` (Phase 4), when set
+ *                  replaces with the article route's, so it never renders
+ *   og:locale      from `current_language`, when set
  *
  * Pure TypeScript with no React; tests/unit/seo.test.mjs runs it under
  * `node --test` with type stripping like the other helpers.

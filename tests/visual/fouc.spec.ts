@@ -5,16 +5,16 @@ import { test, expect, type Page, type Route } from "@playwright/test";
  *
  * The flash this guards against is NOT a pre-stylesheet first paint — WebKit
  * holds first paint until the `<head>` stylesheets apply. It is the window
- * where those stylesheets stop applying after load: historically, React's
- * hydration-recovery re-render re-creating head nodes when server and client
- * markup diverged there, which re-applies a `<link>` asynchronously but an
- * inline `<style>` synchronously (see the CRITICAL_CSS comment in
- * `app/root.tsx`, and #126 for the measurements). In that window the page
- * shows the default serif font and the content grid collapsed to
- * `display: block` unless the inlined critical CSS covers it.
+ * where those stylesheets stop applying after load: when server and client
+ * markup diverge in the head, React's hydration-recovery re-render re-creates
+ * head nodes, which re-applies a `<link>` asynchronously but an inline
+ * `<style>` synchronously (see the CRITICAL_CSS comment in `app/root.tsx`, and
+ * #126 for the measurements). In that window the page shows the default serif
+ * font and the content grid collapsed to `display: block` unless the inlined
+ * critical CSS covers it.
  *
  * The contents drawer is checked here too: any panel that relies on author CSS
- * to stay hidden paints open in that same frame. It is a popover now, so the UA
+ * to stay hidden paints open in that same frame. It is a popover, so the UA
  * stylesheet hides it and the assertions below expect that. The toggle's close
  * icon and the "back to top" button are the other two things that would paint
  * without author CSS; each has a rule in the critical block and is asserted on.
@@ -87,14 +87,14 @@ type FirstPaint = {
 /**
  * Measure at first paint, from inside the page, before React hydrates.
  *
- * The measurement used to run from the test after `domcontentloaded`, which
- * left roughly a 150ms budget before hydration. That is not enough: hydration
- * currently fails on every load (React #418/#423, tracked in #126), and the
- * recovery re-render puts the critical `<style>` back — measured at 150–240ms
- * after `DOMContentLoaded`. The control strips that block from the served HTML
- * precisely to prove the guard is meaningful, so when React restored it the
- * control's assertions all flipped at once and `fouc-guard` went red for
- * reasons that had nothing to do with the critical CSS.
+ * Measuring from the test after `domcontentloaded` would leave roughly a
+ * 150ms budget before hydration, and that is not enough: when hydration fails
+ * (React #418/#423; timings in #126) the recovery re-render puts the critical
+ * `<style>` back — measured at 150–240ms after `DOMContentLoaded`. The control
+ * strips that block from the served HTML precisely to prove the guard is
+ * meaningful, so if React restores it before the sample, the control's
+ * assertions all flip at once and `fouc-guard` goes red for reasons that have
+ * nothing to do with the critical CSS.
  *
  * Sampling from an init script closes that window: it runs on
  * `DOMContentLoaded`, in-page and synchronously, and it reads only the DOM. The
@@ -105,9 +105,9 @@ type FirstPaint = {
  * that ordering is what the #126 timings show, with the earliest observed
  * restoration an order of magnitude later than the sample.
  *
- * Note this deliberately survives a *fixed* #126: a control that strips the
- * inline block guarantees a hydration mismatch by construction, so no repair to
- * the hydration failure itself could make a post-hydration sample safe here.
+ * Note this holds even when ordinary loads hydrate cleanly: a control that
+ * strips the inline block guarantees a hydration mismatch by construction, so
+ * no repair to hydration itself could make a post-hydration sample safe here.
  */
 async function firstPaintState(page: Page): Promise<FirstPaint> {
   await page.addInitScript((key) => {
