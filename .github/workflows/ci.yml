@@ -15,6 +15,22 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      # CONTRIBUTING.md "Code comments": comments say what the code does, not
+      # which phase of the project produced it. Only the framing vocabulary is
+      # matched -- issue links are allowed where the thread carries detail the
+      # comment cannot, so bare `#NNN` is deliberately not matched here (it
+      # would also hit every hex colour). Prose docs are exempt by path.
+      #
+      # One letter of each alternative is bracketed so this file, which holds
+      # the pattern, is not itself a match -- the scan covers .github/workflows.
+      - name: No project framing in code comments
+        run: |
+          if grep -rnE '(Phas[e] [0-9]|PLA[N]\.md|parit[y] milestone|open questio[n] [0-9])' \
+               app styles plugins scripts tests template.yml tailwind.config.js \
+               playwright.config.ts .github/workflows; then
+            echo "::error::Project framing in a code comment -- see CONTRIBUTING.md 'Code comments'."
+            exit 1
+          fi
       - run: npm ci
       - run: npm run compile
       - run: npm run test:unit
