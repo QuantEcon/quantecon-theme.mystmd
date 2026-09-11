@@ -52,3 +52,6 @@ list. Only the keys marked "site or page" or "page" are read per page.
 | `site.parts.footer` | the footer content ([layout](layout.md)) |
 | `project.github` | commit and edit links, and the notebook repo derivation |
 | `project.thebe` | in-page live compute ([notebooks](notebooks.md)) |
+| `project.description` | the page description meta tag, when a page sets none |
+| `project.keywords` | the keywords meta tag; a comma-separated string is split into a list |
+| `project.math` | KaTeX macros ([migrating](migrating.md#maths-macros)) |
