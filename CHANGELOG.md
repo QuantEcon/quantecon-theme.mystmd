@@ -105,20 +105,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the shipped lockfile with `npm ci` instead of `npm install`, so consumer
   installs from the release asset are reproducible and never mutate the
   lockfile in place ([#162](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/162)).
-- Code comments explain the code rather than the parity project's history:
-  phase numbers, `PLAN.md` items and issue numbers used as labels are gone,
-  and values justified only by "matches the Sphinx build" now carry their own
-  reason — the measurement, contrast ratio or layout constraint. Where a value
-  *is* derived from the deployed lecture sites, that derivation is stated,
-  since it is the reason the value is what it is. A new **Code comments**
-  section in `CONTRIBUTING.md` records the rule, along with the theme's
-  existing practice of matching those sites except where matching them would
-  fail WCAG. Comment text only: the theme's behaviour is unchanged, and the
-  code is byte-identical once comments are stripped apart from four test-suite
-  titles, one test name, one CI step name and one fixture string, none of which
-  any assertion, baseline or status check keys off. Corrects contrast figures
-  that had gone stale or were measured against the wrong ground
-  ([#200](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/200)).
 
 ## [2.6.1] - 2026-09-10
 
