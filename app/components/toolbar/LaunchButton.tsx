@@ -25,10 +25,15 @@ export function LaunchButton({ size, showLabel }: { size: number; showLabel?: bo
   // inferred. A site that has no notebooks repository gets no control at all,
   // rather than a link to a repository name that was guessed from the source
   // one and may not exist.
-  if (!launch_notebook_repo || !launch_colab || !location) return null;
+  //
+  // A blank string counts as unset: the CLI validates an empty option as a
+  // string and passes it through, and a control linking to `github//` helps
+  // nobody.
+  const repo = launch_notebook_repo?.trim();
+  if (!repo || !launch_colab || !location) return null;
 
   const config: LaunchConfig = {
-    repo: launch_notebook_repo,
+    repo,
     branch: launch_notebook_branch,
     dir: launch_notebook_dir,
     sourceDir: launch_notebook_source_dir,

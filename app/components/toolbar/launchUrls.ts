@@ -18,8 +18,9 @@ export interface LaunchConfig {
 export const DEFAULT_BRANCH = 'main';
 const COLAB_BASE_URL = 'https://colab.research.google.com/github/';
 
+/** Normalises an option value: surrounding whitespace, then surrounding slashes. */
 function trimSlashes(value: string): string {
-  return value.replace(/^\/+|\/+$/g, '');
+  return value.trim().replace(/^\/+|\/+$/g, '');
 }
 
 /**
@@ -59,7 +60,11 @@ export function notebookRelPath(location: string, config: Partial<LaunchConfig> 
 /** Public Google Colab launch URL for the given page. */
 export function buildColabUrl(location: string, config: LaunchConfig): string {
   const orgRepo = notebookOrgRepo(config.repo);
-  const branch = config.branch ?? DEFAULT_BRANCH;
+  // An option set to an empty (or blank) string reaches the theme as one --
+  // the CLI validates it as a string and passes it through -- so falling back
+  // on nullish alone would build `blob//<path>`, a 404. Trimmed like the other
+  // path options, which a copied `/main/` needs.
+  const branch = trimSlashes(config.branch ?? '') || DEFAULT_BRANCH;
   const relPath = notebookRelPath(location, config);
   return `${COLAB_BASE_URL}${orgRepo}/blob/${branch}/${relPath}`;
 }

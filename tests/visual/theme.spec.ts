@@ -289,11 +289,25 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(page.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
     // No dead link to a repository the site never named, either.
     await expect(page.locator('a[href*="colab.research.google.com"]')).toHaveCount(0);
-    // And no gap where the control would have been: the slot collapses rather
-    // than sitting empty between the controls on either side.
-    for (const slot of await page.locator(".qe-launch-slot").all()) {
-      const box = await slot.boundingBox();
-      expect(box?.width ?? 0).toBe(0);
+
+    // And no gap where the control would have been. Asserted on the computed
+    // `display`, because both of the obvious signals are blind here: an empty
+    // `<li>` is a zero-width flex item whether or not it is displayed, so
+    // measuring its width proves nothing -- and Playwright calls a zero-size
+    // element hidden, so `toBeHidden()` passes just the same. What an
+    // un-collapsed slot actually costs is the row's own `gap-x`.
+    const slot = page.locator(".qe-launch-slot");
+    expect(await slot.count()).toBeGreaterThan(0);
+    await expect(slot.first()).toHaveCSS("display", "none");
+
+    if (testInfo.project.name === "mobile-chrome") {
+      // Below `md` the toolbar slot is display:none regardless, so the mobile
+      // case is only really tested inside the overflow menu.
+      await page.getByRole("button", { name: "More actions" }).click();
+      const menu = page.getByRole("menu");
+      await expect(menu).toBeVisible();
+      await expect(menu.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
+      await expect(menu.locator(".qe-launch-slot")).toHaveCSS("display", "none");
     }
   });
 

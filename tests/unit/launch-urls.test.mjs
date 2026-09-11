@@ -60,6 +60,20 @@ test('launch_notebook_branch overrides the default branch', () => {
   );
 });
 
+test('an empty or slash-wrapped branch still resolves to the default', () => {
+  // The CLI passes an empty string through, so `??` alone would build `blob//`.
+  for (const branch of ['', '/', '   ']) {
+    assert.equal(
+      buildColabUrl('/intro.md', { repo: NOTEBOOKS, branch }),
+      'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/main/intro.ipynb'
+    );
+  }
+  assert.equal(
+    buildColabUrl('/intro.md', { repo: NOTEBOOKS, branch: '/publish/' }),
+    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/publish/intro.ipynb'
+  );
+});
+
 test('launch_notebook_dir prefixes the path inside the notebook repo', () => {
   assert.equal(notebookRelPath('/intro.md', { dir: 'notebooks' }), 'notebooks/intro.ipynb');
   assert.equal(notebookRelPath('/intro.md', { dir: '/notebooks/' }), 'notebooks/intro.ipynb');

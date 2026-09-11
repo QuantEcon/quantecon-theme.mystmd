@@ -56,7 +56,10 @@ downloads:
 
 ### Launch Notebooks
 
-The launch notebooks capability has been developed to mirror capabilities in the previous QuantEcon theme. By default it assumes the `.notebooks` suffix convention for repository naming when locating the notebook to launch.
+The launch notebooks capability mirrors the previous QuantEcon theme's, which
+shows the control only for a site that names a notebook repository. Nothing is
+assumed about repository naming: a site says where its notebooks are, or gets
+no Launch control.
 
 The **Launch** control in the toolbar is a direct link to Google Colab, the
 single launch target — it provides GPU access for the lectures that need it.
