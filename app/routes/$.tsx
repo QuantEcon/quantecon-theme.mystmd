@@ -12,7 +12,7 @@ import { getConfig, getPage } from '~/backend/loaders.server';
 import type { SiteManifest } from 'myst-config';
 import { ErrorPage } from '~/components/ErrorPage';
 import { Page } from '~/components/Page';
-import { hreflangLinks, stripBaseurl } from '~/i18n';
+import { hreflangLinks } from '~/i18n';
 import { canonicalLink, mergeMeta, pageUrl, siteOrigin, socialMetaTags } from '~/seo';
 
 // Never re-run the loader on a navigation that changes neither pathname nor
@@ -38,14 +38,14 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
   );
   const baseurl = rootMatch?.data?.BASE_URL;
 
-  // The page's public URL, shared by og:url and the canonical link. The path
-  // is stripped of the base first: the browser router has no basename, so on
-  // the client `location.pathname` already carries it, and prefixing again
-  // would repeat it.
+  // The page's public URL, shared by og:url and the canonical link. `pageUrl`
+  // strips the base before re-applying it: the browser router has no basename,
+  // so on the client `location.pathname` already carries it.
   const url = pageUrl({
     origin: siteOrigin((config?.options as any)?.site_url, config?.domains),
-    path: stripBaseurl(location.pathname, baseurl),
+    pathname: location.pathname,
     baseurl,
+    projectSlug: project?.slug,
     indexSlug: project?.index,
   });
 

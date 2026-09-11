@@ -59,11 +59,13 @@ export interface SeoInput {
 export interface PageUrlInput {
   /** Site origin, from `siteOrigin`. Without it there is no public URL. */
   origin?: string;
-  /** Site-relative page path, with any base URL already stripped. */
-  path: string;
+  /** The page's render-time path, which may or may not carry the base URL. */
+  pathname: string;
   /** The static build's base URL, if the site has one. */
   baseurl?: string;
-  /** `config.index`: the slug whose page the site root serves. */
+  /** `project.slug`, on a site whose projects are not at the site root. */
+  projectSlug?: string;
+  /** `project.index`: the slug whose page the project's root serves. */
   indexSlug?: string;
 }
 
@@ -83,12 +85,38 @@ export interface PageUrlInput {
  * Returns undefined when the site sets no `site_url`, as Sphinx emits nothing
  * without `html_baseurl`.
  */
-export function pageUrl({ origin, path, baseurl, indexSlug }: PageUrlInput): string | undefined {
+export function pageUrl({
+  origin,
+  pathname,
+  baseurl,
+  projectSlug,
+  indexSlug,
+}: PageUrlInput): string | undefined {
   if (!origin) return undefined;
   const base = (baseurl ?? '').trim().replace(/\/+$/, '');
-  const slug = (path || '/').replace(/^\/+|\/+$/g, '');
-  const isHome = slug === '' || (!!indexSlug && slug === indexSlug);
-  return `${origin}${base}${isHome ? '/' : `/${slug}/`}`;
+
+  // The base is stripped only where it is a real prefix -- `<base>/...` -- and
+  // never on an exact match. The browser router has no basename, so on the
+  // client the path carries the base and has to lose it before it is
+  // re-applied; at render time it does not carry it at all, and a page whose
+  // own slug happens to equal the base segment would otherwise be mistaken
+  // for the site root and canonicalised onto it.
+  let path = pathname || '/';
+  if (base && path.startsWith(`${base}/`)) path = path.slice(base.length);
+  const slug = trim(path);
+
+  // The project's root, which serves the index page. With a base URL the
+  // export renders that page by requesting the index slug -- under the
+  // project's own slug when it has one -- and writes it as the root's
+  // index.html, so the render-time path is that slug and its own URL is not
+  // served at all.
+  const project = trim(projectSlug ?? '');
+  const home = [project, indexSlug].filter(Boolean).join('/');
+  let tail: string;
+  if (slug === '') tail = '/';
+  else if (indexSlug && slug === home) tail = project ? `/${project}/` : '/';
+  else tail = `/${slug}/`;
+  return `${origin}${base}${tail}`;
 }
 
 export interface CanonicalLink {
@@ -110,10 +138,14 @@ export function canonicalLink(url?: string): CanonicalLink[] {
   return url ? [{ tagName: 'link', rel: 'canonical', href: url }] : [];
 }
 
-/** An image URL a social scraper can fetch: root-relative paths take the origin. */
+/**
+ * An image URL a social scraper can fetch: root-relative paths take the origin.
+ * A protocol-relative URL already names its own host, so it is left alone --
+ * it begins with a slash but is not a path on this site.
+ */
 export function absoluteImage(image?: string, origin?: string): string | undefined {
   if (!image) return undefined;
-  if (!origin || !image.startsWith('/')) return image;
+  if (!origin || !image.startsWith('/') || image.startsWith('//')) return image;
   return `${origin}${image}`;
 }
 
@@ -136,6 +168,8 @@ export function siteOrigin(siteUrl?: string, domains?: string[]): string | undef
   const h = host.trim().replace(/\/+$/, '');
   return /^https?:\/\//i.test(h) ? h : `https://${h}`;
 }
+
+const trim = (value: string): string => value.replace(/^\/+|\/+$/g, '');
 
 function handle(twitter?: string): string | undefined {
   const t = twitter?.trim().replace(/^@/, '');

@@ -108,55 +108,101 @@ test('mergeMeta replaces same-key upstream tags and keeps the rest in order', ()
   ]);
 });
 
+const QE = 'https://quantecon.github.io';
+
 test('pageUrl: the trailing-slash form, with and without a base URL', () => {
   const origin = 'https://python-programming.quantecon.org';
-  assert.equal(pageUrl({ origin, path: '/about-py' }), `${origin}/about-py/`);
-  assert.equal(pageUrl({ origin, path: '/about-py/' }), `${origin}/about-py/`);
+  assert.equal(pageUrl({ origin, pathname: '/about-py' }), `${origin}/about-py/`);
+  assert.equal(pageUrl({ origin, pathname: '/about-py/' }), `${origin}/about-py/`);
   assert.equal(
-    pageUrl({ origin: 'https://quantecon.github.io', path: '/short-path', baseurl: '/lecture-wasm' }),
-    'https://quantecon.github.io/lecture-wasm/short-path/',
+    pageUrl({ origin: QE, pathname: '/short-path', baseurl: '/lecture-wasm' }),
+    `${QE}/lecture-wasm/short-path/`,
   );
   // A trailing slash on the base is not doubled.
   assert.equal(
-    pageUrl({ origin: 'https://quantecon.github.io', path: '/short-path', baseurl: '/lecture-wasm/' }),
-    'https://quantecon.github.io/lecture-wasm/short-path/',
+    pageUrl({ origin: QE, pathname: '/short-path', baseurl: '/lecture-wasm/' }),
+    `${QE}/lecture-wasm/short-path/`,
   );
 });
 
-test('pageUrl: the base appears exactly once when the path still carries it', () => {
-  // On the client the router has no basename, so `location.pathname` carries
-  // the base; the routes strip it before calling this, and a path that slipped
-  // through unstripped must not double it.
-  const url = pageUrl({
-    origin: 'https://quantecon.github.io',
-    path: '/short-path',
-    baseurl: '/lecture-wasm',
-  });
-  assert.equal(url, 'https://quantecon.github.io/lecture-wasm/short-path/');
-  assert.equal((url.match(/lecture-wasm/g) ?? []).length, 1);
+test('pageUrl: the base appears exactly once, whether or not the path carries it', () => {
+  // At render time the path has no base; on the client the router has no
+  // basename so it does. Both must give the same URL.
+  for (const pathname of ['/short-path', '/lecture-wasm/short-path']) {
+    const url = pageUrl({ origin: QE, pathname, baseurl: '/lecture-wasm' });
+    assert.equal(url, `${QE}/lecture-wasm/short-path/`);
+    assert.equal((url.match(/lecture-wasm/g) ?? []).length, 1);
+  }
+});
+
+test('pageUrl: a page whose slug equals the base segment is not mistaken for the root', () => {
+  // The base is stripped only as a `<base>/` prefix. At render time the path
+  // is the bare page path, so an exact match is the page, not the site root.
+  assert.equal(
+    pageUrl({ origin: QE, pathname: '/notebook', baseurl: '/notebook' }),
+    `${QE}/notebook/notebook/`,
+  );
+  // ...and the client path for that same page agrees.
+  assert.equal(
+    pageUrl({ origin: QE, pathname: '/notebook/notebook', baseurl: '/notebook' }),
+    `${QE}/notebook/notebook/`,
+  );
+  // The home page of that site still resolves to the root.
+  assert.equal(pageUrl({ origin: QE, pathname: '/notebook/', baseurl: '/notebook' }), `${QE}/notebook/`);
 });
 
 test('pageUrl: the home page is the site root, named by path or by index slug', () => {
-  const origin = 'https://quantecon.github.io';
-  assert.equal(pageUrl({ origin, path: '/', baseurl: '/lecture-wasm' }), `${origin}/lecture-wasm/`);
+  assert.equal(pageUrl({ origin: QE, pathname: '/', baseurl: '/lecture-wasm' }), `${QE}/lecture-wasm/`);
   // With a base URL the export renders the root index.html by requesting the
   // index slug, so that is the home page's render-time path -- and the slug's
   // own URL is not served.
   assert.equal(
-    pageUrl({ origin, path: '/intro', baseurl: '/lecture-wasm', indexSlug: 'intro' }),
-    `${origin}/lecture-wasm/`,
+    pageUrl({ origin: QE, pathname: '/intro', baseurl: '/lecture-wasm', indexSlug: 'intro' }),
+    `${QE}/lecture-wasm/`,
   );
-  assert.equal(pageUrl({ origin, path: '/intro', indexSlug: 'intro' }), `${origin}/`);
+  assert.equal(pageUrl({ origin: QE, pathname: '/intro', indexSlug: 'intro' }), `${QE}/`);
   // A different page is unaffected by the index slug.
   assert.equal(
-    pageUrl({ origin, path: '/introduction', indexSlug: 'intro' }),
-    `${origin}/introduction/`,
+    pageUrl({ origin: QE, pathname: '/introduction', indexSlug: 'intro' }),
+    `${QE}/introduction/`,
+  );
+});
+
+test('pageUrl: a project home page resolves to the project root, not the site root', () => {
+  // On a site whose projects carry a slug, the export renders the project's
+  // own index.html by requesting `<projectSlug>/<indexSlug>` and writes it as
+  // `<projectSlug>/index.html`, so the served URL is the project root.
+  assert.equal(
+    pageUrl({
+      origin: QE,
+      pathname: '/alpha/index',
+      baseurl: '/lecture-wasm',
+      projectSlug: 'alpha',
+      indexSlug: 'index',
+    }),
+    `${QE}/lecture-wasm/alpha/`,
+  );
+  // Without a base URL the same project home is requested at its slug.
+  assert.equal(
+    pageUrl({ origin: QE, pathname: '/alpha', projectSlug: 'alpha', indexSlug: 'index' }),
+    `${QE}/alpha/`,
+  );
+  // Any other page of that project keeps its own path.
+  assert.equal(
+    pageUrl({
+      origin: QE,
+      pathname: '/alpha/page1',
+      baseurl: '/lecture-wasm',
+      projectSlug: 'alpha',
+      indexSlug: 'index',
+    }),
+    `${QE}/lecture-wasm/alpha/page1/`,
   );
 });
 
 test('pageUrl: nothing without an origin, as Sphinx emits nothing without html_baseurl', () => {
-  assert.equal(pageUrl({ path: '/about-py' }), undefined);
-  assert.equal(pageUrl({ origin: undefined, path: '/', baseurl: '/x' }), undefined);
+  assert.equal(pageUrl({ pathname: '/about-py' }), undefined);
+  assert.equal(pageUrl({ origin: undefined, pathname: '/', baseurl: '/x' }), undefined);
 });
 
 test('canonicalLink: a link descriptor, or nothing', () => {
@@ -171,12 +217,15 @@ test('absoluteImage: only root-relative paths take the origin', () => {
   assert.equal(absoluteImage('https://cdn.example/og.png', 'https://example.org'), 'https://cdn.example/og.png');
   assert.equal(absoluteImage('/build/graph.png', undefined), '/build/graph.png');
   assert.equal(absoluteImage(undefined, 'https://example.org'), undefined);
+  // A protocol-relative URL names its own host: it starts with a slash but is
+  // not a path on this site, so prefixing the origin would break it.
+  assert.equal(absoluteImage('//assets.example.org/og.png', 'https://example.org'), '//assets.example.org/og.png');
 });
 
 test('og:url comes from the same URL the canonical link uses', () => {
   const url = pageUrl({
     origin: 'https://quantecon.github.io',
-    path: '/short-path',
+    pathname: '/short-path',
     baseurl: '/lecture-wasm',
   });
   const tags = byKey(socialMetaTags({ url, options: { site_url: 'https://quantecon.github.io' } }));

@@ -8,7 +8,7 @@ import type { SiteManifest } from 'myst-config';
 import { getProject } from '@myst-theme/common';
 
 import { Page } from '~/components/Page';
-import { hreflangLinks, stripBaseurl } from '~/i18n';
+import { hreflangLinks } from '~/i18n';
 import { canonicalLink, mergeMeta, pageUrl, siteOrigin, socialMetaTags } from '~/seo';
 
 // Never re-run the loader on a navigation that changes neither pathname nor
@@ -32,8 +32,9 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
   // article route for why the base is stripped before it is re-applied.
   const url = pageUrl({
     origin: siteOrigin((config?.options as any)?.site_url, config?.domains),
-    path: stripBaseurl(location.pathname, baseurl),
+    pathname: location.pathname,
     baseurl,
+    projectSlug: project?.slug,
     indexSlug: project?.index,
   });
 
