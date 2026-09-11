@@ -1,0 +1,1 @@
+import{a as e,b as r}from"/quantecon-theme.mystmd/pr-preview/pr-202/build/_shared/chunk-NR4FDOKX.js";import"/quantecon-theme.mystmd/pr-preview/pr-202/build/_shared/chunk-EDP7ZIBO.js";import"/quantecon-theme.mystmd/pr-preview/pr-202/build/_shared/chunk-RAQ24GF6.js";export{e as PacketModule,r as createPacketServices};
