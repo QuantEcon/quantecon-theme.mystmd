@@ -28,21 +28,34 @@ import { fileURLToPath } from 'node:url';
 
 const SKIP_DIRS = new Set(['.git', 'node_modules', '_build', '.deploy']);
 
-// A directive fence opens with three or more backticks or colons, optionally
-// indented, and names its directive in braces. A plain code fence (no braces)
-// matches too, which is the point: the scanner has to step over one to avoid
-// rewriting a `{raw}` block quoted as an example inside it.
-const FENCE_OPEN = /^(\s*)(`{3,}|:{3,})\s*(?:\{([a-zA-Z0-9_-]+)\})?\s*(.*)$/;
+// A directive fence opens with three or more backticks, colons or tildes,
+// optionally indented, and names its directive in braces. A plain code fence
+// (no braces) matches too, which is the point: the scanner has to step over one
+// to avoid rewriting a `{raw}` block quoted as an example inside it.
+//
+// The tail is `(.*?)\s*$` rather than `(.*)$` so that a line carrying a
+// directive argument still matches when the file uses CRLF: `.` excludes CR,
+// and an unanchored `$` only matches at the very end, so a greedy tail would
+// leave the CR unmatched and the whole block invisible.
+const FENCE_OPEN = /^(\s*)(`{3,}|:{3,}|~{3,})\s*(?:\{([a-zA-Z0-9_-]+)\})?\s*(.*?)\s*$/;
 
 // The closing fence repeats the opening character at least as many times, which
 // is how a longer fence nests a shorter one inside its body.
 const closingFence = (marker) =>
   new RegExp(`^\\s*\\${marker[0]}{${marker.length},}\\s*$`);
 
+// Directives whose body is a listing rather than content. A `{raw}` block shown
+// as an example inside one is sample text, so the scanner steps over these
+// whole, exactly as it does over an unnamed code fence.
+const LISTING_DIRECTIVES = new Set(['code', 'code-block', 'code-cell', 'literalinclude']);
+
 const joined = (body) => body.join('\n').trim();
 const isHeader = (body) => /id\s*=\s*["']qe-notebook-header["']/.test(joined(body));
+// Both shapes are recognised only under `html`, and only when the body is the
+// whole element and nothing else: a body that merely starts with one may carry
+// anything after it, and converting that would drop content silently.
 const isIframe = (body) => /^<iframe\b[^>]*>\s*<\/iframe>$/.test(joined(body));
-const isTable = (body) => /^<table[\s>]/.test(joined(body));
+const isTable = (body) => /^<table[\s>][\s\S]*<\/table>$/.test(joined(body));
 
 /**
  * Rewrites a run of lines, recursing into the body of every other directive.
@@ -80,8 +93,9 @@ function rewriteLines(lines, base, state) {
     if (name !== 'raw') {
       // Recurse into another directive, which is how a `{raw}` block written
       // inside an `{exercise}` or `{solution}` is reached -- but never into a
-      // plain code fence, whose content is a listing and may well quote one.
-      const inner = name ? rewriteLines(body, startLine + 1, state) : body;
+      // listing, whose content is sample text that may well quote one.
+      const listing = !name || LISTING_DIRECTIVES.has(name);
+      const inner = listing ? body : rewriteLines(body, startLine + 1, state);
       out.push(lines[i], ...inner, lines[end]);
       i = end + 1;
       continue;
@@ -97,7 +111,9 @@ function rewriteLines(lines, base, state) {
       continue;
     }
 
-    if (isIframe(body)) {
+    const html = argument === 'html';
+
+    if (html && isIframe(body)) {
       const src = /src\s*=\s*["']([^"']+)["']/.exec(joined(body));
       if (src) {
         state.counts.iframes += 1;
@@ -117,10 +133,16 @@ function rewriteLines(lines, base, state) {
       continue;
     }
 
-    if (isTable(body)) {
+    if (html && isTable(body)) {
       state.counts.tables += 1;
+      // A bare HTML block runs on until a blank line, where the fence ended the
+      // block by itself. Without blank lines around it, the Markdown on either
+      // side is absorbed into the raw HTML and never parsed -- a heading after
+      // the table renders as literal text.
+      if (out.length && out[out.length - 1].trim() !== '') out.push('');
       out.push(...body);
       i = end + 1;
+      if (lines[i] !== undefined && lines[i].trim() !== '') out.push('');
       continue;
     }
 
@@ -137,7 +159,10 @@ function rewriteLines(lines, base, state) {
  * in `unknown` and are left exactly as they were.
  */
 export function rewriteDocument(source) {
-  const lines = source.split('\n');
+  // Split on either ending and rejoin with the one the file uses, so a CRLF
+  // source keeps its line endings instead of picking up a mixture.
+  const eol = source.includes('\r\n') ? '\r\n' : '\n';
+  const lines = source.split(/\r?\n/);
   const state = { counts: { headers: 0, iframes: 0, tables: 0 }, unknown: [] };
 
   // YAML frontmatter is delimited by `---` rather than a fence, and is passed
@@ -150,7 +175,7 @@ export function rewriteDocument(source) {
 
   const head = lines.slice(0, start);
   const body = rewriteLines(lines.slice(start), start + 1, state);
-  return { text: [...head, ...body].join('\n'), ...state };
+  return { text: [...head, ...body].join(eol), ...state };
 }
 
 function* markdownFiles(root) {
@@ -205,6 +230,18 @@ function main(argv) {
   return 0;
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+// `import.meta.url` is already resolved through symlinks, so the invoked path
+// has to be too: comparing it raw makes the script a silent no-op whenever any
+// component of the path it was called by is a link.
+function invokedDirectly() {
+  if (!process.argv[1]) return false;
+  try {
+    return fileURLToPath(import.meta.url) === fs.realpathSync(path.resolve(process.argv[1]));
+  } catch {
+    return false;
+  }
+}
+
+if (invokedDirectly()) {
   process.exit(main(process.argv.slice(2)));
 }

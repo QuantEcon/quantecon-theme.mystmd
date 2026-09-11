@@ -168,3 +168,86 @@ test('a document with no `{raw}` block is returned unchanged', () => {
   const source = ['# Title', '', '```{note}', 'Hello.', '```', ''].join('\n');
   assert.equal(rewriteDocument(source).text, source);
 });
+
+test('a CRLF source is rewritten, and keeps its line endings', () => {
+  const source = headerDoc('jupyter').replace(/\n/g, '\r\n');
+  const { text, counts, unknown } = rewriteDocument(source);
+  assert.deepEqual(unknown, []);
+  assert.equal(counts.headers, 1, 'a trailing CR must not hide the fence');
+  assert.ok(!text.includes('qe-notebook-header'));
+  assert.ok(text.includes('\r\n'));
+  assert.ok(!/[^\r]\n/.test(text), 'no bare LF should be left in a CRLF file');
+});
+
+test('an unhandled block in a CRLF source is still reported', () => {
+  const source = ['# Title', '', '```{raw} latex', '\\newpage', '```', ''].join('\r\n');
+  const { unknown } = rewriteDocument(source);
+  assert.deepEqual(unknown, [{ line: 3, reason: '{raw} latex' }]);
+});
+
+test('a table gets blank lines around it, so following Markdown still parses', () => {
+  // An HTML block runs to the next blank line; without one the heading below
+  // would be swallowed into it and render as literal text.
+  const source = [
+    'Intro.',
+    '```{raw} html',
+    '<table><tr><th>A</th></tr></table>',
+    '```',
+    '## A Real Heading',
+    '',
+  ].join('\n');
+  const { text, counts } = rewriteDocument(source);
+  assert.equal(counts.tables, 1);
+  assert.equal(
+    text,
+    ['Intro.', '', '<table><tr><th>A</th></tr></table>', '', '## A Real Heading', ''].join('\n')
+  );
+});
+
+test('a body that only starts with a table is reported, not unfenced', () => {
+  const source = [
+    '```{raw} html',
+    '<table><tr><td>a</td></tr></table>',
+    '<script>document.title = "hi"</script>',
+    '```',
+    '',
+  ].join('\n');
+  const { text, counts, unknown } = rewriteDocument(source);
+  assert.equal(text, source);
+  assert.equal(counts.tables, 0);
+  assert.equal(unknown.length, 1);
+});
+
+test('only `html` blocks are converted; another format is reported', () => {
+  for (const lang of ['latex', 'tex']) {
+    const source = ['```{raw} ' + lang, '<table><tr><td>a</td></tr></table>', '```', ''].join('\n');
+    const { text, counts, unknown } = rewriteDocument(source);
+    assert.equal(text, source, `${lang} must not be unfenced as HTML`);
+    assert.equal(counts.tables, 0);
+    assert.deepEqual(unknown, [{ line: 1, reason: `{raw} ${lang}` }]);
+  }
+});
+
+test('a block quoted inside a code-listing directive is left alone', () => {
+  for (const directive of ['code-cell ipython3', 'code-block md', 'literalinclude']) {
+    const source = [
+      '```{' + directive + '}',
+      ':::{raw} jupyter',
+      HEADER_BODY,
+      ':::',
+      '```',
+      '',
+    ].join('\n');
+    const { text, counts, unknown } = rewriteDocument(source);
+    assert.equal(text, source, `${directive} body must not be rewritten`);
+    assert.deepEqual(counts, { headers: 0, iframes: 0, tables: 0 });
+    assert.deepEqual(unknown, []);
+  }
+});
+
+test('a tilde code fence is stepped over like a backtick one', () => {
+  const source = ['~~~markdown', '```{raw} latex', '\\newpage', '```', '~~~', ''].join('\n');
+  const { text, unknown } = rewriteDocument(source);
+  assert.equal(text, source);
+  assert.deepEqual(unknown, []);
+});
