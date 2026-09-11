@@ -1,5 +1,24 @@
 # PLAN — QuantEcon MyST theme feature parity with `quantecon-book-theme`
 
+> **Closed.** This plan is complete as of the release that closes
+> [#147](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/147), the
+> book-theme parity cutover gate. Everything below is the planning snapshot it
+> was written as, and is **no longer maintained** — the gap table in particular
+> records what was true when each phase was planned, not what the theme does
+> now.
+>
+> - For **what the theme does today**, read [`docs/`](docs/), starting at
+>   [`docs/index.md`](docs/index.md).
+> - For the **item-level record** of the parity work — every gate item, its
+>   decision and the PR that closed it — read
+>   [#147](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/147) and
+>   the 2026-09-11 parity validation study it summarises.
+> - The guidance here that outlived the plan has moved into
+>   [`CONTRIBUTING.md`](CONTRIBUTING.md): the architecture constraint, the
+>   upstream-first rule, and how the PR previews work.
+>
+> The file is kept because issues link to its lines.
+
 This plan tracks bringing the MyST theme (this repo, `quantecon-theme.mystmd` —
 formerly `quantecon-theme-src`, and no longer bundled to the now-archived
 [`QuantEcon/quantecon-theme`](https://github.com/QuantEcon/quantecon-theme) —

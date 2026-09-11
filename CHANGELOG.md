@@ -20,6 +20,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `PLAN.md` is closed. It opens with a note saying the plan is complete as of
+  the release that closes the book-theme parity gate, that the rest is the
+  planning snapshot it was written as and is no longer maintained, and where to
+  look instead — `docs/` for current behaviour, the gate issue for the
+  item-level record. The file itself is kept, because issues link to its lines.
+  The three pieces of guidance that outlived the plan moved into
+  `CONTRIBUTING.md` first: the architecture constraint (the theme never sees
+  the source repository, so anything derived from it must arrive as data), the
+  upstream-first rule and `UPSTREAM-CANDIDATES.yml`, and how the visual gate
+  and the PR previews work
+  ([#218](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/218)).
+
 ## [2.7.0] - 2026-09-11
 
 ### Added
