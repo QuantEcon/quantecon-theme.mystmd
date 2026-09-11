@@ -20,6 +20,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- The "On this page" outline lists h4 subsections, which the Sphinx panel lists
+  and this one left out: a reader inside an h4 saw its h3 marked with nothing
+  below it. The panel is now a tree of any depth, and the Sphinx expansion rule
+  applies at every level of it — the current entry's own sub-list and those of
+  all its ancestors are open, while only the current entry itself is marked.
+  h4 entries are indented one step further than h3s. h5 and deeper are still
+  not listed
+  ([#208](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/208)).
+
 ## [2.7.0] - 2026-09-11
 
 ### Added
