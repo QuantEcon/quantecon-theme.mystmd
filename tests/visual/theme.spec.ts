@@ -348,8 +348,11 @@ test.describe("On this page outline", () => {
     await expect(entries.nth(2)).toHaveText(/^1\.1\.1\. A level-four subsection$/);
     await expect(entries.nth(6)).toHaveText(/^3\. Last section$/);
     // Autoexpand: at the top of the page only the sections show. Every entry
-    // below the top level carries the sub class -- two h3s and two h4s.
-    const subs = nav(page).locator("li.qe-outline__sub a");
+    // below the top level carries the sub class -- two h3s and two h4s. The
+    // child combinator matters: `li.qe-outline__sub a` would match an h4's
+    // anchor through its h3 ancestor's li, so the count would hold even if the
+    // h4's own li lost the class, and the indent rule keys on that class.
+    const subs = nav(page).locator("li.qe-outline__sub > a");
     await expect(subs).toHaveCount(4);
     await expect(subs.first()).toBeHidden();
     // Scrolling into the first section expands its subsections, indented:

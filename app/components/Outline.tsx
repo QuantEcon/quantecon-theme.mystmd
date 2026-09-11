@@ -52,10 +52,12 @@ export function BackToTop() {
  *    `sticky`: the wrapper is `self-start`, so a sticky child would have zero
  *    travel, and the grid declares no rows for it to span. `left`/`right` stay
  *    `auto`, so the panel keeps its static position in the margin track.
- *  - h3 entries nest under their h2 and collapse to the active branch: at the
- *    top of the page only the sections show; scrolling into a section expands
- *    its subsections, the current one (section or subsection) is marked, and
- *    the parent of a current subsection is expanded but not marked. Past
+ *  - h2 to h4 nest into a tree of any depth, which collapses to the active
+ *    branch: at the top of the page only the sections show, and a branch opens
+ *    when the current entry is inside it. The rule runs at every level -- the
+ *    current entry's own sub-list and those of all its ancestors are open --
+ *    so a current h3 shows its h4s. Only the current entry is marked, at
+ *    whatever depth it sits; its ancestors are open but unmarked. Past
  *    `max-height` the panel scrolls internally.
  *  - Enumerators come from the heading itself (`span.select-none`, "3.1"),
  *    plus the period the h1 uses -- never a number computed from the list
