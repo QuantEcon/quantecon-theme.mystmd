@@ -179,10 +179,33 @@ history, and keeps it.
   value derived by measuring them, that derivation is the reason and belongs in
   the comment: `/* 14.4px: the lecture builds' .8rem of an 18px root */`. What
   the rule rules out is the bare comparison that leaves the number unexplained.
-  Record a deliberate divergence the same way, so nobody "fixes" it later.
 
   Code ported from another project gets one line of provenance where the port
   starts.
+
+### Matching the lecture builds, and when not to
+
+Most values in `styles/quantecon.css` are measurements of the deployed Sphinx
+lecture sites, and most inherited colours come from `quantecon-book-theme`'s
+own palettes. The rule the theme follows is: **match them, except where
+matching them would fail WCAG.** Where it diverges it says so, with the
+measurement, so the next reader does not "restore parity" and reintroduce the
+problem. The existing divergences are the model:
+
+- the outline's resting entries stay undimmed at 10.3:1, where the Sphinx panel
+  composites its own to 4.47:1;
+- the outline's active entry carries weight and a rule as well as colour, so the
+  state is not colour-only (WCAG 1.4.1);
+- the dark footer link is blue-300, because the inherited `#0072bc` composites
+  to 2.2:1 at the footer's opacity;
+- content is a flat 18px off a `rem` root, rather than the Sphinx builds'
+  px root, which is a WCAG 1.4.4 problem.
+
+Changing an inherited value for any *other* reason is a two-theme decision, not
+a fix this repo makes alone — it would reintroduce a difference against the live
+sites. Open an issue instead (see #172 for the code palette, #201 for the
+footer). When you compute a contrast ratio, composite any `opacity` on the
+element first: the declared colour is not what the reader sees.
 
 ## Commit Convention
 
