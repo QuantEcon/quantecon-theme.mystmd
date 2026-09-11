@@ -257,12 +257,12 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(drawer).toBeHidden();
   });
 
-  // Launch is a direct link to Colab — the only launch target. Asserting the
-  // anchor's href rather than a stubbed window.open keeps this offline and
-  // deterministic, and pins that the control is a *link*, so a chooser in its
-  // place would fail here. The repo part comes from the fixture's `github`
-  // field, so only the stable pieces (host, .notebooks convention, branch,
-  // path) are matched.
+  // Launch is a direct link to Colab, the only launch target by design: Binder
+  // and JupyterHub are not offered. Asserting the anchor's href rather than a
+  // stubbed window.open keeps this offline and deterministic, and pins that the
+  // control is a *link*, so a chooser in its place would fail here. The repo
+  // part comes from the fixture's `github` field, so only the stable pieces
+  // (host, .notebooks convention, branch, path) are matched.
   test("launch-colab", async ({ page }, testInfo) => {
     test.skip(
       testInfo.project.name !== "desktop-chrome",

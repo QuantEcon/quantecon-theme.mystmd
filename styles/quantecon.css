@@ -640,7 +640,7 @@
 
    Code tokens are painted in QuantEcon's own palette, light and dark, taken
    from quantecon-book-theme's Pygments styles (`_code.scss`). It ships
-   unconditionally, with no toggle, since no site turns it off.
+   unconditionally; there is no toggle.
 
    MyST highlights with highlight.js, not Pygments. myst-to-react's CodeBlock
    renders react-syntax-highlighter's async build, which tokenises with
