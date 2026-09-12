@@ -4,7 +4,7 @@ title: Outline page
 
 # Outline page
 
-This page exercises the "On this page" panel: two levels of headings under
+This page exercises the "On this page" panel: three levels of headings under
 project numbering, so entries carry the heading's own enumerator.
 
 ## First section
@@ -14,6 +14,15 @@ Short section; scrolling here should mark it.
 ### First subsection
 
 A level-three entry, indented in the panel.
+
+#### A level-four subsection
+
+A level-four entry: listed under its h3, indented one step further, and shown
+only while that h3 or one of its own h4s is current.
+
+#### Another level-four subsection
+
+A second one, so the sub-list is a list.
 
 ### Second subsection
 

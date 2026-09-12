@@ -24,6 +24,7 @@ Every theme option lives under `site.options` and is listed in
 
 | Page | Covers |
 | --- | --- |
+| [migrating](migrating.md) | moving a lecture repo off `quantecon-book-theme`, step by step |
 | [configuration](configuration.md) | every `site.options` key, its scope and its default |
 | [layout](layout.md) | header, contents drawer, "On this page" panel, back-to-top, footer |
 | [authors](authors.md) | author line and translator credit |

@@ -26,15 +26,19 @@ it and its toggle.
 ## "On this page"
 
 The right-hand outline is pinned (`position: fixed` in the margin column),
-lists h2 and h3 headings with their section numbers when numbering is on, and
-marks the section being read in QuantEcon blue, bold, with an inset rule
-(`aria-current="location"`). The rule is the Sphinx scrollspy's: a section is
-current once its heading has passed 120px from the top, and the last section is
-current at the bottom of the page. Past the viewport height the panel scrolls
-internally behind a fade. Subsections collapse to the current branch as the
-Sphinx panel does under `contents_autoexpand`: only the sections show until
-you scroll into one, its subsections then expand, and the parent of a current
-subsection is expanded but not marked.
+lists **h2, h3 and h4** headings with their section numbers when numbering is
+on, and marks the section being read in QuantEcon blue, bold, with an inset
+rule (`aria-current="location"`). Each level is indented one step further than
+the one above it. h5 and deeper are not listed. The rule is the Sphinx
+scrollspy's: a section is current once its heading has passed 120px from the
+top, and the last section is current at the bottom of the page. Past the
+viewport height the panel scrolls internally behind a fade.
+
+Sub-lists collapse to the current branch as the Sphinx panel does under
+`contents_autoexpand`, at every depth: only the sections show until you scroll
+into one, its subsections then expand, and an h3's h4s expand once that h3 or
+one of those h4s is current. Ancestors of the current entry are expanded but
+not marked — exactly one entry is marked at a time.
 
 ## Back to top
 
@@ -43,8 +47,15 @@ A "↑ Top" link in the margin column, visible after 80px of scrolling, as a pla
 
 ## Footer
 
-`site.parts.footer` names a Markdown file rendered as the site footer, matching
-the Sphinx sites' footer block:
+With no `site.parts.footer` declared, the theme renders a default footer: the
+CC BY-SA 4.0 badge, the sentence "Creative Commons License – This work is
+licensed under a Creative Commons Attribution-ShareAlike 4.0 International.",
+and "A theme by QuantEcon". This is the Sphinx sites' footer block, which every
+site carried without configuring anything.
+
+`site.parts.footer` names a Markdown file that **replaces** the default
+outright — licence notice and theme credit included. Set it only to state
+different terms:
 
 ```yaml
 site:

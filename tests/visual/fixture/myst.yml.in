@@ -26,6 +26,11 @@ site:
     # one reaches the theme.
     twitter: quantecon
     favicon: cc-by-sa-4.0-80x15.png
+    # Launch is opt-in on both axes, so the `launch-colab` test needs both a
+    # notebook repository and a service. `fixture-no-thebe` sets neither, which
+    # is what `launch-absent-without-config` asserts.
+    launch_notebook_repo: QuantEcon/quantecon-theme.notebooks
+    launch_colab: true
     # Multilingual editions. Two editions make the toolbar's language
     # switcher and the hreflang alternates render on every page; the lists
     # are YAML blocks because template options are scalar-only (see

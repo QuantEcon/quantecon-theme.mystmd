@@ -79,6 +79,17 @@ jobs:
           if [ -f "$PLUGIN" ]; then
             yq -i '.project.plugins = [env(PLUGIN)]' myst.yml
           fi
+      # The lecture sources still carry Sphinx `{raw}` blocks, whose source
+      # mystmd shows to the reader as escaped text under the page title. They
+      # are rewritten out of the sources at cutover, so the preview runs the
+      # same script and shows post-cutover content. It exits non-zero on a
+      # block it does not recognise, which fails the preview rather than
+      # publishing a page with literal markup on it.
+      - name: Rewrite `{raw}` blocks out of the lecture sources
+        if: github.event.action != 'closed'
+        working-directory: preview-content/${{ env.CONTENT_DIR }}
+        run: node ${{ github.workspace }}/scripts/rewrite-raw-blocks.mjs .
+
       - name: Build static site
         if: github.event.action != 'closed'
         working-directory: preview-content/${{ env.CONTENT_DIR }}

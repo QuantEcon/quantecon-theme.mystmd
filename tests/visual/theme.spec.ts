@@ -260,9 +260,8 @@ test.describe("QuantEcon theme — visual regression", () => {
   // Launch is a direct link to Colab, the only launch target by design: Binder
   // and JupyterHub are not offered. Asserting the anchor's href rather than a
   // stubbed window.open keeps this offline and deterministic, and pins that the
-  // control is a *link*, so a chooser in its place would fail here. The repo
-  // part comes from the fixture's `github` field, so only the stable pieces
-  // (host, .notebooks convention, branch, path) are matched.
+  // control is a *link*, so a chooser in its place would fail here. The repo is
+  // the fixture's own `launch_notebook_repo`: nothing is derived from `github`.
   test("launch-colab", async ({ page }, testInfo) => {
     test.skip(
       testInfo.project.name !== "desktop-chrome",
@@ -275,8 +274,41 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(launch).toHaveAttribute("target", "_blank");
     await expect(launch).toHaveAttribute(
       "href",
-      /^https:\/\/colab\.research\.google\.com\/github\/QuantEcon\/[\w.-]+\.notebooks\/blob\/main\/notebook\.ipynb$/
+      "https://colab.research.google.com/github/QuantEcon/quantecon-theme.notebooks/blob/main/notebook.ipynb"
     );
+  });
+
+  // The opt-in default. `fixture-no-thebe` sets `project.github` but neither
+  // launch option, which is the shape of a lecture repo with no notebooks
+  // repository: there must be no control and no gap where one would sit, on
+  // the toolbar or in the mobile overflow menu.
+  test("launch-absent-without-config", async ({ page }, testInfo) => {
+    const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await expect(page.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
+    // No dead link to a repository the site never named, either.
+    await expect(page.locator('a[href*="colab.research.google.com"]')).toHaveCount(0);
+
+    // And no gap where the control would have been. Asserted on the computed
+    // `display`, because both of the obvious signals are blind here: an empty
+    // `<li>` is a zero-width flex item whether or not it is displayed, so
+    // measuring its width proves nothing -- and Playwright calls a zero-size
+    // element hidden, so `toBeHidden()` passes just the same. What an
+    // un-collapsed slot actually costs is the row's own `gap-x`.
+    const slot = page.locator(".qe-launch-slot");
+    expect(await slot.count()).toBeGreaterThan(0);
+    await expect(slot.first()).toHaveCSS("display", "none");
+
+    if (testInfo.project.name === "mobile-chrome") {
+      // Below `md` the toolbar slot is display:none regardless, so the mobile
+      // case is only really tested inside the overflow menu.
+      await page.getByRole("button", { name: "More actions" }).click();
+      const menu = page.getByRole("menu");
+      await expect(menu).toBeVisible();
+      await expect(menu.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
+      await expect(menu.locator(".qe-launch-slot")).toHaveCSS("display", "none");
+    }
   });
 
   // Live compute: the fixture sets `project.thebe: { lite: true }`, which
@@ -337,18 +369,23 @@ test.describe("On this page outline", () => {
     await page.goto(`${noThebeBase}/outline`, { waitUntil: "domcontentloaded" });
     await settle(page);
     const entries = nav(page).locator("ul a");
-    // Two h2 + two h3 + one h2 = five entries, with the heading's own
+    // Three h2, two h3 and two h4 = seven entries, each with the heading's own
     // enumerator, never a list-index number.
-    await expect(entries).toHaveCount(5);
+    await expect(entries).toHaveCount(7);
     // (`titles: true` numbers nothing on this fixture's pages, so the
     // enumerators are section-only; the lecture repos get "3.1." from the
     // same span.)
     await expect(entries.nth(0)).toHaveText(/^1\. First section$/);
     await expect(entries.nth(1)).toHaveText(/^1\.1\. First subsection$/);
-    await expect(entries.nth(4)).toHaveText(/^3\. Last section$/);
-    // Autoexpand: at the top of the page only the sections show.
-    const subs = nav(page).locator("li.qe-outline__sub a");
-    await expect(subs).toHaveCount(2);
+    await expect(entries.nth(2)).toHaveText(/^1\.1\.1\. A level-four subsection$/);
+    await expect(entries.nth(6)).toHaveText(/^3\. Last section$/);
+    // Autoexpand: at the top of the page only the sections show. Every entry
+    // below the top level carries the sub class -- two h3s and two h4s. The
+    // child combinator matters: `li.qe-outline__sub a` would match an h4's
+    // anchor through its h3 ancestor's li, so the count would hold even if the
+    // h4's own li lost the class, and the indent rule keys on that class.
+    const subs = nav(page).locator("li.qe-outline__sub > a");
+    await expect(subs).toHaveCount(4);
     await expect(subs.first()).toBeHidden();
     // Scrolling into the first section expands its subsections, indented:
     // the anchors are block-level, so compare their start padding.
@@ -359,8 +396,14 @@ test.describe("On this page outline", () => {
     await expect(subs.first()).toBeVisible();
     const pad = async (i: number) =>
       parseFloat(await entries.nth(i).evaluate((a) => getComputedStyle(a).paddingInlineStart));
+    // One indent step per level: h2 < h3 < h4.
     expect(await pad(1)).toBeGreaterThan(await pad(0));
-    expect(await pad(3)).toBe(await pad(0));
+    expect(await pad(2)).toBeGreaterThan(await pad(1));
+    // ...and a later h2 is back at the top level's indent.
+    expect(await pad(5)).toBe(await pad(0));
+    // The h4s stay closed while only their h2 is current: an h3's sub-list
+    // opens when that h3, or one of its own h4s, is current.
+    await expect(entries.nth(2)).toBeHidden();
     // Pinned: the panel's top is the same before and after a long scroll.
     const top = async () => Math.round((await nav(page).boundingBox())!.y);
     const before = await top();
@@ -388,17 +431,37 @@ test.describe("On this page outline", () => {
     await scrollTo("second-section", 100);
     await expect(current(page)).toHaveAttribute("href", /#second-section$/);
     await expect(current(page)).toHaveCSS("font-weight", "600");
-    // ...and the first section's sub-list has collapsed again.
+    // ...and the first section's sub-list, h4s included, has collapsed again.
     await expect(nav(page).locator("li.qe-outline__sub a").first()).toBeHidden();
+    await expect(nav(page).getByRole("link", { name: /A level-four subsection/ })).toBeHidden();
     // 20px short of the line: the previous section (a subsection) still holds.
     await scrollTo("second-section", 140);
     await expect(current(page)).toHaveAttribute("href", /#second-subsection$/);
     await scrollTo("first-subsection", 100);
-    // A current subsection is marked itself; its parent is expanded, not marked.
+    // A current subsection is marked itself; its ancestor is expanded, not
+    // marked. The subsection's own sub-list opens too, so both it and its
+    // parent carry the expanded class -- the rule is "the current entry and
+    // every ancestor of it".
     await expect(current(page)).toHaveAttribute("href", /#first-subsection$/);
-    const parent = nav(page).locator("li.qe-outline__expanded > a");
-    await expect(parent).toHaveAttribute("href", /#first-section$/);
-    await expect(parent).not.toHaveAttribute("aria-current", "location");
+    const expanded = nav(page).locator("li.qe-outline__expanded > a");
+    await expect(expanded).toHaveCount(2);
+    await expect(expanded.nth(0)).toHaveAttribute("href", /#first-section$/);
+    await expect(expanded.nth(1)).toHaveAttribute("href", /#first-subsection$/);
+    await expect(expanded.nth(0)).not.toHaveAttribute("aria-current", "location");
+    // Its h4s are now visible.
+    await expect(nav(page).getByRole("link", { name: /A level-four subsection/ })).toBeVisible();
+
+    // A current h4 is marked itself; its h3 and h2 are expanded, not marked.
+    await scrollTo("a-level-four-subsection", 100);
+    await expect(current(page)).toHaveAttribute("href", /#a-level-four-subsection$/);
+    await expect(current(page)).toHaveCount(1);
+    const openNow = nav(page).locator("li.qe-outline__expanded > a");
+    await expect(openNow).toHaveCount(2);
+    await expect(openNow.nth(0)).toHaveAttribute("href", /#first-section$/);
+    await expect(openNow.nth(1)).toHaveAttribute("href", /#first-subsection$/);
+    for (const i of [0, 1]) {
+      await expect(openNow.nth(i)).not.toHaveAttribute("aria-current", "location");
+    }
     // The last section is too short to reach the activation window; the
     // bottom-of-page rule marks it.
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
@@ -459,7 +522,8 @@ test.describe("Meta/SEO and notebook output", () => {
       expect(meta(page, sel)).toHaveAttribute("content", content);
     await expectTag('property="og:type"', "website");
     await expectTag('property="og:site_name"', "QE Theme No-Thebe Fixture");
-    await expectTag('property="og:url"', "https://example.org/notebook");
+    // The trailing-slash form, which is the URL the build actually serves.
+    await expectTag('property="og:url"', "https://example.org/notebook/");
     await expectTag('property="og:image"', "https://assets.example.org/qe-og-logo.png");
     await expectTag('property="og:locale"', "en_US");
     await expectTag('name="twitter:site"', "@quantecon");
@@ -469,6 +533,27 @@ test.describe("Meta/SEO and notebook output", () => {
     // Replaced, not duplicated: one og:image, one twitter:card.
     await expect(meta(page, 'property="og:image"')).toHaveCount(1);
     await expect(meta(page, 'name="twitter:card"')).toHaveCount(1);
+
+    // The canonical link, from the same `site_url` and the same builder as
+    // og:url, so the two agree on every page.
+    const canonical = page.locator('head link[rel="canonical"]');
+    await expect(canonical).toHaveCount(1);
+    await expect(canonical).toHaveAttribute("href", "https://example.org/notebook/");
+    // The home page's canonical is the site root, not the index slug's URL.
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      "https://example.org/"
+    );
+  });
+
+  // A site that sets no `site_url` emits neither, as Sphinx emits nothing
+  // without `html_baseurl`. The main fixture sets none.
+  test("no-canonical-without-site-url", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    await expect(page.locator('head link[rel="canonical"]')).toHaveCount(0);
+    await expect(meta(page, 'property="og:url"')).toHaveCount(0);
   });
 
   // A cell's stderr stream is folded behind a "Code warnings" disclosure,
@@ -490,6 +575,57 @@ test.describe("Meta/SEO and notebook output", () => {
     await fold.locator("summary").click();
     await expect(fold.locator("pre.jupyter-error")).toBeVisible();
     await expect(fold.locator("pre.jupyter-error")).toContainText("a deliberate warning on stderr");
+  });
+
+  // Plot outputs are centred in the content column, as they are on the lecture
+  // sites; an inline figure narrower than the column would otherwise sit
+  // against its left edge. On the thebe-enabled fixture, whose notebook.ipynb
+  // carries the stored `image/png` cell -- the no-thebe copy does not.
+  test("output-image-centred", async ({ page }, testInfo) => {
+    await page.goto("/notebook", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const box = await page.evaluate(() => {
+      const img = document.querySelector('[data-name="outputs-container"] img');
+      if (!img) return null;
+      const container = img.closest('[data-name="outputs-container"]')!;
+      const i = img.getBoundingClientRect();
+      const c = container.getBoundingClientRect();
+      return {
+        left: i.left - c.left,
+        right: c.right - i.right,
+        imageWidth: i.width,
+        containerWidth: c.width,
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      };
+    });
+    expect(box, "the fixture notebook should render an image output").not.toBeNull();
+    // Never wider than the column it sits in, at either viewport.
+    expect(box!.imageWidth).toBeLessThanOrEqual(box!.containerWidth + 1);
+    // The same 1px allowance as the gaps below: both widths are integers
+    // rounded from sub-pixel layout, so a page that fits exactly can still
+    // report one more pixel of scrollWidth than clientWidth. The two values are
+    // returned rather than a boolean so a failure names them -- and the sweep
+    // across 1280/1300/1328px in `outline-within-viewport` is what actually
+    // guards page overflow; this is a sanity check on the page holding an image.
+    expect(box!.scrollWidth, "no horizontal page overflow").toBeLessThanOrEqual(
+      box!.clientWidth + 1
+    );
+    if (testInfo.project.name === "desktop-chrome") {
+      // Desktop has room to spare, so the gaps must match.
+      expect(box!.left).toBeGreaterThan(1);
+      expect(Math.abs(box!.left - box!.right)).toBeLessThanOrEqual(1);
+    }
+    // Text outputs are untouched: only images are centred, as on the lecture
+    // sites, where a DataFrame table stays left-aligned.
+    const stream = await page.evaluate(() => {
+      const pre = document.querySelector('[data-name="outputs-container"] pre');
+      if (!pre) return null;
+      const container = pre.closest('[data-name="outputs-container"]')!;
+      return pre.getBoundingClientRect().left - container.getBoundingClientRect().left;
+    });
+    expect(stream, "the fixture notebook should render a text output").not.toBeNull();
+    expect(Math.abs(stream!)).toBeLessThanOrEqual(1);
   });
 });
 
@@ -532,6 +668,53 @@ test.describe("Site options reach the theme", () => {
     expect(fallback.headers()["content-type"]).toContain("image/png");
     const lectures = fs.readFileSync("public/logos/lectures-favicon.png");
     expect(Buffer.from(await fallback.body()).equals(lectures)).toBe(true);
+  });
+});
+
+/**
+ * The site footer. The lecture builds print the licence notice and the theme
+ * credit on every page with no condition around them, so the theme renders
+ * them as a default; `site.parts.footer` replaces that default outright, which
+ * is how a site states different terms.
+ *
+ * The main fixture declares the part (its footer.md carries the badge as an
+ * image); `fixture-no-thebe` declares none, so it exercises the default.
+ */
+test.describe("Site footer", () => {
+  const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+  const LICENSE_HREF = "https://creativecommons.org/licenses/by-sa/4.0/";
+  // The default's inline badge, by its own viewBox.
+  const BADGE = 'svg[viewBox="0 0 80 15"]';
+
+  test("default-footer-without-part", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    const footer = page.locator(".qe-site-footer");
+    await expect(footer).toHaveCount(1);
+    await expect(footer).toContainText(
+      "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International."
+    );
+    await expect(footer.locator('a[href="https://quantecon.org"]')).toHaveText("QuantEcon");
+    // The badge is drawn inline: nothing is fetched from licensebuttons.net,
+    // and there is no root-absolute asset path to 404 under a sub-path.
+    const badge = footer.locator(`a[href="${LICENSE_HREF}"] ${BADGE}`);
+    await expect(badge).toHaveCount(1);
+    await expect(badge.locator("title")).toHaveText("Creative Commons License");
+    await expect(footer.locator("img")).toHaveCount(0);
+  });
+
+  test("declared-part-replaces-default", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    const footer = page.locator(".qe-site-footer");
+    await expect(footer).toHaveCount(1);
+    await expect(footer.locator('img[alt="Creative Commons License"]')).toHaveCount(1);
+    // The default renders none of its own markup beside the part's content --
+    // the site's footer.md is the whole footer, credit included. Matched on
+    // the badge itself, not on `svg`: myst-to-react hangs its own external-link
+    // icon off the part's link.
+    await expect(footer.locator(BADGE)).toHaveCount(0);
+    await expect(footer.locator('a[href="https://quantecon.org"]')).toHaveCount(0);
   });
 });
 

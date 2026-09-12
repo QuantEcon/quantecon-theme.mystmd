@@ -326,6 +326,28 @@
   .article li > p {
     margin: 0;
   }
+
+  /* Images in a cell's outputs are centred in the content column, matching the
+     `.cell_output img` rule the lecture builds' stylesheet carries; an inline
+     matplotlib figure is narrower than the column, so without this it sits
+     against the left edge with all the spare width beside it.
+
+     A plot output is a bare `<img>` that upstream renders with neither class
+     nor style, inside a container the upstream code marks by `data-name`, so
+     the container attribute is what there is to select on. `text-align` on the
+     container cannot do it: Preflight makes the image a block. Both container
+     names are needed -- the stored outputs are re-rendered into
+     `active-outputs-container` once a reader starts live compute, and the plot
+     should not jump left at that moment.
+
+     Only the side margins are set, so the vertical rhythm is untouched, and
+     only images: tables and text outputs stay left-aligned, as they are on the
+     lecture sites. */
+  [data-name='outputs-container'] img,
+  [data-name='active-outputs-container'] img {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 @layer components {
@@ -559,6 +581,13 @@
   }
   .qe-outline__sub a {
     padding-inline-start: 1.75rem; /* 0.75rem entry padding + 1rem indent */
+  }
+  /* One more step for the level below (h4 under an h3). Keyed on nesting
+     rather than a depth class, so the step applies wherever the tree goes;
+     at (0,2,1) it outranks the single-level rule above. Logical padding, so
+     a right-to-left edition indents from the right. */
+  .qe-outline__sub .qe-outline__sub a {
+    padding-inline-start: 2.75rem; /* a second 1rem step */
   }
   .qe-outline__list a:hover {
     color: var(--qe-link-color);
