@@ -119,8 +119,8 @@ export function PageHeaderHistory({ alignEnd = true }: { alignEnd?: boolean } = 
   const lastModified = meta?.last_modified ?? changelog[0]?.date;
   if (!lastModified) return null;
 
-  // Commit links target the source repository itself, so unlike
-  // LaunchButton's notebook URLs the `.myst` suffix must be kept.
+  // Commit links target the source repository itself, exactly as
+  // `project.github` gives it -- a `.myst` suffix included.
   const github: string | undefined = frontmatter?.github;
   const repoUrl = github?.startsWith("https://github.com/")
     ? github.replace(/\/$/, "")

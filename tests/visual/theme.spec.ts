@@ -260,9 +260,8 @@ test.describe("QuantEcon theme — visual regression", () => {
   // Launch is a direct link to Colab, the only launch target by design: Binder
   // and JupyterHub are not offered. Asserting the anchor's href rather than a
   // stubbed window.open keeps this offline and deterministic, and pins that the
-  // control is a *link*, so a chooser in its place would fail here. The repo
-  // part comes from the fixture's `github` field, so only the stable pieces
-  // (host, .notebooks convention, branch, path) are matched.
+  // control is a *link*, so a chooser in its place would fail here. The repo is
+  // the fixture's own `launch_notebook_repo`: nothing is derived from `github`.
   test("launch-colab", async ({ page }, testInfo) => {
     test.skip(
       testInfo.project.name !== "desktop-chrome",
@@ -275,8 +274,41 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(launch).toHaveAttribute("target", "_blank");
     await expect(launch).toHaveAttribute(
       "href",
-      /^https:\/\/colab\.research\.google\.com\/github\/QuantEcon\/[\w.-]+\.notebooks\/blob\/main\/notebook\.ipynb$/
+      "https://colab.research.google.com/github/QuantEcon/quantecon-theme.notebooks/blob/main/notebook.ipynb"
     );
+  });
+
+  // The opt-in default. `fixture-no-thebe` sets `project.github` but neither
+  // launch option, which is the shape of a lecture repo with no notebooks
+  // repository: there must be no control and no gap where one would sit, on
+  // the toolbar or in the mobile overflow menu.
+  test("launch-absent-without-config", async ({ page }, testInfo) => {
+    const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await expect(page.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
+    // No dead link to a repository the site never named, either.
+    await expect(page.locator('a[href*="colab.research.google.com"]')).toHaveCount(0);
+
+    // And no gap where the control would have been. Asserted on the computed
+    // `display`, because both of the obvious signals are blind here: an empty
+    // `<li>` is a zero-width flex item whether or not it is displayed, so
+    // measuring its width proves nothing -- and Playwright calls a zero-size
+    // element hidden, so `toBeHidden()` passes just the same. What an
+    // un-collapsed slot actually costs is the row's own `gap-x`.
+    const slot = page.locator(".qe-launch-slot");
+    expect(await slot.count()).toBeGreaterThan(0);
+    await expect(slot.first()).toHaveCSS("display", "none");
+
+    if (testInfo.project.name === "mobile-chrome") {
+      // Below `md` the toolbar slot is display:none regardless, so the mobile
+      // case is only really tested inside the overflow menu.
+      await page.getByRole("button", { name: "More actions" }).click();
+      const menu = page.getByRole("menu");
+      await expect(menu).toBeVisible();
+      await expect(menu.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
+      await expect(menu.locator(".qe-launch-slot")).toHaveCSS("display", "none");
+    }
   });
 
   // Live compute: the fixture sets `project.thebe: { lite: true }`, which
@@ -575,6 +607,53 @@ test.describe("Site options reach the theme", () => {
     expect(fallback.headers()["content-type"]).toContain("image/png");
     const lectures = fs.readFileSync("public/logos/lectures-favicon.png");
     expect(Buffer.from(await fallback.body()).equals(lectures)).toBe(true);
+  });
+});
+
+/**
+ * The site footer. The lecture builds print the licence notice and the theme
+ * credit on every page with no condition around them, so the theme renders
+ * them as a default; `site.parts.footer` replaces that default outright, which
+ * is how a site states different terms.
+ *
+ * The main fixture declares the part (its footer.md carries the badge as an
+ * image); `fixture-no-thebe` declares none, so it exercises the default.
+ */
+test.describe("Site footer", () => {
+  const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+  const LICENSE_HREF = "https://creativecommons.org/licenses/by-sa/4.0/";
+  // The default's inline badge, by its own viewBox.
+  const BADGE = 'svg[viewBox="0 0 80 15"]';
+
+  test("default-footer-without-part", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    const footer = page.locator(".qe-site-footer");
+    await expect(footer).toHaveCount(1);
+    await expect(footer).toContainText(
+      "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International."
+    );
+    await expect(footer.locator('a[href="https://quantecon.org"]')).toHaveText("QuantEcon");
+    // The badge is drawn inline: nothing is fetched from licensebuttons.net,
+    // and there is no root-absolute asset path to 404 under a sub-path.
+    const badge = footer.locator(`a[href="${LICENSE_HREF}"] ${BADGE}`);
+    await expect(badge).toHaveCount(1);
+    await expect(badge.locator("title")).toHaveText("Creative Commons License");
+    await expect(footer.locator("img")).toHaveCount(0);
+  });
+
+  test("declared-part-replaces-default", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    const footer = page.locator(".qe-site-footer");
+    await expect(footer).toHaveCount(1);
+    await expect(footer.locator('img[alt="Creative Commons License"]')).toHaveCount(1);
+    // The default renders none of its own markup beside the part's content --
+    // the site's footer.md is the whole footer, credit included. Matched on
+    // the badge itself, not on `svg`: myst-to-react hangs its own external-link
+    // icon off the part's link.
+    await expect(footer.locator(BADGE)).toHaveCount(0);
+    await expect(footer.locator('a[href="https://quantecon.org"]')).toHaveCount(0);
   });
 });
 

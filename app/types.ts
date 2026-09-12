@@ -28,15 +28,21 @@ export interface TemplateOptions {
    */
   git_metadata?: string | GitMetadata;
 
-  // Notebook launcher configuration (set under `site.options` in myst.yml),
-  // so non-default branches, repo naming and nested lecture dirs work. All
-  // keys are optional; the defaults are `<github>.notebooks`, branch `main`,
-  // and no source/notebooks path prefixing — the page path is used as-is.
-  launch_repo_url?: string; // explicit notebook repo URL; overrides `<github> + launch_repo_suffix`
-  launch_repo_suffix?: string; // suffix appended to the source repo to locate the notebook repo (default ".notebooks")
-  launch_branch?: string; // notebook repo branch (default "main")
-  launch_notebooks_path?: string; // subdir within the notebook repo where notebooks live
-  launch_source_path?: string; // prefix stripped from the page path
+  // Notebook launcher configuration (set under `site.options` in myst.yml).
+  // Launch renders only with `launch_notebook_repo` set and `launch_colab`
+  // true: nothing is derived from `project.github`, so a site with no
+  // notebooks repository shows no control instead of a dead link.
+  //
+  // The names are the nested paths these become once mystmd supports
+  // structured template options (QuantEcon/mystmd#112) -- `launch.notebook.repo`,
+  // `launch.colab` -- with underscores, so that migration is mechanical. The
+  // `launch_notebook_*` group says where the notebook is; the service keys say
+  // what can open it, because one source serves every service.
+  launch_notebook_repo?: string; // notebook repository, full URL or `org/repo`
+  launch_notebook_branch?: string; // notebook repo branch (default "main")
+  launch_notebook_dir?: string; // subdir within the notebook repo where notebooks live
+  launch_notebook_source_dir?: string; // prefix stripped from the page path
+  launch_colab?: boolean; // offer Google Colab
 
   // Multilingual editions and translator credit. Declared in template.yml --
   // the CLI drops undeclared site options. The two lists arrive as strings

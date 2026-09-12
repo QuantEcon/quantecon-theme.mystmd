@@ -4,8 +4,9 @@
  *
  * The module is plain (erasable) TypeScript and free of React, so Node's
  * built-in type stripping runs it directly under `node --test` — no build
- * step. Covers the `.notebooks` suffix and `main` branch defaults, each
- * `launch_*` override, and the nested lecture-dir path handling.
+ * step. Covers the configured notebook repository in both spellings, the
+ * `main` branch default, each `launch_notebook_*` option, and the nested
+ * lecture-dir path handling.
  *
  * Requires Node >= 23.6 (type stripping of the imported `.ts` is on by
  * default), matching the CI Node 24 runner. The theme runtime itself still
@@ -23,95 +24,79 @@ import {
   notebookRelPath,
 } from '../../app/components/toolbar/launchUrls.ts';
 
-const SOURCE = 'QuantEcon/lecture-foo';
+const NOTEBOOKS = 'QuantEcon/lecture-foo.notebooks';
 
-test('defaults reproduce the historical Colab URL (backward-compat)', () => {
+test('the configured repository and the main branch default', () => {
   assert.equal(
-    buildColabUrl(SOURCE, '/notebook.ipynb'),
-    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/main/notebook.ipynb',
+    buildColabUrl('/notebook.ipynb', { repo: NOTEBOOKS }),
+    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/main/notebook.ipynb'
   );
 });
 
-test('a source markdown page maps to the .ipynb in the notebook repo', () => {
+test('notebookOrgRepo accepts a bare org/repo and a full URL', () => {
+  assert.equal(notebookOrgRepo(NOTEBOOKS), NOTEBOOKS);
+  assert.equal(notebookOrgRepo(`https://github.com/${NOTEBOOKS}`), NOTEBOOKS);
+  assert.equal(notebookOrgRepo(`https://github.com/${NOTEBOOKS}.git`), NOTEBOOKS);
+  assert.equal(notebookOrgRepo(`https://github.com/${NOTEBOOKS}/`), NOTEBOOKS);
+  assert.equal(notebookOrgRepo(`/${NOTEBOOKS}/`), NOTEBOOKS);
+});
+
+test('nothing is derived from the source repository', () => {
+  // The `.myst` -> `.notebooks` rule is gone: whatever is configured is used
+  // verbatim, so a site cannot end up pointing at a repository it never named.
+  assert.equal(notebookOrgRepo('QuantEcon/lecture-python.myst'), 'QuantEcon/lecture-python.myst');
+});
+
+test('the page extension is replaced, not every dot', () => {
+  assert.equal(notebookRelPath('/lectures/v1.2/intro.md'), 'lectures/v1.2/intro.ipynb');
+  assert.equal(notebookRelPath('intro.md'), 'intro.ipynb');
+  assert.equal(notebookRelPath('/intro'), 'intro.ipynb');
+});
+
+test('launch_notebook_branch overrides the default branch', () => {
   assert.equal(
-    buildColabUrl(SOURCE, '/intro.md'),
-    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/main/intro.ipynb',
+    buildColabUrl('/intro.md', { repo: NOTEBOOKS, branch: 'publish' }),
+    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/publish/intro.ipynb'
   );
 });
 
-test('nested lecture dirs are preserved in the path', () => {
+test('an empty or slash-wrapped branch still resolves to the default', () => {
+  // The CLI passes an empty string through, so `??` alone would build `blob//`.
+  for (const branch of ['', '/', '   ']) {
+    assert.equal(
+      buildColabUrl('/intro.md', { repo: NOTEBOOKS, branch }),
+      'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/main/intro.ipynb'
+    );
+  }
   assert.equal(
-    notebookRelPath('/dynamic_programming/mccall_model.md'),
-    'dynamic_programming/mccall_model.ipynb',
-  );
-  assert.equal(
-    buildColabUrl(SOURCE, '/dynamic_programming/mccall_model.md'),
-    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/main/dynamic_programming/mccall_model.ipynb',
-  );
-});
-
-test('only the trailing extension is stripped (dots in dir names survive)', () => {
-  // Splitting at the first dot (`location.split('.')[0]`) would truncate
-  // this to `/python`.
-  assert.equal(notebookRelPath('/python.programming/intro.md'), 'python.programming/intro.ipynb');
-});
-
-test('launch_source_path strips the path_to_docs prefix', () => {
-  const config = { sourcePath: 'lectures' };
-  assert.equal(notebookRelPath('/lectures/dynamic/mccall.md', config), 'dynamic/mccall.ipynb');
-  // A page outside the prefix is left untouched.
-  assert.equal(notebookRelPath('/other/page.md', config), 'other/page.ipynb');
-  // Slashes around the configured prefix are tolerated.
-  assert.equal(notebookRelPath('/lectures/intro.md', { sourcePath: '/lectures/' }), 'intro.ipynb');
-});
-
-test('launch_notebooks_path prepends the nb_path_to_notebooks subdir', () => {
-  assert.equal(
-    notebookRelPath('/intro.md', { notebooksPath: 'notebooks' }),
-    'notebooks/intro.ipynb',
-  );
-  assert.equal(
-    notebookRelPath('/intro.md', { notebooksPath: '/notebooks/' }),
-    'notebooks/intro.ipynb',
+    buildColabUrl('/intro.md', { repo: NOTEBOOKS, branch: '/publish/' }),
+    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/publish/intro.ipynb'
   );
 });
 
-test('launch_branch overrides the default branch', () => {
+test('launch_notebook_dir prefixes the path inside the notebook repo', () => {
+  assert.equal(notebookRelPath('/intro.md', { dir: 'notebooks' }), 'notebooks/intro.ipynb');
+  assert.equal(notebookRelPath('/intro.md', { dir: '/notebooks/' }), 'notebooks/intro.ipynb');
+});
+
+test('launch_notebook_source_dir is stripped from the page path', () => {
+  assert.equal(notebookRelPath('/lectures/intro.md', { sourceDir: 'lectures' }), 'intro.ipynb');
+  assert.equal(notebookRelPath('/lectures/intro.md', { sourceDir: '/lectures/' }), 'intro.ipynb');
+  // A prefix that only looks like the source dir is left alone.
   assert.equal(
-    buildColabUrl(SOURCE, '/intro.md', { branch: 'dev' }),
-    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/dev/intro.ipynb',
+    notebookRelPath('/lectures-extra/intro.md', { sourceDir: 'lectures' }),
+    'lectures-extra/intro.ipynb'
   );
 });
 
-test('launch_repo_suffix overrides the .notebooks suffix', () => {
-  assert.equal(notebookOrgRepo(SOURCE, { repoSuffix: '-notebooks' }), 'QuantEcon/lecture-foo-notebooks');
-  // An empty suffix means the notebook repo is the source repo itself.
-  assert.equal(notebookOrgRepo(SOURCE, { repoSuffix: '' }), 'QuantEcon/lecture-foo');
-});
-
-test('launch_repo_url overrides the derived notebook repo (full URL)', () => {
+test('combined: source_dir strip + dir + branch + nested lecture dir', () => {
   assert.equal(
-    notebookOrgRepo(SOURCE, { repoUrl: 'https://github.com/OtherOrg/custom-nb' }),
-    'OtherOrg/custom-nb',
-  );
-  assert.equal(
-    notebookOrgRepo(SOURCE, { repoUrl: 'https://github.com/OtherOrg/custom-nb.git' }),
-    'OtherOrg/custom-nb',
-  );
-});
-
-test('launch_repo_url also accepts a bare org/repo string', () => {
-  assert.equal(notebookOrgRepo(SOURCE, { repoUrl: 'OtherOrg/custom-nb' }), 'OtherOrg/custom-nb');
-});
-
-test('combined config: source_path strip + notebooks_path + branch + nested dir', () => {
-  const config = {
-    sourcePath: 'lectures',
-    notebooksPath: 'nb',
-    branch: 'release',
-  };
-  assert.equal(
-    buildColabUrl(SOURCE, '/lectures/topic/page.md', config),
-    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/release/nb/topic/page.ipynb',
+    buildColabUrl('/lectures/part1/intro.md', {
+      repo: 'https://github.com/QuantEcon/lecture-foo.notebooks',
+      branch: 'publish',
+      dir: 'notebooks',
+      sourceDir: 'lectures',
+    }),
+    'https://colab.research.google.com/github/QuantEcon/lecture-foo.notebooks/blob/publish/notebooks/part1/intro.ipynb'
   );
 });
