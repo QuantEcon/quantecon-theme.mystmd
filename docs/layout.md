@@ -38,8 +38,15 @@ A "↑ Top" link in the margin column, visible after 80px of scrolling, as a pla
 
 ## Footer
 
-`site.parts.footer` names a Markdown file rendered as the site footer, matching
-the Sphinx sites' footer block:
+With no `site.parts.footer` declared, the theme renders a default footer: the
+CC BY-SA 4.0 badge, the sentence "Creative Commons License – This work is
+licensed under a Creative Commons Attribution-ShareAlike 4.0 International.",
+and "A theme by QuantEcon". This is the Sphinx sites' footer block, which every
+site carried without configuring anything.
+
+`site.parts.footer` names a Markdown file that **replaces** the default
+outright — licence notice and theme credit included. Set it only to state
+different terms:
 
 ```yaml
 site:
