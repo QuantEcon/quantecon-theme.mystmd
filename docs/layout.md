@@ -53,6 +53,11 @@ licensed under a Creative Commons Attribution-ShareAlike 4.0 International.",
 and "A theme by QuantEcon". This is the Sphinx sites' footer block, which every
 site carried without configuring anything.
 
+The footer renders at 14.4px, faded to 70% as the Sphinx footer is. Its text
+and link colours are darker than the Sphinx values so that what the reader
+sees, the colour composited at that opacity, clears WCAG AA on the white page
+and on the `#222` dark panel.
+
 `site.parts.footer` names a Markdown file that **replaces** the default
 outright — licence notice and theme credit included. Set it only to state
 different terms:
