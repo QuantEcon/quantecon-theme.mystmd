@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-09-12
+
 ### Added
 - A default site footer, so a site that declares no `site.parts.footer` still
   carries the licence notice and theme credit the Sphinx lecture sites printed
@@ -766,7 +768,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version of the QuantEcon MyST theme: Remix + `@myst-theme` book theme with QuantEcon branding, toolbar (home, search, fullscreen, font scaling, dark mode, downloads, Colab/JupyterHub launch, edit-on-GitHub), content-driven site footer, and bundled brand assets.
 
-[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.7.0...HEAD
+[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.7.0...v3.0.0
 [2.7.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.5.0...v2.6.0
