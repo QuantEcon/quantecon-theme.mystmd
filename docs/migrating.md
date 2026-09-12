@@ -182,6 +182,10 @@ site:
 Without it the theme emits **neither** the canonical link nor `og:url`, and
 `og:image` stays root-relative. See [configuration](configuration.md).
 
+> **Not shipped yet.** The canonical link is #207, implemented by #227. Until
+> that merges `site_url` feeds `og:url` and `og:image` only, and no page carries
+> a canonical link whether or not the option is set.
+
 ## Old URLs
 
 Every page URL changes at cutover: `about_py.html` becomes `about-py/`. Inbound
