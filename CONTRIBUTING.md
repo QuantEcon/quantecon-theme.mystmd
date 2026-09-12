@@ -200,7 +200,7 @@ done.
 This applies to comments in code — including the comments in YAML, shell and
 fixture files. Prose documentation (`README.md`, `docs/`, the test suite's own
 `README.md`) is written for a reader who wants the project's history, and keeps
-it -- as does `PLAN.md`, which is a closed planning record rather than a live
+it — as does `PLAN.md`, which is a closed planning record rather than a live
 one.
 
 - **No project framing.** No phase numbers, `PLAN.md` items or milestones, and
