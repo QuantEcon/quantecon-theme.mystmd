@@ -1,4 +1,4 @@
-import { useProjectManifest, useSiteManifest } from '@myst-theme/providers';
+import { useSiteManifest } from '@myst-theme/providers';
 import { CirclePlay } from 'lucide-react';
 import type { SiteManifest } from 'myst-config';
 import { usePage } from '../PageProvider';
@@ -7,35 +7,36 @@ import { buildColabUrl, type LaunchConfig } from './launchUrls';
 import { Tooltip } from './Tooltip';
 
 export function LaunchButton({ size, showLabel }: { size: number; showLabel?: boolean }) {
-  const project = useProjectManifest();
   const page = usePage();
   const launchOptions: TemplateOptions =
     (useSiteManifest() as SiteManifest & TemplateOptions)?.options ?? {};
 
-  // Source org/repo from `project.github`, minus the `.myst` suffix if present.
-  const orgRepo = project?.github
-    ? new URL(project.github).pathname.slice(1).replace(/\.myst$/, '')
-    : undefined;
+  const {
+    launch_notebook_repo,
+    launch_notebook_branch,
+    launch_notebook_dir,
+    launch_notebook_source_dir,
+    launch_colab,
+  } = launchOptions;
   const location = page?.location;
 
-  const {
-    launch_repo_url,
-    launch_repo_suffix,
-    launch_branch,
-    launch_notebooks_path,
-    launch_source_path,
-  } = launchOptions;
-
-  // Without a source repo or a page path there is no notebook to open, so the
-  // control is not rendered at all rather than shown as an inert affordance.
-  if (!orgRepo || !location) return null;
+  // Launch is opt-in on both axes: `launch_notebook_repo` says where the
+  // notebook lives, `launch_colab` says something can open it, and neither is
+  // inferred. A site that has no notebooks repository gets no control at all,
+  // rather than a link to a repository name that was guessed from the source
+  // one and may not exist.
+  //
+  // A blank string counts as unset: the CLI validates an empty option as a
+  // string and passes it through, and a control linking to `github//` helps
+  // nobody.
+  const repo = launch_notebook_repo?.trim();
+  if (!repo || !launch_colab || !location) return null;
 
   const config: LaunchConfig = {
-    repoUrl: launch_repo_url,
-    repoSuffix: launch_repo_suffix,
-    branch: launch_branch,
-    notebooksPath: launch_notebooks_path,
-    sourcePath: launch_source_path,
+    repo,
+    branch: launch_notebook_branch,
+    dir: launch_notebook_dir,
+    sourceDir: launch_notebook_source_dir,
   };
 
   // The tooltip merges onto the anchor (`asChild`) rather than rendering its
@@ -44,7 +45,7 @@ export function LaunchButton({ size, showLabel }: { size: number; showLabel?: bo
   return (
     <Tooltip label="Launch notebook in Google Colab" asChild>
       <a
-        href={buildColabUrl(orgRepo, location, config)}
+        href={buildColabUrl(location, config)}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Launch notebook"

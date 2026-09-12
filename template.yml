@@ -106,23 +106,29 @@ options:
     type: boolean
     description: Hide the toolbar search control.
   # --- Notebook launcher (see docs/launch.md) ---
-  - id: launch_repo_url
+  # Opt-in on both axes: the control renders only with `launch_notebook_repo`
+  # set and `launch_colab` true. Names are flat because template options are
+  # scalar-only; each is the nested path it becomes once mystmd supports
+  # structured options (QuantEcon/mystmd#112).
+  - id: launch_notebook_repo
     type: string
     description: >
-      Explicit notebook repository (full URL or `org/repo`); overrides
-      `<github>` + `launch_repo_suffix`.
-  - id: launch_repo_suffix
-    type: string
-    description: Suffix appended to the source repo to locate the notebook repo (`.notebooks` when unset).
-  - id: launch_branch
+      Notebook repository (full URL or `org/repo`). Set it only when that
+      repository exists: with it unset there is no Launch control.
+  - id: launch_notebook_branch
     type: string
     description: Branch of the notebook repo to launch from (`main` when unset).
-  - id: launch_notebooks_path
+  - id: launch_notebook_dir
     type: string
     description: Sub-directory of the notebook repo where the notebooks live.
-  - id: launch_source_path
+  - id: launch_notebook_source_dir
     type: string
     description: Path prefix stripped from the page location (e.g. `lectures/`).
+  - id: launch_colab
+    type: boolean
+    description: >
+      Offer Google Colab as a launch target. Off when unset, so a site shows
+      Launch only once it has both a notebook repository and a service.
   # --- Git history (per-page override of plugins/git-metadata.mjs) ---
   - id: git_metadata
     type: string
