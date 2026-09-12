@@ -145,6 +145,21 @@ export function DocumentWithoutProviders({
         {title && <title>{title}</title>}
         <Meta />
         <Links />
+        {/* Head links whose href has to carry the static build's base URL.
+            They cannot come from a route's `links()`, which takes no arguments
+            in Remix 1.17 while BASE_URL reaches the app only through the root
+            loader -- but this Document is handed it directly.
+
+            The export writes both files at the build root, and rewrites only
+            `/myst_assets_folder/` URLs for the base, so a root-absolute href
+            resolves to the domain root and 404s on a sub-path site.
+
+            The icon is emitted only when there is a base to add: without one
+            the root route's own `/favicon.ico` is already right, and a second
+            identical link would be noise. With one, this comes after `<Links/>`
+            and a later `rel="icon"` wins. */}
+        {baseurl && <link rel="icon" href={`${baseurl}/favicon.ico`} />}
+        <link rel="stylesheet" href={`${baseurl ?? ''}/myst-theme.css`} />
         <Analytics
           analytics_google={config?.options?.analytics_google}
           analytics_plausible={config?.options?.analytics_plausible}

@@ -4,7 +4,12 @@
 
 Notebook outputs render through `@myst-theme/jupyter`: streams and errors as
 `<pre>`, execute results and display data by MIME type (text, HTML, images,
-Plotly and widgets). Long outputs are clipped with a scroll region.
+Plotly and widgets). Images in a cell's outputs are centred in the content
+column; tables and text stay left-aligned, as on the Sphinx sites.
+
+Nothing limits an output's height: a long output renders at full length. The
+Sphinx builds' scroll-output cell tags have no effect until
+QuantEcon/mystmd#106 ships.
 
 ## Collapsible stderr
 

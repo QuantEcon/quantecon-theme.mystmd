@@ -24,6 +24,7 @@ Every theme option lives under `site.options` and is listed in
 
 | Page | Covers |
 | --- | --- |
+| [migrating](migrating.md) | moving a lecture repo off `quantecon-book-theme`, step by step |
 | [configuration](configuration.md) | every `site.options` key, its scope and its default |
 | [layout](layout.md) | header, contents drawer, "On this page" panel, back-to-top, footer |
 | [authors](authors.md) | author line and translator credit |
@@ -40,6 +41,7 @@ Every theme option lives under `site.options` and is listed in
 ## How this relates to the Sphinx theme
 
 The theme reproduces the deployed lecture sites' behaviour as those sites configure
-the Sphinx theme, not every Sphinx option. Where a Sphinx option has no
-counterpart, its page says so and why. The parity work is tracked in the
-repository's `PLAN.md`.
+the Sphinx theme, not every Sphinx option. The options with no counterpart are
+listed, with a reason for each, in
+[migrating](migrating.md#sphinx-options-with-no-counterpart) — which is also
+the step-by-step for moving a repository across.
