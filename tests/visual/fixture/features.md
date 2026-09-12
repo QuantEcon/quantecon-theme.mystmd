@@ -95,6 +95,16 @@ A tip admonition with a nested list:
 - two
 :::
 
+::::{exercise}
+:label: fixture-exercise
+An exercise, with a note inside it. Callouts are sized off the root, so the
+nested one keeps the outer one's size instead of stepping down again.
+
+:::{note}
+A note nested in the exercise.
+:::
+::::
+
 ### A note in an admonition subsection
 
 A level-three heading, so the "On this page" panel has a nested entry (#182).

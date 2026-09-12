@@ -99,7 +99,7 @@ export function SiteFooter({ content, className }: { content?: GenericParent; cl
   return (
     <div
       className={classNames(
-        'qe-site-footer col-screen text-qetext-light text-opacity-80 dark:text-qetext-dark-muted subgrid-gap',
+        'qe-site-footer col-screen subgrid-gap',
         grid
       )}
     >
