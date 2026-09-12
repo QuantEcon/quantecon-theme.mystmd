@@ -49,6 +49,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for each. `myst init` carries none of these across: it never reads
   `sphinx.config`, where the lecture configs keep them
   ([#209](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/209)) ([#226](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/226)).
+- A `<link rel="canonical">` on every page, from `site_url`, as the Sphinx
+  lecture sites emit from `html.baseurl`. The home page's canonical is the site
+  root, and every URL takes the trailing-slash form the build actually serves,
+  so no canonical names a redirect. `og:url` is built by the same function, so
+  the two cannot disagree. Nothing is emitted without `site_url`
+  ([#207](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/207)) ([#227](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/227)).
 
 ### Changed
 - **Breaking: the Launch control is now opt-in and explicitly configured.** It
@@ -76,6 +82,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   800px column. Both the stored outputs and the ones re-rendered when a reader
   starts live compute are covered. Tables and text outputs stay left-aligned
   ([#206](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/206)) ([#225](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/225)).
+- Head links that assumed the domain root now carry the static build's base
+  URL, so they resolve on a site served under a sub-path instead of 404ing at
+  the domain root: the favicon and `/myst-theme.css`. `og:image` is made
+  absolute against `site_url`, which a social scraper needs
+  ([#207](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/207)) ([#227](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/227)).
 
 ## [2.7.0] - 2026-09-11
 

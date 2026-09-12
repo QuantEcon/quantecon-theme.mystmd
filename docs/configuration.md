@@ -16,7 +16,7 @@ below.
 
 | Option | Type | Scope | Default | Purpose |
 | --- | --- | --- | --- | --- |
-| `site_url` | string | site | — | the site's public URL, for `og:url` |
+| `site_url` | string | site | — | the site's public URL, for the canonical link and `og:url` |
 | `twitter` | string | site | — | handle for `twitter:site` / `twitter:creator`; `@` optional |
 | `og_logo_url` | string | site | — | `og:image` when a page has no thumbnail |
 | `twitter_logo_url` | string | site | — | `twitter:image`; falls back to `og_logo_url` |
