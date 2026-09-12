@@ -32,5 +32,9 @@ site:
 
 A page overrides the list under `site:` in its frontmatter (replace, never
 merge); an empty value there suppresses the credit on that page. The label
-defaults to "Translated by"; an empty string hides it. See
+defaults to "Translated by"; an empty string hides it.
+
+`translators_label` is the only part of the credit an edition can translate.
+The names themselves are joined in English — "A", "A and B", "A, B and C" — on
+every edition, including right-to-left ones. See
 [rtl-support](rtl-support.md) for the rest of the multilingual configuration.

@@ -95,6 +95,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the domain root: the favicon and `/myst-theme.css`. `og:image` is made
   absolute against `site_url`, which a social scraper needs
   ([#207](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/207)) ([#227](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/227)).
+- Documentation corrected against what the theme actually does: the toolbar's
+  contents (it has no site title, and the Home, font-size and GitHub controls
+  went unmentioned), the width at which the "On this page" outline appears
+  (1280px, not 1024px), the dark ground's provenance (`#222` predates the
+  book-theme release the lecture repos pin, and the palette is an open design
+  question), what `site.title` feeds (`og:site_name` and the page-title suffix,
+  not the header), and notebook output height (nothing clips a long output).
+  `docs/authors.md` now says the translator names are joined in English on
+  every edition
+  ([#217](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/217)) ([#229](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/229)).
 
 ## [2.7.0] - 2026-09-11
 

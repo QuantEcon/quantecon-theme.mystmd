@@ -48,7 +48,7 @@ list. Only the keys marked "site or page" or "page" are read per page.
 
 | Key | Purpose |
 | --- | --- |
-| `site.title` | the site name in the header and `og:site_name` |
+| `site.title` | `og:site_name` and the suffix on each page's title; the header shows the project title, not this |
 | `site.parts.footer` | the footer content ([layout](layout.md)) |
 | `project.github` | commit and edit links (the notebook repository is named by `launch_notebook_repo`, never derived from this) |
 | `project.thebe` | in-page live compute ([notebooks](notebooks.md)) |
