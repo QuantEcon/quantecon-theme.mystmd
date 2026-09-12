@@ -10,8 +10,8 @@ right: the search trigger, the full-screen toggle, the font-size control, the
 dark-mode toggle, downloads, and — each only when the site configures it — the
 live-compute control, the launch button and the language switcher, with a
 GitHub link beside them. The toolbar carries no site title. Below `md` the
-full-screen toggle, font-size control, downloads, launch and GitHub move into
-an overflow menu.
+full-screen toggle and the font-size control are hidden, and downloads, launch
+and GitHub move into an overflow menu.
 
 Below the toolbar, the page header carries the title, the author line, the
 translator credit and the "Last changed" control, above a QuantEcon blue rule.
