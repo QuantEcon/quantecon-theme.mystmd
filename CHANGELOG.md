@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   until now a block's own source reached the reader as escaped text under the
   page title. The PR preview runs the script over the lecture content it
   builds, so previews show post-cutover sources and every theme PR exercises it
-  ([#204](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/204)).
+  ([#204](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/204)) ([#222](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/222)).
 
 ## [2.7.0] - 2026-09-11
 

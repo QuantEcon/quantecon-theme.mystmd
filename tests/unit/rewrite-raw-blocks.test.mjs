@@ -229,9 +229,19 @@ test('only `html` blocks are converted; another format is reported', () => {
 });
 
 test('a block quoted inside a code-listing directive is left alone', () => {
-  for (const directive of ['code-cell ipython3', 'code-block md', 'literalinclude']) {
+  // Spelled as MyST spells them, with the argument after the closing brace: the
+  // scanner only reads a directive name from `{...}`, so an argument written
+  // inside the braces leaves the name unread and the fence is stepped over as
+  // an unnamed one -- which passes this test without ever consulting
+  // LISTING_DIRECTIVES. (An unnamed fence has its own test above.)
+  for (const directive of [
+    '{code} python',
+    '{code-cell} ipython3',
+    '{code-block} md',
+    '{literalinclude}',
+  ]) {
     const source = [
-      '```{' + directive + '}',
+      '```' + directive,
       ':::{raw} jupyter',
       HEADER_BODY,
       ':::',
