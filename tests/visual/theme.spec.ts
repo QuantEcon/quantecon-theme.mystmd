@@ -523,6 +523,57 @@ test.describe("Meta/SEO and notebook output", () => {
     await expect(fold.locator("pre.jupyter-error")).toBeVisible();
     await expect(fold.locator("pre.jupyter-error")).toContainText("a deliberate warning on stderr");
   });
+
+  // Plot outputs are centred in the content column, as they are on the lecture
+  // sites; an inline figure narrower than the column would otherwise sit
+  // against its left edge. On the thebe-enabled fixture, whose notebook.ipynb
+  // carries the stored `image/png` cell -- the no-thebe copy does not.
+  test("output-image-centred", async ({ page }, testInfo) => {
+    await page.goto("/notebook", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const box = await page.evaluate(() => {
+      const img = document.querySelector('[data-name="outputs-container"] img');
+      if (!img) return null;
+      const container = img.closest('[data-name="outputs-container"]')!;
+      const i = img.getBoundingClientRect();
+      const c = container.getBoundingClientRect();
+      return {
+        left: i.left - c.left,
+        right: c.right - i.right,
+        imageWidth: i.width,
+        containerWidth: c.width,
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      };
+    });
+    expect(box, "the fixture notebook should render an image output").not.toBeNull();
+    // Never wider than the column it sits in, at either viewport.
+    expect(box!.imageWidth).toBeLessThanOrEqual(box!.containerWidth + 1);
+    // The same 1px allowance as the gaps below: both widths are integers
+    // rounded from sub-pixel layout, so a page that fits exactly can still
+    // report one more pixel of scrollWidth than clientWidth. The two values are
+    // returned rather than a boolean so a failure names them -- and the sweep
+    // across 1280/1300/1328px in `outline-within-viewport` is what actually
+    // guards page overflow; this is a sanity check on the page holding an image.
+    expect(box!.scrollWidth, "no horizontal page overflow").toBeLessThanOrEqual(
+      box!.clientWidth + 1
+    );
+    if (testInfo.project.name === "desktop-chrome") {
+      // Desktop has room to spare, so the gaps must match.
+      expect(box!.left).toBeGreaterThan(1);
+      expect(Math.abs(box!.left - box!.right)).toBeLessThanOrEqual(1);
+    }
+    // Text outputs are untouched: only images are centred, as on the lecture
+    // sites, where a DataFrame table stays left-aligned.
+    const stream = await page.evaluate(() => {
+      const pre = document.querySelector('[data-name="outputs-container"] pre');
+      if (!pre) return null;
+      const container = pre.closest('[data-name="outputs-container"]')!;
+      return pre.getBoundingClientRect().left - container.getBoundingClientRect().left;
+    });
+    expect(stream, "the fixture notebook should render a text output").not.toBeNull();
+    expect(Math.abs(stream!)).toBeLessThanOrEqual(1);
+  });
 });
 
 test.describe("Site options reach the theme", () => {
