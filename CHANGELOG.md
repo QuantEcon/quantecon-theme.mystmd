@@ -41,6 +41,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   page title. The PR preview runs the script over the lecture content it
   builds, so previews show post-cutover sources and every theme PR exercises it
   ([#204](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/204)) ([#222](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/222)).
+- `docs/migrating.md`, a step-by-step checklist for a lecture repository moving
+  off `quantecon-book-theme`. It covers the eleven things the Sphinx build
+  handled another way — three of which the Sphinx theme supplied with no
+  per-repo setup at all — says for each what it replaces and what to set, and
+  carries the table of Sphinx options with no counterpart here, with a reason
+  for each. `myst init` carries none of these across: it never reads
+  `sphinx.config`, where the lecture configs keep them
+  ([#209](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/209)) ([#226](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/226)).
 
 ### Changed
 - **Breaking: the Launch control is now opt-in and explicitly configured.** It
