@@ -25,11 +25,11 @@ below.
 | `analytics_plausible` | string | site | — | Plausible domain |
 | `hide_toc` | boolean | site or page | `false` | hide the contents drawer and its toggle |
 | `hide_search` | boolean | site or page | `false` | hide the search control |
-| `launch_repo_url` | string | site | derived | explicit notebook repository |
-| `launch_repo_suffix` | string | site | `.notebooks` | suffix locating the notebook repo |
-| `launch_branch` | string | site | `main` | notebook repo branch |
-| `launch_notebooks_path` | string | site | — | sub-directory of the notebook repo |
-| `launch_source_path` | string | site | — | prefix stripped from the page path |
+| `launch_notebook_repo` | string | site | — | notebook repository (full URL or `org/repo`); no Launch control without it |
+| `launch_notebook_branch` | string | site | `main` | notebook repo branch |
+| `launch_notebook_dir` | string | site | — | sub-directory of the notebook repo |
+| `launch_notebook_source_dir` | string | site | — | prefix stripped from the page path |
+| `launch_colab` | boolean | site | `false` | offer Google Colab ([launch](launch.md)) |
 | `current_language` | string | site | — | BCP 47 code of this edition |
 | `enable_rtl` | boolean | site | `false` | right-to-left layout |
 | `languages` | YAML block | site | — | the editions, for the language switcher and `hreflang` |
@@ -50,5 +50,5 @@ list. Only the keys marked "site or page" or "page" are read per page.
 | --- | --- |
 | `site.title` | the site name in the header and `og:site_name` |
 | `site.parts.footer` | the footer content ([layout](layout.md)) |
-| `project.github` | commit and edit links, and the notebook repo derivation |
+| `project.github` | commit and edit links (the notebook repository is named by `launch_notebook_repo`, never derived from this) |
 | `project.thebe` | in-page live compute ([notebooks](notebooks.md)) |

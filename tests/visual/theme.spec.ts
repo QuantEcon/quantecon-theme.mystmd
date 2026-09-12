@@ -260,9 +260,8 @@ test.describe("QuantEcon theme — visual regression", () => {
   // Launch is a direct link to Colab, the only launch target by design: Binder
   // and JupyterHub are not offered. Asserting the anchor's href rather than a
   // stubbed window.open keeps this offline and deterministic, and pins that the
-  // control is a *link*, so a chooser in its place would fail here. The repo
-  // part comes from the fixture's `github` field, so only the stable pieces
-  // (host, .notebooks convention, branch, path) are matched.
+  // control is a *link*, so a chooser in its place would fail here. The repo is
+  // the fixture's own `launch_notebook_repo`: nothing is derived from `github`.
   test("launch-colab", async ({ page }, testInfo) => {
     test.skip(
       testInfo.project.name !== "desktop-chrome",
@@ -275,8 +274,41 @@ test.describe("QuantEcon theme — visual regression", () => {
     await expect(launch).toHaveAttribute("target", "_blank");
     await expect(launch).toHaveAttribute(
       "href",
-      /^https:\/\/colab\.research\.google\.com\/github\/QuantEcon\/[\w.-]+\.notebooks\/blob\/main\/notebook\.ipynb$/
+      "https://colab.research.google.com/github/QuantEcon/quantecon-theme.notebooks/blob/main/notebook.ipynb"
     );
+  });
+
+  // The opt-in default. `fixture-no-thebe` sets `project.github` but neither
+  // launch option, which is the shape of a lecture repo with no notebooks
+  // repository: there must be no control and no gap where one would sit, on
+  // the toolbar or in the mobile overflow menu.
+  test("launch-absent-without-config", async ({ page }, testInfo) => {
+    const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+    await page.goto(`${noThebeBase}/notebook`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await expect(page.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
+    // No dead link to a repository the site never named, either.
+    await expect(page.locator('a[href*="colab.research.google.com"]')).toHaveCount(0);
+
+    // And no gap where the control would have been. Asserted on the computed
+    // `display`, because both of the obvious signals are blind here: an empty
+    // `<li>` is a zero-width flex item whether or not it is displayed, so
+    // measuring its width proves nothing -- and Playwright calls a zero-size
+    // element hidden, so `toBeHidden()` passes just the same. What an
+    // un-collapsed slot actually costs is the row's own `gap-x`.
+    const slot = page.locator(".qe-launch-slot");
+    expect(await slot.count()).toBeGreaterThan(0);
+    await expect(slot.first()).toHaveCSS("display", "none");
+
+    if (testInfo.project.name === "mobile-chrome") {
+      // Below `md` the toolbar slot is display:none regardless, so the mobile
+      // case is only really tested inside the overflow menu.
+      await page.getByRole("button", { name: "More actions" }).click();
+      const menu = page.getByRole("menu");
+      await expect(menu).toBeVisible();
+      await expect(menu.getByRole("link", { name: "Launch notebook" })).toHaveCount(0);
+      await expect(menu.locator(".qe-launch-slot")).toHaveCSS("display", "none");
+    }
   });
 
   // Live compute: the fixture sets `project.thebe: { lite: true }`, which

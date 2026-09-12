@@ -56,7 +56,10 @@ downloads:
 
 ### Launch Notebooks
 
-The launch notebooks capability has been developed to mirror capabilities in the previous QuantEcon theme. By default it assumes the `.notebooks` suffix convention for repository naming when locating the notebook to launch.
+The launch notebooks capability mirrors the previous QuantEcon theme's, which
+shows the control only for a site that names a notebook repository. Nothing is
+assumed about repository naming: a site says where its notebooks are, or gets
+no Launch control.
 
 The **Launch** control in the toolbar is a direct link to Google Colab, the
 single launch target — it provides GPU access for the lectures that need it.
@@ -68,18 +71,34 @@ private JupyterHub, whose launcher entry was removed in
 lecture repo had ever configured one. For running cells without leaving the
 page, see [Live compute](#live-compute-thebe--jupyterlite) below.
 
-The repo/branch/path conventions are configurable under `site.options` in
-`myst.yml` (MyST's theme-options section; see [Site options](#site-options)
-for the full list). All keys are optional and the defaults reproduce the
-behaviour above, so existing projects need no changes:
+Launch is **opt-in**: it appears only once a site names a notebook repository
+*and* turns a launch service on, under `site.options` in `myst.yml` (MyST's
+theme-options section; see [Site options](#site-options) for the full list).
+
+```yaml
+site:
+  options:
+    launch_notebook_repo: QuantEcon/lecture-foo.notebooks
+    launch_colab: true
+```
+
+With either unset there is no Launch control. Nothing is derived from
+`project.github`, so a site without a notebooks repository cannot link readers
+to one that does not exist; set `launch_notebook_repo` only when the repository
+really is there.
 
 | Option | Default | Purpose |
 | ------ | ------- | ------- |
-| `launch_repo_suffix` | `.notebooks` | Suffix appended to the source repo to locate the notebook repo |
-| `launch_branch` | `main` | Branch in the notebook repo to launch from |
-| `launch_repo_url` | _(derived from `github` + suffix)_ | Explicit notebook repo, for when it isn't `<source>.notebooks` |
-| `launch_notebooks_path` | _(none)_ | Sub-directory within the notebook repo where the notebooks live |
-| `launch_source_path` | _(none)_ | Path prefix stripped from the page location (e.g. a `lectures/` source dir) |
+| `launch_notebook_repo` | _(none)_ | Notebook repository, as a full URL or `org/repo` |
+| `launch_notebook_branch` | `main` | Branch in the notebook repo to launch from |
+| `launch_notebook_dir` | _(none)_ | Sub-directory within the notebook repo where the notebooks live |
+| `launch_notebook_source_dir` | _(none)_ | Path prefix stripped from the page location (e.g. a `lectures/` source dir) |
+| `launch_colab` | _(off)_ | Offer Google Colab |
+
+Coming from `quantecon-book-theme`: `nb_repository_url` → `launch_notebook_repo`,
+`nb_branch` → `launch_notebook_branch`, `nb_path_to_notebooks` →
+`launch_notebook_dir`, `path_to_docs` → `launch_notebook_source_dir`, and
+`launch_buttons.colab_url` → `launch_colab: true`.
 
 ### Live compute (Thebe / JupyterLite)
 
@@ -243,7 +262,7 @@ block inside a string (`key: |`), which the theme parses.
 | `favicon` | site | Favicon file, relative to `myst.yml`; served at `/favicon.ico` (the QuantEcon lectures favicon when unset) |
 | `analytics_google`, `analytics_plausible` | site | Analytics IDs, rendered by `@myst-theme/site` |
 | `hide_toc`, `hide_search` | site or page | Hide the contents drawer / the search control |
-| `launch_repo_url`, `launch_repo_suffix`, `launch_branch`, `launch_notebooks_path`, `launch_source_path` | site | Notebook launcher conventions ([Launch buttons](#launch-buttons)) |
+| `launch_notebook_repo`, `launch_notebook_branch`, `launch_notebook_dir`, `launch_notebook_source_dir`, `launch_colab` | site | Notebook launcher ([Launch buttons](#launch-buttons)) |
 | `current_language`, `enable_rtl`, `languages`, `language_switcher_label` | site | Multilingual editions ([below](#multilingual-editions)) |
 | `translators`, `translators_label` | site or page | Translator credit in the page header |
 | `git_metadata` | page | YAML block pinning the "Last changed" control by hand ([Git history](#git-history-in-page-headers)) |

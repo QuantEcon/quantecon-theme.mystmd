@@ -42,6 +42,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   builds, so previews show post-cutover sources and every theme PR exercises it
   ([#204](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/204)) ([#222](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/222)).
 
+### Changed
+- **Breaking: the Launch control is now opt-in and explicitly configured.** It
+  renders only when `launch_notebook_repo` names a notebook repository *and*
+  `launch_colab` is true; with either unset there is no control and no gap
+  where it sat. Nothing is derived from `project.github` any more, so a site
+  without a notebooks repository no longer sends readers to a repository whose
+  name was guessed from the source one and may not exist — as
+  `QuantEcon/lecture-wasm.notebooks`, a 404, was on every lecture-wasm page.
+  `launch_repo_url`, `launch_repo_suffix`, `launch_branch`,
+  `launch_notebooks_path` and `launch_source_path` are replaced by
+  `launch_notebook_repo`, `launch_notebook_branch`, `launch_notebook_dir` and
+  `launch_notebook_source_dir`; `launch_repo_suffix` and the `.myst` rule are
+  gone. A site that relied on the guessed repository keeps its Launch link by
+  naming that repository in `launch_notebook_repo` and setting
+  `launch_colab: true`. The flat names are the nested paths these become once
+  mystmd supports structured template options, so that migration is mechanical
+  ([#205](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/205)) ([#224](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/224)).
+
 ## [2.7.0] - 2026-09-11
 
 ### Added

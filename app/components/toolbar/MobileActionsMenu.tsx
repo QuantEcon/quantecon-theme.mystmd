@@ -33,7 +33,9 @@ export function MobileActionsMenu({ sizeClasses, size }: { sizeClasses: string; 
             <li>
               <DownloadsButton size={size} showLabel />
             </li>
-            <li>
+            {/* Empty when the site configures no launch; `empty:hidden` keeps
+                it from taking a row in the menu's spacing. */}
+            <li className="qe-launch-slot empty:hidden">
               <LaunchButton size={size} showLabel />
             </li>
             <li>
