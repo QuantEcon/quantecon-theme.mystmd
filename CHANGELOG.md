@@ -81,6 +81,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `launch_colab: true`. The flat names are the nested paths these become once
   mystmd supports structured template options, so that migration is mechanical
   ([#205](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/205)) ([#224](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/224)).
+- `PLAN.md` is closed. It opens with a note saying the plan is complete as of
+  the release that closes the book-theme parity gate, that the rest is the
+  planning snapshot it was written as and is no longer maintained, and where to
+  look instead — `docs/` for current behaviour, the gate issue for the
+  item-level record. The file itself is kept, because issues link to its lines.
+  The three pieces of guidance that outlived the plan moved into
+  `CONTRIBUTING.md` first: the architecture constraint (the theme never sees
+  the source repository, so anything derived from it must arrive as data), the
+  upstream-first rule and `UPSTREAM-CANDIDATES.yml`, and how the visual gate
+  and the PR previews work
+  ([#218](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/218)) ([#230](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/230)).
 
 ### Fixed
 - Images in a notebook cell's outputs are centred in the content column, as

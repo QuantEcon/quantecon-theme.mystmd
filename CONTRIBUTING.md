@@ -60,6 +60,46 @@ public/          # Static assets (logos, Thebe bundles)
 patches/         # patch-package patches for upstream fixes
 ```
 
+## Architecture: what the theme can and cannot compute
+
+The two QuantEcon themes run in fundamentally different places, and one
+consequence of that shapes most feature work here.
+
+| | `quantecon-book-theme` (Sphinx) | this theme (MyST) |
+| --- | --- | --- |
+| Runs | at **build time**, inside the lecture repo | as a **runtime Remix server**, over pre-built content JSON |
+| Sees the git repo? | **yes** — it can shell out to `git` | **no** — only each page's `mdast` and `frontmatter` |
+| Customised through | Jinja templates and a Sphinx extension | React components and `myst.yml` |
+
+**So any feature derived from the source repository cannot be computed by the
+theme.** Git history, last-modified dates and computed launch paths all have to
+reach it as data, put there by one of:
+
+- a **MyST plugin or transform** that runs during `myst build` in the lecture
+  repo and writes the value into the page's frontmatter — `plugins/git-metadata.mjs`
+  is the one this repo ships;
+- **built-in mystmd support**, where it already exists (frontmatter `date`, say);
+- a **CI step** that pre-computes the value and feeds it in.
+
+The component's job is then only to render what it was given. When a feature
+looks impossible here, this is usually why, and the fix belongs upstream of the
+theme.
+
+## Upstream first, then here
+
+This theme tracks upstream
+[`jupyter-book/myst-theme`](https://github.com/jupyter-book/myst-theme)'s `book`
+theme. **Before building anything custom, check whether it already exists
+upstream** — or whether it could be contributed there rather than kept as
+QuantEcon-only code.
+
+Where it does not, build it here first: nothing waits on an upstream release.
+Record what could later be upstreamed in
+[`UPSTREAM-CANDIDATES.yml`](./UPSTREAM-CANDIDATES.yml), the feature-level
+registry, noting the local PR as provenance. This repo is not a fork of
+`jupyter-book/myst-theme`, so a candidate has to be ported rather than
+cherry-picked.
+
 ## Making Changes
 
 1. **Create a branch** from `main`:
@@ -158,9 +198,10 @@ accurate; a comment that narrates a project phase goes stale once the work is
 done.
 
 This applies to comments in code — including the comments in YAML, shell and
-fixture files. Prose documentation (`README.md`, `docs/`, `PLAN.md`, the test
-suite's own `README.md`) is written for a reader who wants the project's
-history, and keeps it.
+fixture files. Prose documentation (`README.md`, `docs/`, the test suite's own
+`README.md`) is written for a reader who wants the project's history, and keeps
+it — as does `PLAN.md`, which is a closed planning record rather than a live
+one.
 
 - **No project framing.** No phase numbers, `PLAN.md` items or milestones, and
   no issue number used as a label for the work that produced the code.
@@ -206,6 +247,29 @@ a fix this repo makes alone — it would reintroduce a difference against the li
 sites. Open an issue instead (see #172 for the code palette, #201 for the
 footer). When you compute a contrast ratio, composite any `opacity` on the
 element first: the declared colour is not what the reader sees.
+
+## CI: visual tests and PR previews
+
+Two things run on every pull request.
+
+**The visual gate.** A `visual` job pixel-diffs the fixture (desktop, mobile and
+sidebar-open) against the committed baselines in
+`tests/visual/__snapshots__`. Baselines are platform-suffixed: refresh the
+`-linux` ones by commenting `/update-snapshots` on the PR, and the `-darwin`
+ones locally with `npm run test:visual:update`. Playwright is the only gate.
+
+**The rendered preview.** `preview.yml` builds a real lecture site —
+`QuantEcon/lecture-python-programming` — with the PR's theme, through a static
+`myst build --html`. That is the export path a live `myst start` never
+exercises, so the preview catches static-build defects the Playwright suite
+cannot. It deploys to the `gh-pages` branch under `pr-preview/pr-<n>/`,
+sticky-comments the link, and tears the directory down when the PR closes. It
+needs no org secrets, only `GITHUB_TOKEN`.
+
+The content repo is still a legacy Jupyter Book, so the workflow's `myst init`
+step doubles as a migration-readiness check: if the Jupyter Book upgrade breaks
+on real lecture content, the preview build is where it shows. The preview is
+qualitative — it is not a gate.
 
 ## Commit Convention
 
