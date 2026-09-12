@@ -85,6 +85,22 @@ export interface PageUrlInput {
  * Returns undefined when the site sets no `site_url`, as Sphinx emits nothing
  * without `html_baseurl`.
  */
+/**
+ * The base URL in the one shape the rest of the app can append to: trimmed,
+ * with any trailing slashes removed, and undefined when there is nothing left.
+ *
+ * `BASE_URL` is written by whoever deploys the site, so `/lecture-wasm/` is as
+ * likely as `/lecture-wasm`, and every consumer joins it to a path that already
+ * starts with a slash. Normalising once here keeps the doubled separator out of
+ * a head link's href and out of every link the base-URL provider builds.
+ * Undefined rather than `''` for an empty value, so `baseurl && ...` guards
+ * still tell absent from present.
+ */
+export function normalizeBaseurl(value?: string): string | undefined {
+  const base = (value ?? '').trim().replace(/\/+$/, '');
+  return base || undefined;
+}
+
 export function pageUrl({
   origin,
   pathname,
@@ -93,7 +109,7 @@ export function pageUrl({
   indexSlug,
 }: PageUrlInput): string | undefined {
   if (!origin) return undefined;
-  const base = (baseurl ?? '').trim().replace(/\/+$/, '');
+  const base = normalizeBaseurl(baseurl) ?? '';
 
   // The base is stripped only where it is a real prefix -- `<base>/...` -- and
   // never on an exact match. The browser router has no basename, so on the

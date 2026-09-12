@@ -9,6 +9,7 @@ import {
   absoluteImage,
   canonicalLink,
   mergeMeta,
+  normalizeBaseurl,
   ogLocale,
   pageUrl,
   siteOrigin,
@@ -26,6 +27,24 @@ test('siteOrigin: site_url wins and is reduced to an origin; domains are the fal
   assert.equal(siteOrigin(undefined, ['http://localhost:3000']), 'http://localhost:3000');
   assert.equal(siteOrigin(undefined, undefined), undefined);
   assert.equal(siteOrigin('   ', []), undefined);
+});
+
+test('normalizeBaseurl: no trailing slash survives, and empty means absent', () => {
+  // Whoever deploys the site writes BASE_URL by hand, so both spellings arrive.
+  // Every consumer joins the result to a path that already starts with a slash
+  // -- the head links build `${baseurl}/favicon.ico` and `${baseurl}/myst-theme.css`,
+  // and the base-URL provider builds every in-site link -- so a surviving
+  // trailing slash would double the separator in all of them.
+  assert.equal(normalizeBaseurl('/lecture-wasm'), '/lecture-wasm');
+  assert.equal(normalizeBaseurl('/lecture-wasm/'), '/lecture-wasm');
+  assert.equal(normalizeBaseurl('/lecture-wasm//'), '/lecture-wasm');
+  assert.equal(normalizeBaseurl('  /quantecon-theme.mystmd/pr-preview/pr-9/  '), '/quantecon-theme.mystmd/pr-preview/pr-9');
+  // Undefined rather than '' for an absent value, so `baseurl && ...` guards in
+  // the Document still tell absent from present.
+  assert.equal(normalizeBaseurl(undefined), undefined);
+  assert.equal(normalizeBaseurl(''), undefined);
+  assert.equal(normalizeBaseurl('   '), undefined);
+  assert.equal(normalizeBaseurl('/'), undefined);
 });
 
 test('ogLocale: BCP 47 to OpenGraph', () => {

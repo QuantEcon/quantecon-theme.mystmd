@@ -23,6 +23,7 @@ import { JUPYTER_RENDERERS } from '@myst-theme/jupyter';
 import { LIST_RENDERERS, STDERR_RENDERERS } from './renderers';
 import { Document } from './components/Document';
 import { htmlDir, htmlLang } from './i18n';
+import { normalizeBaseurl } from './seo';
 import type { TemplateOptions } from './types';
 export { AppErrorBoundary as ErrorBoundary } from '@myst-theme/site';
 // Never re-run the loader on a navigation that changes neither pathname nor
@@ -198,7 +199,10 @@ export const links: LinksFunction = () => {
 };
 
 export const loader: LoaderFunction = async ({ request }): Promise<SiteLoader> => {
-  const baseURL = process.env.BASE_URL || undefined;
+  // Normalised here, at the one place the value enters the app: it reaches the
+  // Document's head links and the base-URL provider unchanged, and both join it
+  // to a path that already starts with a slash.
+  const baseURL = normalizeBaseurl(process.env.BASE_URL);
   const [config, themeSession] = await Promise.all([
     getConfig().catch(() => null),
     getThemeSession(request),
