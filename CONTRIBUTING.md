@@ -251,8 +251,9 @@ problem. The existing divergences are the model:
 
 Changing an inherited value for any *other* reason is a two-theme decision, not
 a fix this repo makes alone — it would reintroduce a difference against the live
-sites. Open an issue instead (see #172 for the code palette). When you compute a contrast ratio, composite any `opacity` on the
-element first: the declared colour is not what the reader sees.
+sites. Open an issue instead (see #172 for the code palette). When you compute
+a contrast ratio, composite any `opacity` on the element first: the declared
+colour is not what the reader sees.
 
 ## CI: visual tests and PR previews
 
