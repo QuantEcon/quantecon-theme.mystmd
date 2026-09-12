@@ -78,7 +78,11 @@ export function Toolbar() {
         {/* Portal target for the live-compute toggle (see ComputeToolbarSlot).
             `empty:hidden` keeps it from adding a gap on non-notebook pages. */}
         <li id="qe-compute-slot" className="hidden md:flex items-center empty:hidden" />
-        <li className="hidden md:block">
+        {/* Launch is opt-in, so this slot is empty on any site that configures
+            no notebook repository or service. `empty:hidden` (`.class:empty`,
+            which outranks `md:block` on specificity) keeps it from taking a
+            gap there, as the compute and language slots do. */}
+        <li className="qe-launch-slot hidden md:block empty:hidden">
           <LaunchButton size={iconSize} />
         </li>
         <li className="hidden md:block">

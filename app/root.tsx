@@ -23,6 +23,7 @@ import { JUPYTER_RENDERERS } from '@myst-theme/jupyter';
 import { LIST_RENDERERS, STDERR_RENDERERS } from './renderers';
 import { Document } from './components/Document';
 import { htmlDir, htmlLang } from './i18n';
+import { normalizeBaseurl } from './seo';
 import type { TemplateOptions } from './types';
 export { AppErrorBoundary as ErrorBoundary } from '@myst-theme/site';
 // Never re-run the loader on a navigation that changes neither pathname nor
@@ -163,6 +164,12 @@ const CRITICAL_CSS = `
 
 export const links: LinksFunction = () => {
   return [
+    // The root-absolute fallback. It is wrong on a site served under a
+    // sub-path, where it resolves to the domain root, but it is the only icon
+    // link that also applies when the root ErrorBoundary renders -- that
+    // boundary is upstream's, with upstream's own Document and no base URL.
+    // The local Document emits the base-aware one after this, and a later
+    // `rel="icon"` wins, so only error pages fall back to this.
     {
       rel: 'icon',
       href: '/favicon.ico',
@@ -178,7 +185,10 @@ export const links: LinksFunction = () => {
     ...PTSerifCSS,
     { rel: 'stylesheet', href: tailwind },
     { rel: 'stylesheet', href: thebeCoreCss },
-    { rel: 'stylesheet', href: '/myst-theme.css' },
+    // `/myst-theme.css` (the consumer's own stylesheet slot) is NOT declared
+    // here: its href has to carry the static build's base URL, and `links()`
+    // takes no arguments in Remix 1.17 while BASE_URL reaches the app only
+    // through the root loader. The local Document emits it instead.
     // jupyter-matplotlib's stylesheet is vendored into the Tailwind bundle
     // (styles/mpl-widget.css) rather than linked from jsdelivr here: that
     // would be a render-blocking request to a third-party CDN that is
@@ -189,7 +199,10 @@ export const links: LinksFunction = () => {
 };
 
 export const loader: LoaderFunction = async ({ request }): Promise<SiteLoader> => {
-  const baseURL = process.env.BASE_URL || undefined;
+  // Normalised here, at the one place the value enters the app: it reaches the
+  // Document's head links and the base-URL provider unchanged, and both join it
+  // to a path that already starts with a slash.
+  const baseURL = normalizeBaseurl(process.env.BASE_URL);
   const [config, themeSession] = await Promise.all([
     getConfig().catch(() => null),
     getThemeSession(request),

@@ -21,6 +21,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- A default site footer, so a site that declares no `site.parts.footer` still
+  carries the licence notice and theme credit the Sphinx lecture sites printed
+  on every page: the CC BY-SA 4.0 badge, "Creative Commons License – This work
+  is licensed under a Creative Commons Attribution-ShareAlike 4.0
+  International." and "A theme by QuantEcon". The badge is drawn as an inline
+  SVG, so nothing is fetched from `licensebuttons.net` and there is no
+  root-absolute asset path to 404 on a site served under a sub-path. A site
+  that declares the part replaces the whole default, credit included, which is
+  how a site states other terms
+  ([#203](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/203)).
+- `scripts/rewrite-raw-blocks.mjs`, which rewrites Sphinx `{raw}` directives
+  out of lecture sources: it deletes the notebook logo header in both its
+  `{raw} jupyter` and `{raw} html` forms, turns an Our World in Data chart into
+  the native `{iframe}` directive, and unfences a `colspan`/`rowspan` table so
+  mystmd's HTML transform renders it. Any other `{raw}` block is reported with
+  its file and line and nothing is written. mystmd renders no `raw` node, so
+  until now a block's own source reached the reader as escaped text under the
+  page title. The PR preview runs the script over the lecture content it
+  builds, so previews show post-cutover sources and every theme PR exercises it
+  ([#204](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/204)) ([#222](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/222)).
+- `docs/migrating.md`, a step-by-step checklist for a lecture repository moving
+  off `quantecon-book-theme`. It covers the eleven things the Sphinx build
+  handled another way — three of which the Sphinx theme supplied with no
+  per-repo setup at all — says for each what it replaces and what to set, and
+  carries the table of Sphinx options with no counterpart here, with a reason
+  for each. `myst init` carries none of these across: it never reads
+  `sphinx.config`, where the lecture configs keep them
+  ([#209](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/209)) ([#226](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/226)).
+- A `<link rel="canonical">` on every page, from `site_url`, as the Sphinx
+  lecture sites emit from `html.baseurl`. The home page's canonical is the site
+  root, and every URL takes the trailing-slash form the build actually serves,
+  so no canonical names a redirect. `og:url` is built by the same function, so
+  the two cannot disagree. Nothing is emitted without `site_url`
+  ([#207](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/207)) ([#227](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/227)).
 - The "On this page" outline lists h4 subsections, which the Sphinx panel lists
   and this one left out: a reader inside an h4 saw its h3 marked with nothing
   below it. The panel is now a tree of any depth, and the Sphinx expansion rule
@@ -28,7 +62,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   all its ancestors are open, while only the current entry itself is marked.
   h4 entries are indented one step further than h3s. h5 and deeper are still
   not listed
-  ([#208](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/208)).
+  ([#208](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/208)) ([#228](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/228)).
+
+### Changed
+- **Breaking: the Launch control is now opt-in and explicitly configured.** It
+  renders only when `launch_notebook_repo` names a notebook repository *and*
+  `launch_colab` is true; with either unset there is no control and no gap
+  where it sat. Nothing is derived from `project.github` any more, so a site
+  without a notebooks repository no longer sends readers to a repository whose
+  name was guessed from the source one and may not exist — as
+  `QuantEcon/lecture-wasm.notebooks`, a 404, was on every lecture-wasm page.
+  `launch_repo_url`, `launch_repo_suffix`, `launch_branch`,
+  `launch_notebooks_path` and `launch_source_path` are replaced by
+  `launch_notebook_repo`, `launch_notebook_branch`, `launch_notebook_dir` and
+  `launch_notebook_source_dir`; `launch_repo_suffix` and the `.myst` rule are
+  gone. A site that relied on the guessed repository keeps its Launch link by
+  naming that repository in `launch_notebook_repo` and setting
+  `launch_colab: true`. The flat names are the nested paths these become once
+  mystmd supports structured template options, so that migration is mechanical
+  ([#205](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/205)) ([#224](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/224)).
+
+### Fixed
+- Images in a notebook cell's outputs are centred in the content column, as
+  they are on the Sphinx lecture sites. An inline matplotlib figure is narrower
+  than the column, so it sat against the left edge with all the spare width
+  beside it — 0px to its left and 232px to its right, for a 568px plot in the
+  800px column. Both the stored outputs and the ones re-rendered when a reader
+  starts live compute are covered. Tables and text outputs stay left-aligned
+  ([#206](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/206)) ([#225](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/225)).
+- Head links that assumed the domain root now carry the static build's base
+  URL, so they resolve on a site served under a sub-path instead of 404ing at
+  the domain root: the favicon and `/myst-theme.css`. `og:image` is made
+  absolute against `site_url`, which a social scraper needs
+  ([#207](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/207)) ([#227](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/227)).
 
 ## [2.7.0] - 2026-09-11
 
