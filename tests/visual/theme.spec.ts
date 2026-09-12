@@ -369,18 +369,23 @@ test.describe("On this page outline", () => {
     await page.goto(`${noThebeBase}/outline`, { waitUntil: "domcontentloaded" });
     await settle(page);
     const entries = nav(page).locator("ul a");
-    // Two h2 + two h3 + one h2 = five entries, with the heading's own
+    // Three h2, two h3 and two h4 = seven entries, each with the heading's own
     // enumerator, never a list-index number.
-    await expect(entries).toHaveCount(5);
+    await expect(entries).toHaveCount(7);
     // (`titles: true` numbers nothing on this fixture's pages, so the
     // enumerators are section-only; the lecture repos get "3.1." from the
     // same span.)
     await expect(entries.nth(0)).toHaveText(/^1\. First section$/);
     await expect(entries.nth(1)).toHaveText(/^1\.1\. First subsection$/);
-    await expect(entries.nth(4)).toHaveText(/^3\. Last section$/);
-    // Autoexpand: at the top of the page only the sections show.
-    const subs = nav(page).locator("li.qe-outline__sub a");
-    await expect(subs).toHaveCount(2);
+    await expect(entries.nth(2)).toHaveText(/^1\.1\.1\. A level-four subsection$/);
+    await expect(entries.nth(6)).toHaveText(/^3\. Last section$/);
+    // Autoexpand: at the top of the page only the sections show. Every entry
+    // below the top level carries the sub class -- two h3s and two h4s. The
+    // child combinator matters: `li.qe-outline__sub a` would match an h4's
+    // anchor through its h3 ancestor's li, so the count would hold even if the
+    // h4's own li lost the class, and the indent rule keys on that class.
+    const subs = nav(page).locator("li.qe-outline__sub > a");
+    await expect(subs).toHaveCount(4);
     await expect(subs.first()).toBeHidden();
     // Scrolling into the first section expands its subsections, indented:
     // the anchors are block-level, so compare their start padding.
@@ -391,8 +396,14 @@ test.describe("On this page outline", () => {
     await expect(subs.first()).toBeVisible();
     const pad = async (i: number) =>
       parseFloat(await entries.nth(i).evaluate((a) => getComputedStyle(a).paddingInlineStart));
+    // One indent step per level: h2 < h3 < h4.
     expect(await pad(1)).toBeGreaterThan(await pad(0));
-    expect(await pad(3)).toBe(await pad(0));
+    expect(await pad(2)).toBeGreaterThan(await pad(1));
+    // ...and a later h2 is back at the top level's indent.
+    expect(await pad(5)).toBe(await pad(0));
+    // The h4s stay closed while only their h2 is current: an h3's sub-list
+    // opens when that h3, or one of its own h4s, is current.
+    await expect(entries.nth(2)).toBeHidden();
     // Pinned: the panel's top is the same before and after a long scroll.
     const top = async () => Math.round((await nav(page).boundingBox())!.y);
     const before = await top();
@@ -420,17 +431,37 @@ test.describe("On this page outline", () => {
     await scrollTo("second-section", 100);
     await expect(current(page)).toHaveAttribute("href", /#second-section$/);
     await expect(current(page)).toHaveCSS("font-weight", "600");
-    // ...and the first section's sub-list has collapsed again.
+    // ...and the first section's sub-list, h4s included, has collapsed again.
     await expect(nav(page).locator("li.qe-outline__sub a").first()).toBeHidden();
+    await expect(nav(page).getByRole("link", { name: /A level-four subsection/ })).toBeHidden();
     // 20px short of the line: the previous section (a subsection) still holds.
     await scrollTo("second-section", 140);
     await expect(current(page)).toHaveAttribute("href", /#second-subsection$/);
     await scrollTo("first-subsection", 100);
-    // A current subsection is marked itself; its parent is expanded, not marked.
+    // A current subsection is marked itself; its ancestor is expanded, not
+    // marked. The subsection's own sub-list opens too, so both it and its
+    // parent carry the expanded class -- the rule is "the current entry and
+    // every ancestor of it".
     await expect(current(page)).toHaveAttribute("href", /#first-subsection$/);
-    const parent = nav(page).locator("li.qe-outline__expanded > a");
-    await expect(parent).toHaveAttribute("href", /#first-section$/);
-    await expect(parent).not.toHaveAttribute("aria-current", "location");
+    const expanded = nav(page).locator("li.qe-outline__expanded > a");
+    await expect(expanded).toHaveCount(2);
+    await expect(expanded.nth(0)).toHaveAttribute("href", /#first-section$/);
+    await expect(expanded.nth(1)).toHaveAttribute("href", /#first-subsection$/);
+    await expect(expanded.nth(0)).not.toHaveAttribute("aria-current", "location");
+    // Its h4s are now visible.
+    await expect(nav(page).getByRole("link", { name: /A level-four subsection/ })).toBeVisible();
+
+    // A current h4 is marked itself; its h3 and h2 are expanded, not marked.
+    await scrollTo("a-level-four-subsection", 100);
+    await expect(current(page)).toHaveAttribute("href", /#a-level-four-subsection$/);
+    await expect(current(page)).toHaveCount(1);
+    const openNow = nav(page).locator("li.qe-outline__expanded > a");
+    await expect(openNow).toHaveCount(2);
+    await expect(openNow.nth(0)).toHaveAttribute("href", /#first-section$/);
+    await expect(openNow.nth(1)).toHaveAttribute("href", /#first-subsection$/);
+    for (const i of [0, 1]) {
+      await expect(openNow.nth(i)).not.toHaveAttribute("aria-current", "location");
+    }
     // The last section is too short to reach the activation window; the
     // bottom-of-page rule marks it.
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));

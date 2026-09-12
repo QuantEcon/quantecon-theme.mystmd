@@ -52,10 +52,12 @@ export function BackToTop() {
  *    `sticky`: the wrapper is `self-start`, so a sticky child would have zero
  *    travel, and the grid declares no rows for it to span. `left`/`right` stay
  *    `auto`, so the panel keeps its static position in the margin track.
- *  - h3 entries nest under their h2 and collapse to the active branch: at the
- *    top of the page only the sections show; scrolling into a section expands
- *    its subsections, the current one (section or subsection) is marked, and
- *    the parent of a current subsection is expanded but not marked. Past
+ *  - h2 to h4 nest into a tree of any depth, which collapses to the active
+ *    branch: at the top of the page only the sections show, and a branch opens
+ *    when the current entry is inside it. The rule runs at every level -- the
+ *    current entry's own sub-list and those of all its ancestors are open --
+ *    so a current h3 shows its h4s. Only the current entry is marked, at
+ *    whatever depth it sits; its ancestors are open but unmarked. Past
  *    `max-height` the panel scrolls internally.
  *  - Enumerators come from the heading itself (`span.select-none`, "3.1"),
  *    plus the period the h1 uses -- never a number computed from the list
@@ -71,14 +73,15 @@ export function Outline({
 }) {
   const Link = useLinkProvider();
   const baseurl = useBaseurl();
-  const { headings } = useHeaders('main h2, main h3', 3);
+  // h2 to h4, the depths the Sphinx panel lists. `maxdepth` stays 3 because
+  // upstream renumbers levels from the shallowest heading on the page and keeps
+  // `level < maxdepth + 1`: with an h2 present, an h4 is level 3.
+  const { headings } = useHeaders('main h2, main h3, main h4', 3);
   const currentId = useActiveHeading(headings);
   const tree = nest(headings);
-  // The current item's own sub-list, and every ancestor of the current item,
-  // are expanded; nothing else is.
-  const expandedId = tree.find(
-    (branch) => branch.id === currentId || branch.children.some((c) => c.id === currentId)
-  )?.id;
+  // The current entry's own sub-list and those of all its ancestors are open;
+  // nothing else is.
+  const open = openBranches(tree, currentId);
   return (
     <div className={classNames('relative self-start', containerClassName)}>
       <nav
@@ -88,27 +91,7 @@ export function Outline({
         {headings.length > 0 && (
           <>
             <p className="qe-outline__title">On this page</p>
-            <ul className="qe-outline__list">
-              {tree.map((branch) => (
-                <li
-                  key={`outline-li-${branch.id}`}
-                  className={classNames({
-                    'qe-outline__expanded': branch.children.length > 0 && branch.id === expandedId,
-                  })}
-                >
-                  <Entry heading={branch} currentId={currentId} Link={Link} />
-                  {branch.children.length > 0 && (
-                    <ul>
-                      {branch.children.map((child) => (
-                        <li key={`outline-li-${child.id}`} className="qe-outline__sub">
-                          <Entry heading={child} currentId={currentId} Link={Link} />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <Branches nodes={tree} depth={0} currentId={currentId} open={open} Link={Link} />
           </>
         )}
         <div className="qe-outline__logo">
@@ -134,16 +117,86 @@ export function Outline({
 }
 
 type OutlineHeading = { id: string; title: string; level: number; element: HTMLElement };
-type Branch = OutlineHeading & { children: OutlineHeading[] };
+type Branch = OutlineHeading & { children: Branch[] };
 
-/** h3s under the h2 before them; a leading h3 with no h2 starts its own branch. */
+/**
+ * Nests each heading under the nearest preceding shallower one, to any depth.
+ * A heading with nothing shallower before it starts its own branch, so a page
+ * whose first heading is an h3 still renders.
+ */
 function nest(headings: OutlineHeading[]): Branch[] {
   const tree: Branch[] = [];
+  const ancestors: Branch[] = [];
   for (const h of headings) {
-    if (h.level > 1 && tree.length > 0) tree[tree.length - 1].children.push(h);
-    else tree.push({ ...h, children: [] });
+    const branch: Branch = { ...h, children: [] };
+    while (ancestors.length > 0 && ancestors[ancestors.length - 1].level >= h.level) {
+      ancestors.pop();
+    }
+    if (ancestors.length > 0) ancestors[ancestors.length - 1].children.push(branch);
+    else tree.push(branch);
+    ancestors.push(branch);
   }
   return tree;
+}
+
+/**
+ * The ids whose sub-lists the panel opens: the current entry's and every
+ * ancestor's, which is the rule the Sphinx panel's scrollspy applies at any
+ * depth. Marking is separate -- only the current entry itself is marked.
+ */
+function openBranches(tree: Branch[], currentId?: string): Set<string> {
+  const open = new Set<string>();
+  if (!currentId) return open;
+  const walk = (nodes: Branch[], ancestors: string[]): boolean =>
+    nodes.some((node) => {
+      if (node.id === currentId) {
+        for (const id of [...ancestors, node.id]) open.add(id);
+        return true;
+      }
+      return walk(node.children, [...ancestors, node.id]);
+    });
+  walk(tree, []);
+  return open;
+}
+
+/** One level of the outline; renders its children recursively. */
+function Branches({
+  nodes,
+  depth,
+  currentId,
+  open,
+  Link,
+}: {
+  nodes: Branch[];
+  depth: number;
+  currentId?: string;
+  open: Set<string>;
+  Link: ReturnType<typeof useLinkProvider>;
+}) {
+  return (
+    <ul className={depth === 0 ? 'qe-outline__list' : undefined}>
+      {nodes.map((node) => (
+        <li
+          key={`outline-li-${node.id}`}
+          className={classNames({
+            'qe-outline__sub': depth > 0,
+            'qe-outline__expanded': node.children.length > 0 && open.has(node.id),
+          })}
+        >
+          <Entry heading={node} currentId={currentId} Link={Link} />
+          {node.children.length > 0 && (
+            <Branches
+              nodes={node.children}
+              depth={depth + 1}
+              currentId={currentId}
+              open={open}
+              Link={Link}
+            />
+          )}
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function Entry({

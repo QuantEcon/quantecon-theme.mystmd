@@ -582,6 +582,13 @@
   .qe-outline__sub a {
     padding-inline-start: 1.75rem; /* 0.75rem entry padding + 1rem indent */
   }
+  /* One more step for the level below (h4 under an h3). Keyed on nesting
+     rather than a depth class, so the step applies wherever the tree goes;
+     at (0,2,1) it outranks the single-level rule above. Logical padding, so
+     a right-to-left edition indents from the right. */
+  .qe-outline__sub .qe-outline__sub a {
+    padding-inline-start: 2.75rem; /* a second 1rem step */
+  }
   .qe-outline__list a:hover {
     color: var(--qe-link-color);
   }
