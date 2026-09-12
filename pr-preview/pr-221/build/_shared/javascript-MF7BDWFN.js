@@ -1,1 +1,0 @@
-import{a,b,c,d,e}from"/quantecon-theme.mystmd/pr-preview/pr-221/build/_shared/chunk-H7DON3HC.js";import"/quantecon-theme.mystmd/pr-preview/pr-221/build/_shared/chunk-RAQ24GF6.js";e();export{a as javascript,b as json,c as jsonld,d as typescript};
