@@ -542,14 +542,22 @@ test.describe("Meta/SEO and notebook output", () => {
         right: c.right - i.right,
         imageWidth: i.width,
         containerWidth: c.width,
-        pageOverflows:
-          document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
       };
     });
     expect(box, "the fixture notebook should render an image output").not.toBeNull();
     // Never wider than the column it sits in, at either viewport.
     expect(box!.imageWidth).toBeLessThanOrEqual(box!.containerWidth + 1);
-    expect(box!.pageOverflows).toBe(false);
+    // The same 1px allowance as the gaps below: both widths are integers
+    // rounded from sub-pixel layout, so a page that fits exactly can still
+    // report one more pixel of scrollWidth than clientWidth. The two values are
+    // returned rather than a boolean so a failure names them -- and the sweep
+    // across 1280/1300/1328px in `outline-within-viewport` is what actually
+    // guards page overflow; this is a sanity check on the page holding an image.
+    expect(box!.scrollWidth, "no horizontal page overflow").toBeLessThanOrEqual(
+      box!.clientWidth + 1
+    );
     if (testInfo.project.name === "desktop-chrome") {
       // Desktop has room to spare, so the gaps must match.
       expect(box!.left).toBeGreaterThan(1);
