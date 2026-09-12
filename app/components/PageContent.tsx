@@ -102,7 +102,7 @@ export const PageContent = React.memo(function ({ article }: { article: PageLoad
               <Footnotes innerClassName="col-body" />
               <Bibliography innerClassName="col-body" />
               <ConnectionStatusTray />
-              {projectParts?.footer && <SiteFooter content={projectParts.footer.mdast} />}
+              <SiteFooter content={projectParts?.footer?.mdast} />
               <BackToTop />
             </div>
           </ExecuteScopeProvider>

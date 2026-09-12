@@ -20,6 +20,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- A default site footer, so a site that declares no `site.parts.footer` still
+  carries the licence notice and theme credit the Sphinx lecture sites printed
+  on every page: the CC BY-SA 4.0 badge, "Creative Commons License – This work
+  is licensed under a Creative Commons Attribution-ShareAlike 4.0
+  International." and "A theme by QuantEcon". The badge is drawn as an inline
+  SVG, so nothing is fetched from `licensebuttons.net` and there is no
+  root-absolute asset path to 404 on a site served under a sub-path. A site
+  that declares the part replaces the whole default, credit included, which is
+  how a site states other terms
+  ([#203](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/203)).
+- `scripts/rewrite-raw-blocks.mjs`, which rewrites Sphinx `{raw}` directives
+  out of lecture sources: it deletes the notebook logo header in both its
+  `{raw} jupyter` and `{raw} html` forms, turns an Our World in Data chart into
+  the native `{iframe}` directive, and unfences a `colspan`/`rowspan` table so
+  mystmd's HTML transform renders it. Any other `{raw}` block is reported with
+  its file and line and nothing is written. mystmd renders no `raw` node, so
+  until now a block's own source reached the reader as escaped text under the
+  page title. The PR preview runs the script over the lecture content it
+  builds, so previews show post-cutover sources and every theme PR exercises it
+  ([#204](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/204)) ([#222](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/222)).
+
 ### Changed
 - **Breaking: the Launch control is now opt-in and explicitly configured.** It
   renders only when `launch_notebook_repo` names a notebook repository *and*
@@ -36,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   naming that repository in `launch_notebook_repo` and setting
   `launch_colab: true`. The flat names are the nested paths these become once
   mystmd supports structured template options, so that migration is mechanical
-  ([#205](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/205)).
+  ([#205](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/205)) ([#224](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/224)).
 
 ## [2.7.0] - 2026-09-11
 

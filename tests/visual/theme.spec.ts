@@ -568,6 +568,53 @@ test.describe("Site options reach the theme", () => {
 });
 
 /**
+ * The site footer. The lecture builds print the licence notice and the theme
+ * credit on every page with no condition around them, so the theme renders
+ * them as a default; `site.parts.footer` replaces that default outright, which
+ * is how a site states different terms.
+ *
+ * The main fixture declares the part (its footer.md carries the badge as an
+ * image); `fixture-no-thebe` declares none, so it exercises the default.
+ */
+test.describe("Site footer", () => {
+  const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+  const LICENSE_HREF = "https://creativecommons.org/licenses/by-sa/4.0/";
+  // The default's inline badge, by its own viewBox.
+  const BADGE = 'svg[viewBox="0 0 80 15"]';
+
+  test("default-footer-without-part", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    const footer = page.locator(".qe-site-footer");
+    await expect(footer).toHaveCount(1);
+    await expect(footer).toContainText(
+      "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International."
+    );
+    await expect(footer.locator('a[href="https://quantecon.org"]')).toHaveText("QuantEcon");
+    // The badge is drawn inline: nothing is fetched from licensebuttons.net,
+    // and there is no root-absolute asset path to 404 under a sub-path.
+    const badge = footer.locator(`a[href="${LICENSE_HREF}"] ${BADGE}`);
+    await expect(badge).toHaveCount(1);
+    await expect(badge.locator("title")).toHaveText("Creative Commons License");
+    await expect(footer.locator("img")).toHaveCount(0);
+  });
+
+  test("declared-part-replaces-default", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    const footer = page.locator(".qe-site-footer");
+    await expect(footer).toHaveCount(1);
+    await expect(footer.locator('img[alt="Creative Commons License"]')).toHaveCount(1);
+    // The default renders none of its own markup beside the part's content --
+    // the site's footer.md is the whole footer, credit included. Matched on
+    // the badge itself, not on `svg`: myst-to-react hangs its own external-link
+    // icon off the part's link.
+    await expect(footer.locator(BADGE)).toHaveCount(0);
+    await expect(footer.locator('a[href="https://quantecon.org"]')).toHaveCount(0);
+  });
+});
+
+/**
  * Multilingual editions: the language switcher and hreflang alternates,
  * right-to-left layout and translator credit. The main fixture configures
  * two editions (en current) and a project-level translator with a
