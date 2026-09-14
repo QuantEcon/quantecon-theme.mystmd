@@ -20,6 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- The landing-page `{tableofcontents}` now renders like the lecture builds'
+  toctree instead of a plain bulleted list: section titles as real `<h2>`
+  headings (each with a stable anchor id, so they join the "On this page"
+  outline and can be deep-linked) over bulletless lists of the section's
+  lectures, with every entry labelled "1. Title" — enumerator, period, title.
+  The theme rebuilds the TOC from the site manifest (where the enumerator is
+  a separate field) rather than re-parsing the CLI's baked "1 Title" text,
+  inside a `nav` labelled "Table of contents"
+  (`app/components/ProjectTOC.tsx`, `styles/front-toc.css`).
+
 ## [3.0.0] - 2026-09-12
 
 ### Added

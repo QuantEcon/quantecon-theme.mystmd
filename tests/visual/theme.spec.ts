@@ -833,3 +833,73 @@ test.describe("Multilingual editions", () => {
     });
   });
 });
+
+test.describe("Landing-page table of contents", () => {
+  // The `{tableofcontents}` on the no-thebe fixture's home page, rebuilt from
+  // the site manifest by ProjectTOCBlock (app/components/ProjectTOC.tsx) to
+  // match the lecture builds' toctree: section titles as real headings,
+  // entries as "1. Title", bulletless lists. The no-thebe fixture carries the
+  // numbered, nested toc; the main fixture stays flat and unnumbered.
+  const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+  const toc = (page: Page) => page.getByRole("navigation", { name: "Table of contents" });
+
+  test("front-toc-structure", async ({ page }) => {
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+
+    // The section title is a real <h2> (not the old theme's role="heading"
+    // <p>), with a stable anchor id for the outline and deep links.
+    const caption = toc(page).getByRole("heading", { level: 2 });
+    await expect(caption).toHaveText("Introduction to Python");
+    expect(await caption.evaluate((el) => el.tagName)).toBe("H2");
+    expect(await caption.getAttribute("id")).toBe("introduction-to-python");
+
+    // The section's page carries "enumerator period space title" — the
+    // period is the point: the CLI's own baked list renders "1 Title". The
+    // stray top-level page gets no enumerator from the CLI's numbering, so
+    // it must render as the bare title, never "undefined." or a lone dot.
+    const entries = toc(page).locator("ul a");
+    await expect(entries).toHaveCount(2);
+    await expect(entries.nth(0)).toHaveText(/^1\. Notebook outputs$/);
+    await expect(entries.nth(1)).toHaveText(/^Outline page$/);
+
+    // Never a link to the page the TOC is on.
+    await expect(toc(page).locator('a[href="/"]')).toHaveCount(0);
+
+    // Bulletless, like the lecture builds' `.toctree-wrapper`.
+    await expect(toc(page).locator("ul").first()).toHaveCSS("list-style-type", "none");
+    await expect(toc(page).locator("li").first()).toHaveCSS("list-style-type", "none");
+  });
+
+  test("front-toc-in-outline", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "the margin column is desktop-only");
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    // The real h2 lands in "On this page" — deliberate (see ProjectTOC.tsx) —
+    // and its anchor targets the heading's own id. The panel's hrefs carry
+    // the page path ("/#…"), so match on the fragment.
+    const outline = page.getByRole("navigation", { name: "On this page" });
+    await expect(
+      outline.locator('a[href$="#introduction-to-python"]')
+    ).toHaveText(/Introduction to Python$/);
+  });
+
+  test("front-toc", async ({ page }, testInfo) => {
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    if (testInfo.project.name === "desktop-chrome") {
+      // The outline fills from a throttled mutation observer; pin the capture
+      // to the settled state (TOC section present) or the baseline races it.
+      await expect(
+        page
+          .getByRole("navigation", { name: "On this page" })
+          .locator('a[href$="#introduction-to-python"]')
+      ).toBeVisible();
+    }
+    await expect(page).toHaveScreenshot("front-toc.png", {
+      fullPage: true,
+      maxDiffPixelRatio: 0.01,
+      animations: "disabled",
+    });
+  });
+});

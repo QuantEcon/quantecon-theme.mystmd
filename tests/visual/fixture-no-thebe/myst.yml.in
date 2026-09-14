@@ -14,9 +14,17 @@ project:
     titles: true
     headings: true
     heading_1: false
+  # One captionless section title like the lecture repos, exercised by
+  # intro.md's `{tableofcontents}` and the front-toc tests in theme.spec.ts
+  # (section heading, "1." labels, no bullets, a stray top-level page).
+  # outline.md deliberately stays top-level: nesting it under the section
+  # would switch its heading enumerators to the title-prefixed "2.1." shape
+  # and break outline-pinned-and-nested's section-only expectations.
   toc:
     - file: intro.md
-    - file: notebook.ipynb
+    - title: Introduction to Python
+      children:
+        - file: notebook.ipynb
     - file: outline.md
 site:
   title: QE Theme No-Thebe Fixture

@@ -1,0 +1,65 @@
+/* ---------------------------------------------------------------------------
+   LANDING-PAGE TABLE OF CONTENTS
+
+   Styles the `nav.qe-front-toc` emitted by app/components/ProjectTOC.tsx for
+   the `{tableofcontents}` directive, matching the lecture builds'
+   `.toctree-wrapper` (quantecon-book-theme on top of pydata-sphinx-theme):
+   section captions in serif, bulletless un-indented lists, links at 1.1em,
+   underline on hover only.
+
+   Sizes are `em`, not `rem`, so they track the content size like the heading
+   scale in quantecon.css (UNITS there). Measured on the live
+   python.quantecon.org (2026-09-14): toctree links compute to 19.8px (1.1em
+   of the 18px root) at every depth and captions to 21.6px — 1.1em/1.2em here
+   against the same 18px base lands on the same pixels.
+
+   Selectors are `.article .qe-front-toc ...` (0,2,1)+ to outweigh the content
+   rules they replace: `.article h2` (0,1,1) for the caption, and the
+   typography plugin's `:where(ul)` padding for the lists. Link colour rides
+   the `--qe-link-*` tokens (quantecon.css), which flip to white under `.dark`
+   -- and in dark mode `.dark .article :where(a)` paints these classless
+   anchors white anyway, so no separate dark rules are needed here.
+   --------------------------------------------------------------------------- */
+@layer components {
+  /* Section captions. Real <h2>s, but at the lecture builds' caption scale:
+     1.2em (21.6px) -- the h4 step of the heading scale -- instead of the
+     article h2's 1.7em. PT Serif at its real 400 face; margins tightened so
+     the list hugs its caption (1em above, from the builds' UA-default <p>). */
+  .article .qe-front-toc h2 {
+    font-size: 1.2em; /* 21.6px */
+    font-weight: normal;
+    margin: 1em 0 0;
+  }
+
+  /* Bulletless lists: no markers at any depth, no indent on the top level,
+     1.5em per nested level (logical, so the RTL builds mirror it). */
+  .article .qe-front-toc ul {
+    list-style: none;
+    padding-inline-start: 0;
+  }
+
+  .article .qe-front-toc ul ul {
+    padding-inline-start: 1.5em;
+  }
+
+  /* The lecture builds' item rhythm: 0.5rem above, 0.2em below. */
+  .article .qe-front-toc li {
+    margin: 0.5rem 0 0.2em;
+  }
+
+  /* Links at 1.1em (19.8px), every depth, as the lecture builds render.
+     Colour through the tokens; underline only on hover/keyboard focus,
+     drawn in the link's own colour. */
+  .article .qe-front-toc a {
+    font-size: 1.1em;
+    color: var(--qe-link-color, #0072bc);
+    text-decoration: none;
+  }
+
+  .article .qe-front-toc a:hover,
+  .article .qe-front-toc a:focus-visible {
+    color: var(--qe-link-hover-color, #004979);
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+  }
+}
