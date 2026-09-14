@@ -26,7 +26,7 @@ Every theme option lives under `site.options` and is listed in
 | --- | --- |
 | [migrating](migrating.md) | moving a lecture repo off `quantecon-book-theme`, step by step |
 | [configuration](configuration.md) | every `site.options` key, its scope and its default |
-| [layout](layout.md) | header, contents drawer, "On this page" panel, back-to-top, footer |
+| [layout](layout.md) | header, contents drawer, "On this page" panel, landing-page table of contents, back-to-top, footer |
 | [authors](authors.md) | author line and translator credit |
 | [launch](launch.md) | notebook launch buttons (Colab) and the notebook repo conventions |
 | [notebooks](notebooks.md) | notebook output rendering, live compute, collapsible stderr |

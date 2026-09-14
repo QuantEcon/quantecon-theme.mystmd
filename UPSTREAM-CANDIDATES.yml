@@ -138,7 +138,7 @@ upstream_candidates:
     status: pending
     target: jupyter-book/myst-theme
     provenance:
-      - local_pr: null
+      - local_pr: 240
         note: Landing-page TOC parity with the Sphinx lecture sites.
     upstream:
       pr: null

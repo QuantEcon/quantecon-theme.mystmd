@@ -40,6 +40,21 @@ into one, its subsections then expand, and an h3's h4s expand once that h3 or
 one of those h4s is current. Ancestors of the current entry are expanded but
 not marked — exactly one entry is marked at a time.
 
+On a landing page that carries a `{tableofcontents}` directive, the TOC's
+section titles are headings too, so they are listed here and can be linked to
+by fragment.
+
+## Landing-page table of contents
+
+The `{tableofcontents}` directive renders as the Sphinx lecture sites render
+their toctree: each section title from `project.toc` as a heading over a
+bulletless list of its lectures, every entry labelled with its number and a
+period ("1. About These Lectures") when `numbering.titles` is on, and the bare
+title otherwise. The landing page itself is never listed. The theme builds the
+list from the site manifest rather than the directive's output, so a lecture
+whose title starts with a number is left alone. The whole block is a `nav`
+labelled "Table of contents".
+
 ## Back to top
 
 A "↑ Top" link in the margin column, visible after 80px of scrolling, as a plain

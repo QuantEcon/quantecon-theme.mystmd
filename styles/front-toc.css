@@ -42,9 +42,13 @@
     padding-inline-start: 1.5em;
   }
 
-  /* The lecture builds' item rhythm: 0.5rem above, 0.2em below. */
+  /* The lecture builds' item rhythm: 9px above (their 0.5rem of an 18px
+     root, so 0.5em of the 18px content here, not 0.5rem of this 16px root),
+     0.2em below. The typography plugin pads every `li` by 0.375em; the
+     builds' items sit flush, so that goes too. */
   .article .qe-front-toc li {
-    margin: 0.5rem 0 0.2em;
+    margin: 0.5em 0 0.2em;
+    padding-inline-start: 0;
   }
 
   /* Links at 1.1em (19.8px), every depth, as the lecture builds render.
