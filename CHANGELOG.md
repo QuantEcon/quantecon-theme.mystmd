@@ -20,6 +20,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Code blocks render their source at 16px with a 20px line, up from the 13px
+  / 17px they inherited, against the 18px prose. The 13px was JupyterLab's
+  default, not a theme decision: an element rule in `thebe-core.css` applied it
+  to every `<pre>`, outranking the `text-sm` on the block's wrapper. The value
+  now goes on the same JupyterLab variables, scoped to the content, so the
+  source block, the output Jupyter renders itself under live compute and the
+  spacing thebe derives from them all follow it, and code does not change size
+  when a reader switches live compute on. Stored cell outputs take the same
+  16px / 20px, from 14px / 20px. The frame is unchanged: executable cells keep
+  their left rule, plain fences and `{code-block}` directives keep upstream's
+  fill and shadow ([#177](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/177)) ([#184](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/184)).
+- Admonition, exercise, proof and dropdown bodies render at 16px, a step below
+  the 18px prose, as the Sphinx lecture sites' `.admonition { font-size: .9rem
+  }` does; until now nothing sized a callout and every family inherited the
+  full 18px. Root-relative, so a note nested in an exercise stays at 16px
+  rather than stepping down twice, and flat at every width where the Sphinx
+  rule falls to 14.4px below 992px. Callout titles take the container's size;
+  their weight is unchanged ([#178](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/178)) ([#185](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/185)).
+- Content links keep their resting underline, now one solid line on plain
+  links and cross-references alike. Upstream dotted the cross-reference
+  underline to mark a hover-preview card, and which entries in a list were
+  dotted followed which target pages carried a thumbnail image. The underline
+  stays at rest where the Sphinx sites show it on hover only, because colour
+  cannot mark a link on these grounds: 2.02:1 against the body text in light
+  mode and 1.49:1 in dark, against the 3:1 WCAG 1.4.1 asks of a colour-only
+  cue. `:visited` is still unstyled; its dark value waits on the dark palette
+  decision ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)).
+
+### Fixed
+- The site footer's text and links clear WCAG AA in both modes once its 70%
+  opacity is composited. Light-mode text at `#444` landed at 4.17:1 on white
+  and links at `#0072bc` at 3.01:1; dark-mode text at `#a6a6a6` landed at
+  3.92:1 on the `#222` panel. They are now `#3b3b3b` (4.54:1), `#00436f`
+  (4.55:1) and `#b5b5b5` (4.55:1); the fade, the badge, the 5px rule and the
+  dark link colour are unchanged. The default footer's "A theme by QuantEcon"
+  link puts link text on every page that declares no footer part, so the link
+  figure applies to every site ([#201](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/201)).
+
 ## [3.0.0] - 2026-09-12
 
 ### Added

@@ -31,6 +31,7 @@ Every theme option lives under `site.options` and is listed in
 | [launch](launch.md) | notebook launch buttons (Colab) and the notebook repo conventions |
 | [notebooks](notebooks.md) | notebook output rendering, live compute, collapsible stderr |
 | [git-metadata](git-metadata.md) | "Last changed" and the inline changelog |
+| [typography](typography.md) | content size, code blocks, callouts and links |
 | [code-highlighting](code-highlighting.md) | the code token palette |
 | [text-color-schemes](text-color-schemes.md) | emphasis, strong and definition colours |
 | [dark-mode](dark-mode.md) | the dark theme and its tokens |
