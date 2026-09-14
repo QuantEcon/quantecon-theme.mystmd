@@ -382,37 +382,32 @@
    CONTENT LINKS
 
    myst-to-react colours content anchors through two classes: `.link` (plain
-   links) and `.hover-link` (cross-references, citations, footnotes). Upstream
-   defines both in `@myst-theme/styles` as blue-700/blue-400 with blue
-   decoration colours, underlined at rest, and dots the `.hover-link`
-   underline. These rules re-colour the classes to QuantEcon blue (the
-   `--qe-link-*` tokens) and draw one solid resting underline on both.
-
-   The underline stays at rest, where the lecture builds show it on hover
-   only, because colour alone cannot mark a link here. A link colour has to
-   clear 4.5:1 against the ground to read as text and 3:1 against the body
-   text to be findable without another cue (WCAG 1.4.1, technique G183); on
-   white against #44403c, and on #222 against #d6d3d1, no colour does both,
-   and the ones that ship are 2.02:1 and 1.49:1 against the body text. The
-   underline is the non-colour cue, so it cannot be hover-only.
-
-   Solid on `.hover-link` as well. Upstream's dots mark a link that opens a
-   hover-preview card, and myst-to-react decides that per target page by
-   whether it has a description or a thumbnail. The lecture pages carry no
-   descriptions, so which entries in one list were dotted followed which
-   lectures happened to have a thumbnail image -- a difference the reader
-   cannot account for, and one that flips when a thumbnail is added.
+   links) and `.hover-link` (cross-references, citations, footnotes, and any
+   link that opens a hover preview). Upstream defines both in
+   `@myst-theme/styles` as blue-700/blue-400, underlined at rest, with
+   `.hover-link`'s underline dotted. These rules re-colour them to QuantEcon
+   blue (the `--qe-link-*` tokens) and take the resting underline away, so
+   content links read as the lecture builds' do: no underline until hover or
+   keyboard focus, then a solid one in the link's own colour.
 
    Specificity is matched to the upstream rules this overrides, with source
    order breaking each tie (this file is @import-ed after `@myst-theme/styles`,
    see styles/app.css):
 
-     - `.link` here (0,1,0) ties upstream `.link` -- wins on order.
-     - `.hover-link` here (0,1,0) ties upstream's dotted `.hover-link` -- wins
-       on order.
-     - `.link:hover` (0,2,0) ties upstream's compiled `hover:` utility.
+     - `.link` here (0,1,0) ties upstream `.link` -- wins on order. It also
+       ties `.hover-link, .hover-text { text-decoration-style: dotted }`,
+       which is why `solid` is restated below rather than assumed.
+     - `.link:hover` (0,2,0) ties upstream's compiled `hover:` utility. It has
+       to carry `text-decoration-line` itself: the plugin's hover underline
+       (`.article :where(a):hover`) is only (0,1,0), so the `none` below --
+       later in the sheet at the same weight -- would otherwise win in every
+       state.
      - `.dark :is(...)` (0,2,0) ties upstream's `dark:` -> `.link:is(.dark *)`.
      - `.dark :is(...):hover` (0,3,0) ties `.link:hover:is(.dark *)`.
+
+   The dark rules stay colour-only: nothing under `.dark` declares
+   `text-decoration-line`, so the none/underline pair set here carries through
+   both themes unchanged.
 
    `text-decoration-color: currentColor` replaces upstream's separate blue
    decoration utilities in one declaration per rule -- the underline always
@@ -427,15 +422,25 @@
   .link,
   .hover-link {
     color: var(--qe-link-color, #0072bc);
-    text-decoration-line: underline;
-    text-decoration-style: solid;
     text-decoration-color: currentColor;
+    text-decoration-line: none;
+    /* Restated rather than inherited: upstream's dotted rule for `.hover-link`
+       is (0,1,0) too, and would otherwise pick the style of the underline the
+       hover rule below draws. */
+    text-decoration-style: solid;
   }
 
+  /* Keyboard focus carries the same cue as the pointer. Without it a keyboard
+     reader has colour alone to go on, and #0072bc against the #44403c prose is
+     2.02:1 -- short of the 3:1 WCAG 1.4.1 asks of a colour-only distinction
+     (the underline on hover/focus is the other half of technique G183). */
   .link:hover,
-  .hover-link:hover {
+  .hover-link:hover,
+  .link:focus-visible,
+  .hover-link:focus-visible {
     color: var(--qe-link-hover-color, #004979);
     text-decoration-color: currentColor;
+    text-decoration-line: underline;
   }
 
   /* Dark mode needs its own rules despite the tokens flipping under `.dark`:
@@ -445,6 +450,97 @@
   .dark :is(.link, .hover-link):hover {
     color: var(--qe-link-color);
     text-decoration-color: currentColor;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   HOVER-PREVIEW AFFORDANCE
+
+   `.hover-link` is what myst-to-react hangs on every link that opens a hover
+   popover: links to other lectures and to Wikipedia (a card with a thumbnail
+   and summary), cross-references (an excerpt of the target), citations and
+   footnotes. With the resting underline gone these are indistinguishable from
+   a plain `.link`, so they carry a small stacked-squares glyph after the label
+   -- the affordance upstream already gives external links through
+   `.link-icon`, at its size, gap and opacity.
+
+   Footnote markers are a `<sup class="hover-link">` rather than an anchor, so
+   keying on `a.hover-link` passes over them; citations are opted out below.
+   The `:has()` guard mirrors upstream's own, keeping the icon off links that
+   wrap an image instead of text.
+
+   Two constraints decide how it is built, and they pull against each other.
+
+   `content` is U+2060 WORD JOINER and the glyph is painted into
+   `padding-inline-start`, rather than the obvious inline-block box. A box is
+   an atomic inline, which UAX #14 treats as a break opportunity, and the icon
+   then strands itself on a line of its own whenever the label's last word
+   lands near the column edge -- 31 of 61 label lengths in a 300px column, in
+   both Chromium and WebKit. A word joiner forbids the break on both sides, so
+   the icon always travels with the last word. Upstream's `.link-icon` has the
+   fault this avoids: its `whitespace-nowrap` wrapper does not prevent it.
+
+   The glyph is then a `background-image` in three pre-coloured copies, not
+   one `currentColor` fill behind a `mask-image`. The mask is the tidier
+   construction -- one image, colour tracked for free -- but WebKit does not
+   render a mask on a non-replaced *inline* box: it paints the whole padding
+   box and knocks the glyph out of it, a solid rectangle where the icon should
+   be. (Chromium renders it correctly; WebKit renders the same mask correctly
+   on an `inline-block`, which is the display this cannot use.) Neither
+   `mask-mode: alpha`, `-webkit-mask-source-type`, `mask-clip` nor a
+   white-stroked source changes it. A `background-image` renders correctly on
+   an inline box in both engines, at the cost of baking the colour in -- hence
+   the three copies below, one per state the link can be in.
+
+   A data URI also has no path to rewrite, so the icon survives
+   `myst build --html`: mystmd's static rewriter handles `.html`, `.js` and
+   `.json` and never rewrites `url()` inside a stylesheet. */
+@layer components {
+  a.hover-link:not(:has(img, figure, picture, video))::after {
+    /* heroicons 24/outline `Square2Stack`, stroked in the three link colours:
+       the `--qe-link-*` tokens' light values and the white both of them take
+       under `.dark`. Declared here rather than with the other design tokens
+       so the whole affordance stays in one place. The names say what the
+       glyph is for, not what it depicts, so swapping it is three URLs. */
+    --qe-preview-icon-rest: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%230072bc'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6'/%3E%3C/svg%3E");
+    --qe-preview-icon-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23004979'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6'/%3E%3C/svg%3E");
+    --qe-preview-icon-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6'/%3E%3C/svg%3E");
+    content: '\2060';
+    display: inline;
+    /* Upstream's geometry: a 0.85em glyph behind a 0.125rem gap. `em` for the
+       glyph so it tracks the content size, `rem` for the gap because that is
+       what `.link-icon`'s `ml-0.5` resolves to. */
+    padding-inline-start: calc(0.85em + 0.125rem);
+    opacity: 0.8;
+    background-image: var(--qe-preview-icon-rest);
+    background-repeat: no-repeat;
+    /* The glyph sits at the far end of the padding, leaving the gap next to
+       the label. Mirrored for right-to-left in styles/rtl.css. */
+    background-position: right center;
+    background-size: 0.85em 0.85em;
+  }
+
+  /* (0,2,1), which outranks the (0,1,2) base rule above. */
+  a.hover-link:hover::after,
+  a.hover-link:focus-visible::after {
+    background-image: var(--qe-preview-icon-active);
+  }
+
+  /* Both dark states are white, because `--qe-link-color` and
+     `--qe-link-hover-color` both are. The first selector ties the hover rule
+     above at (0,2,1) and wins on order; the other two settle it outright.
+     None of them declares `content`, so a link the base rule passed over --
+     one wrapping an image -- still generates no pseudo-element here. */
+  .dark a.hover-link::after,
+  .dark a.hover-link:hover::after,
+  .dark a.hover-link:focus-visible::after {
+    background-image: var(--qe-preview-icon-dark);
+  }
+
+  /* Citations render `<cite><a class="hover-link">`, where the label is
+     already a bracketed marker and the popover is the bibliography entry. */
+  cite a.hover-link::after {
+    content: none;
   }
 }
 
