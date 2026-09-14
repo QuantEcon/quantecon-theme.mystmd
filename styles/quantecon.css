@@ -398,10 +398,11 @@
        ties `.hover-link, .hover-text { text-decoration-style: dotted }`,
        which is why `solid` is restated below rather than assumed.
      - `.link:hover` (0,2,0) ties upstream's compiled `hover:` utility. It has
-       to carry `text-decoration-line` itself: the plugin's hover underline
-       (`.article :where(a):hover`) is only (0,1,0), so the `none` below --
-       later in the sheet at the same weight -- would otherwise win in every
-       state.
+       to carry `text-decoration-line` itself: this file's own hover
+       underline (`.article :where(a):hover`, also (0,2,0)) sits in
+       `@layer base`, and the `none` below is in `@layer components`, which
+       wins whatever the specificity -- so without it no state would
+       underline. `:focus-visible` has no base-layer counterpart at all.
      - `.dark :is(...)` (0,2,0) ties upstream's `dark:` -> `.link:is(.dark *)`.
      - `.dark :is(...):hover` (0,3,0) ties `.link:hover:is(.dark *)`.
 
