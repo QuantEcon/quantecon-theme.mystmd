@@ -384,30 +384,51 @@
    myst-to-react colours content anchors through two classes: `.link` (plain
    links) and `.hover-link` (cross-references, citations, footnotes). Upstream
    defines both in `@myst-theme/styles` as blue-700/blue-400 with blue
-   decoration colours. These rules re-colour the classes to QuantEcon blue
-   (the `--qe-link-*` tokens) -- colour only. The underline itself
-   (always-on, dotted for `.hover-link`) is left as upstream ships it.
+   decoration colours, underlined at rest, and dots the `.hover-link`
+   underline. These rules re-colour the classes to QuantEcon blue (the
+   `--qe-link-*` tokens) and draw one solid resting underline on both.
+
+   The underline stays at rest, where the lecture builds show it on hover
+   only, because colour alone cannot mark a link here. A link colour has to
+   clear 4.5:1 against the ground to read as text and 3:1 against the body
+   text to be findable without another cue (WCAG 1.4.1, technique G183); on
+   white against #44403c, and on #222 against #d6d3d1, no colour does both,
+   and the ones that ship are 2.02:1 and 1.49:1 against the body text. The
+   underline is the non-colour cue, so it cannot be hover-only.
+
+   Solid on `.hover-link` as well. Upstream's dots mark a link that opens a
+   hover-preview card, and myst-to-react decides that per target page by
+   whether it has a description or a thumbnail. The lecture pages carry no
+   descriptions, so which entries in one list were dotted followed which
+   lectures happened to have a thumbnail image -- a difference the reader
+   cannot account for, and one that flips when a thumbnail is added.
 
    Specificity is matched to the upstream rules this overrides, with source
    order breaking each tie (this file is @import-ed after `@myst-theme/styles`,
    see styles/app.css):
 
      - `.link` here (0,1,0) ties upstream `.link` -- wins on order.
+     - `.hover-link` here (0,1,0) ties upstream's dotted `.hover-link` -- wins
+       on order.
      - `.link:hover` (0,2,0) ties upstream's compiled `hover:` utility.
      - `.dark :is(...)` (0,2,0) ties upstream's `dark:` -> `.link:is(.dark *)`.
      - `.dark :is(...):hover` (0,3,0) ties `.link:hover:is(.dark *)`.
 
    `text-decoration-color: currentColor` replaces upstream's separate blue
    decoration utilities in one declaration per rule -- the underline always
-   draws in the link's own colour.
+   draws in the link's own colour. Thickness and offset stay upstream's
+   (0.1em and 0.15em).
 
-   Two deliberate divergences from the lecture builds, so they are not "fixed"
-   later: they underline on hover only, where these underline always, and they
-   colour `:visited` links #004979, which these leave alone. */
+   One deliberate divergence from the lecture builds remains, so it is not
+   "fixed" later: they colour `:visited` links #004979, which these leave
+   alone. A visited colour is a light and a dark value together, and the dark
+   half waits on the dark palette decision (#237). */
 @layer components {
   .link,
   .hover-link {
     color: var(--qe-link-color, #0072bc);
+    text-decoration-line: underline;
+    text-decoration-style: solid;
     text-decoration-color: currentColor;
   }
 
@@ -428,6 +449,78 @@
 }
 
 /* ---------------------------------------------------------------------------
+   CODE BLOCKS
+
+   Source at 1rem (16px) with a 1.25 line-height (20px), against the 18px
+   prose. The lecture builds render code at .9rem of their 18px root, 16.2px,
+   with `line-height: 125%`; 1rem is the call the inline literals above make
+   for the same Sphinx quantity, so the whole code column sits on one size.
+   Upstream leaves the `<pre>` at 13px / 17px, and that is JupyterLab's
+   default rather than a myst-theme decision: `thebe-core.css` (loaded after
+   the Tailwind bundle, see app/root.tsx) declares `--jp-code-font-size: 13px`
+   on `:root` and applies it through an element rule, `tt, code, kbd, samp,
+   pre`, at (0,0,1) -- on the `<pre>` itself, so it outranks anything the
+   `text-sm` on the `.myst-code` wrapper could pass down by inheritance.
+
+   The value goes on the variables, not on a `pre` rule, and on `.article`
+   rather than `:root`: a custom property set on a descendant beats the one
+   thebe sets on `:root` whatever the stylesheet order, and every consumer of
+   the variable inside the content follows it -- the source block, the output
+   Jupyter renders itself once a reader starts live compute (the same
+   variable sizes it), and the two `calc()`s thebe derives from it -- so code
+   does not change size when the live-compute toggle is switched on.
+
+   The stored outputs are the one surface the variable does not reach:
+   `@myst-theme/jupyter` renders them in a `div` carrying `font-mono text-sm`
+   (14px / 20px), so they take their own rule, at (0,2,0) to beat the
+   utilities. The families are left as they come -- thebe's stack on the
+   source, Tailwind's on the outputs. */
+@layer components {
+  .article {
+    --jp-code-font-size: 1rem; /* 16px */
+    --jp-code-line-height: 1.25; /* 20px */
+  }
+
+  .article .myst-jp-safe-output-text {
+    font-size: 1rem; /* 16px */
+    line-height: 1.25; /* 20px */
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   CALLOUTS
+
+   Admonition, exercise, proof and dropdown bodies at 1rem (16px), a step
+   below the 18px prose they interrupt. The lecture builds size every
+   `.admonition` at .9rem of their 18px root, 16.2px, so an aside reads as
+   subordinate to the copy around it by size; without this rule nothing here
+   sizes a callout at all, and every family inherits `.article`'s 18px.
+
+   Root-relative on purpose, like the inline literals: `em` off `.article`
+   would compound, and a `{note}` inside an `{exercise}` -- common in the
+   lectures -- would land at 0.9 x 0.9 x 18px. Flat, per the UNITS note: the
+   Sphinx rule falls to 14.4px below 992px, on exercise and solution text,
+   and this does not.
+
+   The headers take the container's size, as the Sphinx titles do (its
+   stylesheet sets no size on `.admonition-title`). Exercise and proof
+   headers already inherit -- myst-to-react gives them `text-md`, a class
+   Tailwind does not define -- but the admonition and dropdown headers carry
+   `text-lg`, a root-relative 18px, so they need `1em` here, at (0,2,0) to
+   beat the utility. Weight (upstream's `font-medium`) is left as it is.
+   Margin and sidebar asides (`.myst-aside`) are not callouts and stay at
+   upstream's `text-sm`. */
+@layer components {
+  .article :is(.myst-admonition, .myst-exercise, .myst-proof, .myst-dropdown) {
+    font-size: 1rem; /* 16px */
+  }
+
+  .article :is(.myst-admonition-header, .myst-dropdown-header) {
+    font-size: 1em; /* the container's 16px, not `text-lg`'s 18px */
+  }
+}
+
+/* ---------------------------------------------------------------------------
    SITE FOOTER
 
    The footer part (`site.parts.footer`) renders *inside* `.article`, so it
@@ -436,10 +529,12 @@
    page chrome.
 
    Selectors are `.article .qe-site-footer`, (0,2,0), on purpose. At (0,1,0) a
-   bare `.qe-site-footer` loses to the utilities already on the element
-   (`text-qetext-light`, `text-opacity-80`, and `.link` on the badge anchor),
-   because utilities are emitted after components. The extra `.article` wins on
-   specificity instead of relying on source order.
+   bare `.qe-site-footer` would lose to utilities of the same weight emitted
+   later -- the grid utilities on the element, and `.link` on the badge anchor
+   of a site's own footer.md -- because utilities are emitted after
+   components. The extra `.article` wins on specificity instead of relying on
+   source order. The element carries no colour utility: both modes' colours
+   are set here, so the composited contrast noted on each is the whole story.
    --------------------------------------------------------------------------- */
 @layer components {
   .article .qe-site-footer {
@@ -449,10 +544,11 @@
        root. */
     font-size: 0.9rem; /* 14.4px */
     line-height: 1.5; /* 21.6px */
-    /* This overrides the element's `text-qetext-light text-opacity-80`
-       utilities outright, so that 80% no longer applies; the `opacity: 0.7`
-       below is what fades the footer. */
-    color: #444;
+    /* #3b3b3b, not the lecture builds' #444: what the reader sees is the
+       colour composited at the 70% opacity below, and #444 lands at #7c7c7c
+       on white, 4.17:1 -- under the 4.5:1 floor for 14.4px text. #3b3b3b
+       composites to #767676, 4.54:1. */
+    color: #3b3b3b;
     /* The 36px gap above the rule is padding, not margin: `styles/app.css` sets
        `margin-top: 0 !important` on every `.simple-center-grid > *`, and this
        footer is a direct child of that grid. */
@@ -462,11 +558,18 @@
        extend the document. */
     padding-bottom: 2.5em; /* 36px */
     /* 0.7 is the lecture footer's own opacity, on the whole element, so the
-       rule, badge and text fade together: the colours above are declared at
-       full strength and render softer here (the #0072bc rule samples as about
-       rgb(75 155 207) on white). Declaring the faded colours directly would
-       not reproduce it -- the badge image fades too. */
+       rule, badge and text fade together: the colours here are declared at
+       full strength and render softer (the #0072bc rule samples as about
+       rgb(77 156 208) on white). Declaring the faded colours directly would
+       not reproduce it -- the badge fades too. */
     opacity: 0.7;
+  }
+
+  /* Dark mode. #a6a6a6, the toolbar's muted text, composites to #7e7e7e on
+     the #222 content panel at the footer's opacity, 3.92:1; #b5b5b5 lands at
+     #898989, 4.55:1. */
+  .dark .article .qe-site-footer {
+    color: #b5b5b5;
   }
 
   .article .qe-site-footer p {
@@ -474,7 +577,11 @@
   }
 
   .article .qe-site-footer a {
-    color: #0072bc; /* rgb(0 114 188), the same blue as the rule above */
+    /* #0072bc's hue and saturation, darkened until the composited link clears
+       AA: at the footer's opacity #0072bc itself lands at #4d9cd0 on white,
+       3.01:1, and #00436f at #4d7b9a, 4.55:1. The 5px rule above keeps
+       #0072bc; a non-text rule has no 4.5:1 floor. */
+    color: #00436f;
     text-decoration: none;
   }
 

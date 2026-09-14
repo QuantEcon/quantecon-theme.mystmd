@@ -716,6 +716,156 @@ test.describe("Site footer", () => {
     await expect(footer.locator(BADGE)).toHaveCount(0);
     await expect(footer.locator('a[href="https://quantecon.org"]')).toHaveCount(0);
   });
+
+  // What the reader sees is the declared colour composited at the footer's
+  // opacity on the panel behind it, so that is what is measured, in both
+  // modes: 4.5:1, the floor for the footer's 14.4px normal-weight text. The
+  // declared values alone would pass and mislead.
+  test("footer-contrast", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(`${noThebeBase}/`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const measure = () =>
+      page.evaluate(() => {
+        const parse = (c: string) => {
+          const m = c.match(/rgba?\(([^)]+)\)/)!;
+          const [r, g, b, a = "1"] = m[1].split(/[\s,/]+/).filter(Boolean);
+          return { rgb: [Number(r), Number(g), Number(b)], a: Number(a) };
+        };
+        const footer = document.querySelector(".qe-site-footer") as HTMLElement;
+        const link = footer.querySelector('a[href="https://quantecon.org"]') as HTMLElement;
+        // The nearest painted ancestor is the ground the fade composites onto.
+        let ground = [255, 255, 255];
+        for (let el = footer.parentElement; el; el = el.parentElement) {
+          const bg = parse(getComputedStyle(el).backgroundColor);
+          if (bg.a > 0) {
+            ground = bg.rgb;
+            break;
+          }
+        }
+        const opacity = Number(getComputedStyle(footer).opacity);
+        const lum = (rgb: number[]) => {
+          const f = (c: number) => {
+            const s = c / 255;
+            return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+          };
+          return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+        };
+        const contrast = (colour: string) => {
+          const fg = parse(colour).rgb.map((c, i) =>
+            Math.round(opacity * c + (1 - opacity) * ground[i])
+          );
+          const [hi, lo] = [lum(fg), lum(ground)].sort((x, y) => y - x);
+          return (hi + 0.05) / (lo + 0.05);
+        };
+        return {
+          opacity,
+          text: contrast(getComputedStyle(footer).color),
+          link: contrast(getComputedStyle(link).color),
+        };
+      });
+    const light = await measure();
+    expect(light.opacity).toBeCloseTo(0.7, 5);
+    expect(light.text, "light text, composited").toBeGreaterThanOrEqual(4.5);
+    expect(light.link, "light link, composited").toBeGreaterThanOrEqual(4.5);
+    await page.evaluate(() => document.documentElement.classList.add("dark"));
+    const dark = await measure();
+    expect(dark.text, "dark text, composited").toBeGreaterThanOrEqual(4.5);
+    expect(dark.link, "dark link, composited").toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+/**
+ * Content typography set against the 18px prose: code at 16px / 20px on
+ * source and stored output alike, callout bodies at 16px with no compounding
+ * when nested, and one solid resting underline on both content-link classes.
+ * Computed styles rather than pixels: each of these sits inside the 1%
+ * snapshot budget.
+ */
+test.describe("Content typography", () => {
+  const size = (page: Page, selector: string) =>
+    page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return null;
+      const s = getComputedStyle(el);
+      return { fontSize: s.fontSize, lineHeight: s.lineHeight };
+    }, selector);
+
+  test("code-block-size", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    // A plain fence takes the non-executable branch, with no border class.
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const fence = await size(page, ".myst-code:not(.border-l-blue-400) pre");
+    expect(fence, "features.md renders a plain fence").not.toBeNull();
+    expect(fence).toEqual({ fontSize: "16px", lineHeight: "20px" });
+    // A notebook cell takes the executable branch; its stored text output is
+    // rendered by @myst-theme/jupyter in a div of its own.
+    await page.goto("/notebook", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const cell = await size(page, ".myst-code.border-l-blue-400 pre");
+    expect(cell, "the fixture notebook renders an executable cell").not.toBeNull();
+    expect(cell).toEqual({ fontSize: "16px", lineHeight: "20px" });
+    const output = await size(page, ".myst-jp-safe-output-text");
+    expect(output, "the fixture notebook renders a text output").not.toBeNull();
+    expect(output).toEqual({ fontSize: "16px", lineHeight: "20px" });
+  });
+
+  test("callout-size", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    expect((await size(page, ".article"))?.fontSize, "prose").toBe("18px");
+    // Admonition and exercise bodies and headers, and the note nested in the
+    // exercise, which must not step down a second time.
+    for (const sel of [
+      ".myst-admonition",
+      ".myst-admonition-header",
+      ".myst-exercise",
+      ".myst-exercise-header",
+      ".myst-exercise .myst-admonition",
+      ".myst-exercise .myst-admonition-header",
+    ]) {
+      const s = await size(page, sel);
+      expect(s, sel).not.toBeNull();
+      expect(s!.fontSize, sel).toBe("16px");
+    }
+    await page.goto("/lists", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    for (const sel of [".myst-proof", ".myst-proof-header"]) {
+      const s = await size(page, sel);
+      expect(s, sel).not.toBeNull();
+      expect(s!.fontSize, sel).toBe("16px");
+    }
+  });
+
+  test("link-underline-solid", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const decoration = (selector: string) =>
+      page.evaluate((sel) => {
+        const a = document.querySelector(sel);
+        if (!a) return null;
+        const s = getComputedStyle(a);
+        return {
+          line: s.textDecorationLine,
+          style: s.textDecorationStyle,
+          color: s.color,
+          decorationColor: s.textDecorationColor,
+        };
+      }, selector);
+    // intro.md: a cross-reference (`.hover-link`, which upstream dots) and an
+    // external link (`.link`) in the same section.
+    for (const sel of [".article a.hover-link", ".article a.link"]) {
+      const d = await decoration(sel);
+      expect(d, sel).not.toBeNull();
+      expect(d!.line, sel).toBe("underline");
+      expect(d!.style, sel).toBe("solid");
+      expect(d!.color, sel).toBe("rgb(0, 114, 188)");
+      expect(d!.decorationColor, sel).toBe("rgb(0, 114, 188)");
+    }
+  });
 });
 
 /**

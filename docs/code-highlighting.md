@@ -1,5 +1,8 @@
 # Code highlighting
 
+The size and frame of code blocks are described under
+[typography](typography.md#code-blocks); this page covers the token colours.
+
 Code blocks use QuantEcon's own token palette, the Sphinx lecture sites'
 default `qetheme_code_style`, in light and dark mode. MyST tokenises with
 highlight.js rather than Pygments, so the palette is mapped scope by scope onto
