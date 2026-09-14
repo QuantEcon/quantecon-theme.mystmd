@@ -241,9 +241,6 @@ problem. The existing divergences are the model:
   to 2.2:1 at the footer's opacity;
 - content is a flat 18px off a `rem` root, rather than the Sphinx builds'
   px root, which is a WCAG 1.4.4 problem;
-- content links keep a resting underline, where the lecture builds underline
-  on hover only, because the link colour is 2.02:1 (light) and 1.49:1 (dark)
-  against the body text and colour alone cannot mark a link (WCAG 1.4.1);
 - the footer's text, and its light-mode link, are darker than the lecture
   builds' (`#3b3b3b` and `#00436f`, `#b5b5b5` in dark mode), because the
   inherited values composite to 4.17:1, 3.01:1 and 3.92:1 at the footer's

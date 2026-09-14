@@ -51,7 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than stepping down twice, and flat at every width where the Sphinx
   rule falls to 14.4px below 992px. Callout titles take the container's size;
   their weight is unchanged ([#178](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/178)) ([#185](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/185)).
-
 - Content links no longer underline at rest. `.link` and `.hover-link` render
   undecorated and draw a solid underline in `currentColor` on hover — and now on
   keyboard focus too — where upstream underlines always, dotted for `.hover-link`.

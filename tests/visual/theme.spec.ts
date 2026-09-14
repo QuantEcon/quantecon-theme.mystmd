@@ -839,7 +839,7 @@ test.describe("Content typography", () => {
     }
   });
 
-  test("link-underline-solid", async ({ page }, testInfo) => {
+  test("link-states-and-preview-glyph", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await settle(page);
@@ -848,23 +848,66 @@ test.describe("Content typography", () => {
         const a = document.querySelector(sel);
         if (!a) return null;
         const s = getComputedStyle(a);
+        const after = getComputedStyle(a, "::after");
         return {
           line: s.textDecorationLine,
           style: s.textDecorationStyle,
           color: s.color,
           decorationColor: s.textDecorationColor,
+          afterContent: after.content,
+          afterImage: after.backgroundImage,
         };
       }, selector);
-    // intro.md: a cross-reference (`.hover-link`, which upstream dots) and an
-    // external link (`.link`) in the same section.
-    for (const sel of [".article a.hover-link", ".article a.link"]) {
+    // intro.md: a cross-reference (`.hover-link`, which opens a preview) and
+    // an external link (`.link`) in the same section, plus a footnote marker
+    // (`sup.hover-link`, not an anchor).
+    const xref = ".article a.hover-link";
+    const plain = ".article a.link";
+    for (const sel of [xref, plain]) {
       const d = await decoration(sel);
       expect(d, sel).not.toBeNull();
-      expect(d!.line, sel).toBe("underline");
+      expect(d!.line, `${sel} at rest`).toBe("none");
       expect(d!.style, sel).toBe("solid");
       expect(d!.color, sel).toBe("rgb(0, 114, 188)");
       expect(d!.decorationColor, sel).toBe("rgb(0, 114, 188)");
     }
+    // Only the previewable link carries the glyph: a word joiner with the
+    // icon painted behind it. The plain link and the footnote marker do not.
+    const glyph = await decoration(xref);
+    expect(glyph!.afterContent).toBe('"\u2060"');
+    expect(glyph!.afterImage).toMatch(/^url\("data:image\/svg\+xml/);
+    for (const sel of [plain, ".article sup.hover-link"]) {
+      const d = await decoration(sel);
+      expect(d, sel).not.toBeNull();
+      expect(d!.afterContent, `${sel} has no glyph`).toBe("none");
+    }
+    // Keyboard focus underlines in the hover colour. Focus is moved off and
+    // back with the keyboard so `:focus-visible` matches in every engine.
+    await page.locator(xref).focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    expect(await page.evaluate((sel) => document.activeElement?.matches(sel), xref)).toBe(true);
+    const focused = await decoration(xref);
+    expect(focused!.line, "focused").toBe("underline");
+    expect(focused!.style, "focused").toBe("solid");
+    expect(focused!.color, "focused").toBe("rgb(0, 73, 121)");
+    expect(focused!.decorationColor, "focused").toBe("rgb(0, 73, 121)");
+    // Pointer hover draws the same underline. `.first()`: the footer part
+    // renders a second `a.link`.
+    await page.locator(plain).first().hover();
+    const hovered = await decoration(plain);
+    expect(hovered!.line, "hovered").toBe("underline");
+    expect(hovered!.color, "hovered").toBe("rgb(0, 73, 121)");
+    // Dark mode: white text, white glyph, and still no resting underline.
+    // Drop the pointer and the keyboard focus first so both links are at rest.
+    await page.mouse.move(0, 0);
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    await page.evaluate(() => document.documentElement.classList.add("dark"));
+    const dark = await decoration(xref);
+    expect(dark!.line, "dark, at rest").toBe("none");
+    expect(dark!.color, "dark").toBe("rgb(255, 255, 255)");
+    // cssnano shortens the baked stroke to `%23fff` in the built sheet.
+    expect(dark!.afterImage, "dark glyph").toMatch(/stroke='%23fff(fff)?'/);
   });
 });
 

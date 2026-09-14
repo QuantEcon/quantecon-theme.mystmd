@@ -32,9 +32,23 @@ inside an exercise renders at the same 16px as the exercise.
 
 ## Links
 
-Content links are QuantEcon blue (`#0072bc`, `#004979` on hover) with a solid
-underline at rest, on plain links and cross-references alike. The Sphinx sites
-underline on hover only; this theme keeps the underline because the link
-colour is too close to the body text (2.02:1 in light mode, 1.49:1 in dark) for
-colour alone to mark a link. Visited links are not coloured. In dark mode links
-are white, weight 600; the dark palette is an open design question (#237).
+Content links are QuantEcon blue (`#0072bc`, `#004979` on hover) with no
+underline at rest, on plain links and cross-references alike; a solid underline
+in the link's own colour appears on hover and on keyboard focus. This is the
+Sphinx sites' behaviour. Visited links are not coloured. In dark mode links are
+white, weight 600; the dark palette is an open design question (#237).
+
+Links that open a hover preview -- cross-references, links to other lectures
+that carry a description or thumbnail, Wikipedia and GitHub links -- carry a
+small stacked-squares glyph after the label, at the size, gap and opacity
+upstream gives the external-link arrow. Footnote markers and citations open a
+preview too but take no glyph. The glyph is a pre-coloured image rather than
+an icon in `currentColor`, so a site that re-points `--qe-link-color` recolours
+the text and not the glyph.
+
+The glyph is the non-colour cue on the links that have one. A plain internal
+link with no preview has none at rest: `#0072bc` is 2.02:1 against the body
+text, short of the 3:1 WCAG 1.4.1 asks before colour alone may mark a link,
+and no link colour clears both that and 4.5:1 on white. That residue is the
+cost of matching the lecture builds; closing it means a non-colour resting
+cue, not a different blue.
