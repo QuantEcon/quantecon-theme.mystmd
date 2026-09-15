@@ -17,6 +17,9 @@
  *      KaTeX lays out LTR.
  *   4. The theme's own parenthesised list markers (styles/lists.css) hang in
  *      the gutter with a physical `left` and translate; hung from the right.
+ *   5. The hover-preview icon (styles/quantecon.css) places its glyph with a
+ *      physical `background-position`, which has no logical form; mirrored
+ *      here.
  *
  * Unlayered on purpose: every rule targets a class that Tailwind only sees
  * in node_modules or generates at build time, and `@layer` would purge them;
@@ -107,4 +110,12 @@
   left: auto;
   right: -0.4em;
   transform: translateX(100%);
+}
+
+/* 5. The hover-preview icon (styles/quantecon.css) is painted into the
+   pseudo-element's inline-start padding, which flips on its own; only the
+   glyph's physical `background-position` needs mirroring, so it keeps to the
+   far end of the padding and the gap stays against the label. */
+[dir='rtl'] a.hover-link::after {
+  background-position: left center;
 }

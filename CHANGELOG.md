@@ -21,6 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Links that open a hover preview carry a small stacked-squares glyph after the label. `.hover-link`
+  is what myst-to-react hangs on links to other lectures and to Wikipedia (which
+  render a card with a thumbnail and summary) and on cross-references (which render
+  an excerpt of the target); with the resting underline gone, nothing otherwise
+  distinguished them from a plain link. The icon takes the size, gap and opacity
+  upstream gives external links through `.link-icon`. Footnote markers and citations
+  take no glyph — they lose their resting underline with everything else, and render
+  as bare markers ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)) ([#239](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/239)).
 - The landing-page `{tableofcontents}` now renders like the lecture builds'
   toctree instead of a plain bulleted list: section titles as real `<h2>`
   headings (each with a stable anchor id, so they join the "On this page"
@@ -51,15 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than stepping down twice, and flat at every width where the Sphinx
   rule falls to 14.4px below 992px. Callout titles take the container's size;
   their weight is unchanged ([#178](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/178)) ([#185](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/185)).
-- Content links keep their resting underline, now one solid line on plain
-  links and cross-references alike. Upstream dotted the cross-reference
-  underline to mark a hover-preview card, and which entries in a list were
-  dotted followed which target pages carried a thumbnail image. The underline
-  stays at rest where the Sphinx sites show it on hover only, because colour
-  cannot mark a link on these grounds: 2.02:1 against the body text in light
-  mode and 1.49:1 in dark, against the 3:1 WCAG 1.4.1 asks of a colour-only
-  cue. `:visited` is still unstyled; its dark value waits on the dark palette
-  decision ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)).
+- Content links no longer underline at rest. `.link` and `.hover-link` render
+  undecorated and draw a solid underline in `currentColor` on hover — and now on
+  keyboard focus too — where upstream underlines always, dotted for `.hover-link`.
+  This is the Sphinx lecture builds' behaviour. `:visited` is still left alone ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)) ([#239](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/239)).
 
 ### Fixed
 - The site footer's text and links clear WCAG AA in both modes once its 70%
