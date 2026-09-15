@@ -434,11 +434,19 @@
   /* Keyboard focus carries the same cue as the pointer. Without it a keyboard
      reader has colour alone to go on, and #0072bc against the #44403c prose is
      2.02:1 -- short of the 3:1 WCAG 1.4.1 asks of a colour-only distinction
-     (the underline on hover/focus is the other half of technique G183). */
+     (the underline on hover/focus is the other half of technique G183).
+
+     The `:has()` selector is for footnote markers: they are a
+     `<sup class="hover-link">` whose focusable element is the HashLink anchor
+     *inside* it, so `:focus-visible` on the sup itself never matches, and that
+     anchor's own `no-underline` utility keeps upstream from underlining it.
+     Keying on the inner focus underlines the marker for a keyboard reader the
+     way hovering does for a pointer. */
   .link:hover,
   .hover-link:hover,
   .link:focus-visible,
-  .hover-link:focus-visible {
+  .hover-link:focus-visible,
+  .hover-link:has(:focus-visible) {
     color: var(--qe-link-hover-color, #004979);
     text-decoration-color: currentColor;
     text-decoration-line: underline;
@@ -521,7 +529,8 @@
     background-size: 0.85em 0.85em;
   }
 
-  /* (0,2,1), which outranks the (0,1,2) base rule above. */
+  /* (0,2,2), which outranks the (0,1,3) base rule above (`:not()` counts the
+     specificity of its most specific argument, one element type). */
   a.hover-link:hover::after,
   a.hover-link:focus-visible::after {
     background-image: var(--qe-preview-icon-active);
@@ -529,7 +538,7 @@
 
   /* Both dark states are white, because `--qe-link-color` and
      `--qe-link-hover-color` both are. The first selector ties the hover rule
-     above at (0,2,1) and wins on order; the other two settle it outright.
+     above at (0,2,2) and wins on order; the other two settle it outright.
      None of them declares `content`, so a link the base rule passed over --
      one wrapping an image -- still generates no pseudo-element here. */
   .dark a.hover-link::after,
@@ -539,9 +548,24 @@
   }
 
   /* Citations render `<cite><a class="hover-link">`, where the label is
-     already a bracketed marker and the popover is the bibliography entry. */
+     already a bracketed marker and the popover is the bibliography entry.
+     (0,1,3): this TIES the base rule and wins on source order alone, so it
+     has to stay below it -- grouped above, every citation gets the glyph
+     back silently. */
   cite a.hover-link::after {
     content: none;
+  }
+
+  /* Print drops `background-image` under the default `print-color-adjust:
+     economy` but keeps the padding, so without this a printed or PDF-exported
+     lecture shows a 0.85em blank tail after every previewable link -- and no
+     resting underline marks them either. No pseudo-element at all on paper.
+     (Forced-colors stays deferred, per the PR scope: the baked strokes ignore
+     the system `LinkText` colour that upstream's `.link-icon` follows.) */
+  @media print {
+    a.hover-link::after {
+      content: none;
+    }
   }
 }
 

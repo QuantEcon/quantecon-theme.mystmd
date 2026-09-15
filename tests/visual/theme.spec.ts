@@ -892,6 +892,16 @@ test.describe("Content typography", () => {
     expect(focused!.style, "focused").toBe("solid");
     expect(focused!.color, "focused").toBe("rgb(0, 73, 121)");
     expect(focused!.decorationColor, "focused").toBe("rgb(0, 73, 121)");
+    // A footnote marker's focusable element is the HashLink anchor inside
+    // the sup, so the sup's underline keys on `:has(:focus-visible)`
+    // (styles/quantecon.css); the same keyboard dance makes it deterministic.
+    const supAnchor = ".article sup.hover-link a";
+    await page.locator(supAnchor).focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    expect(await page.evaluate((sel) => document.activeElement?.matches(sel), supAnchor)).toBe(true);
+    const supFocused = await decoration(".article sup.hover-link");
+    expect(supFocused!.line, "footnote marker, inner anchor focused").toBe("underline");
     // Pointer hover draws the same underline. `.first()`: the footer part
     // renders a second `a.link`.
     await page.locator(plain).first().hover();

@@ -28,9 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   distinguished them from a plain link. The icon takes the size, gap and opacity
   upstream gives external links through `.link-icon`. Footnote markers and citations
   take no glyph — they lose their resting underline with everything else, and render
-  as bare markers. It is an `::after` whose content is a word joiner, so it cannot be
-  stranded on a line of its own the way an inline-block box is, and the glyph is a
-  data URI, so it survives `myst build --html` ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)) ([#239](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/239)).
+  as bare markers ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)) ([#239](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/239)).
 
 ### Changed
 - Code blocks render their source at 16px with a 20px line, up from the 13px
@@ -54,8 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Content links no longer underline at rest. `.link` and `.hover-link` render
   undecorated and draw a solid underline in `currentColor` on hover — and now on
   keyboard focus too — where upstream underlines always, dotted for `.hover-link`.
-  This is the Sphinx lecture builds' behaviour, narrowing the divergence recorded
-  under 3.0.0, which matched their colours only. `:visited` is still left alone ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)) ([#239](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/239)).
+  This is the Sphinx lecture builds' behaviour. `:visited` is still left alone ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)) ([#239](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/239)).
 
 ### Fixed
 - The site footer's text and links clear WCAG AA in both modes once its 70%

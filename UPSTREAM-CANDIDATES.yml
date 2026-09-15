@@ -126,3 +126,31 @@ upstream_candidates:
       route to `shouldRevalidate: () => false`; React Router 7 keeps the same
       hash-removal semantics, so the migration tracked in #28 does not repair
       it. No upstream issue found on jupyter-book/myst-theme at filing time.
+
+  - id: link-icon-stranding
+    title: External-link icon strands on its own line (.link-icon)
+    description: |
+      Upstream's `.link-icon` -- the external-link glyph myst-to-react
+      appends to wiki and external links -- is an inline-block box, which
+      UAX #14 treats as a break opportunity, so the icon wraps onto a line
+      of its own whenever the label's last word lands near the column edge
+      (31 of 61 label lengths in a 300px column, Chromium and WebKit alike;
+      the `whitespace-nowrap` wrapper does not prevent it). This theme's
+      hover-preview glyph avoids the fault by construction: an `::after`
+      whose content is a word joiner, with the icon painted into
+      `padding-inline-start` (styles/quantecon.css, HOVER-PREVIEW
+      AFFORDANCE).
+    status: pending
+    target: jupyter-book/myst-theme
+    provenance:
+      - local_pr: 239
+        note: |
+          The construction that avoids it, documented alongside the
+          reproduction counts; the upstream fix is the same technique
+          applied to `.link-icon` (or any non-atomic inline rendering).
+    upstream:
+      pr: null
+    notes: |
+      A rendering defect rather than a QuantEcon style choice, so it
+      qualifies for upstream regardless of what this theme ships. No
+      upstream issue found on jupyter-book/myst-theme at filing time.
