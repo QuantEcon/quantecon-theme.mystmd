@@ -75,7 +75,11 @@ export function ProjectTOCBlock({ node, className }: { node: GenericNode; classN
     >
       {segments.map((segment) =>
         segment.kind === 'section' ? (
-          <section key={segment.entry.htmlId} aria-labelledby={segment.entry.htmlId}>
+          // No aria-labelledby: a named <section> is a region landmark, and a
+          // long project would put ten of them inside this nav -- landmark
+          // noise for screen-reader users when the h2 already gives each
+          // section its structure. Unnamed, the section is not a landmark.
+          <section key={segment.entry.htmlId}>
             {/* The `.heading-text` span is upstream's outline contract:
                 useHeaders drops any heading without one (DocumentOutline's
                 `.filter((h) => !!h.text)`), and myst's own heading renderer
