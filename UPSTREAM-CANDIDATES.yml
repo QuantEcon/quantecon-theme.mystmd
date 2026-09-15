@@ -154,3 +154,27 @@ upstream_candidates:
       A rendering defect rather than a QuantEcon style choice, so it
       qualifies for upstream regardless of what this theme ships. No
       upstream issue found on jupyter-book/myst-theme at filing time.
+
+  - id: project-toc-renderer
+    title: Landing-page {tableofcontents} renderer (sections, enumerators, no bullets)
+    description: |
+      A theme-side renderer for the `toc:project` block: rebuilds the TOC
+      from the site manifest (separate `enumerator` field) instead of the
+      CLI's baked "1 Title" list, rendering section titles as real `<h2>`
+      headings with anchor ids inside a labelled `<nav>`, entries as
+      "1. Title", bulletless (app/components/ProjectTOC.tsx + app/tocTree.ts).
+    status: pending
+    target: jupyter-book/myst-theme
+    provenance:
+      - local_pr: 240
+        note: Landing-page TOC parity with the Sphinx lecture sites.
+    upstream:
+      pr: null
+    notes: |
+      Upstream has no TOC renderer at all — myst-transforms' buildTocTransform
+      flattens the directive into a plain list, baking the enumerator into the
+      text with no period, and every myst-theme template renders it as prose.
+      Two possible upstream shapes: keep the enumerator as a field on the
+      generated list AST (myst-transforms), or a `toc:*`-aware block renderer
+      in @myst-theme/site like this one. The section-title anchor ids and
+      the `nav` landmark are worth carrying either way.

@@ -29,6 +29,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   upstream gives external links through `.link-icon`. Footnote markers and citations
   take no glyph — they lose their resting underline with everything else, and render
   as bare markers ([#176](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/176)) ([#239](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/239)).
+- The landing-page `{tableofcontents}` now renders like the lecture builds'
+  toctree instead of a plain bulleted list: section titles as real `<h2>`
+  headings (each with a stable anchor id, so they join the "On this page"
+  outline and can be deep-linked) over bulletless lists of the section's
+  lectures, with every entry labelled "1. Title" — enumerator, period, title.
+  The theme rebuilds the TOC from the site manifest (where the enumerator is
+  a separate field) rather than re-parsing the CLI's baked "1 Title" text,
+  inside a `nav` labelled "Table of contents"
+  (`app/components/ProjectTOC.tsx`, `styles/front-toc.css`)
+  ([#240](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/240)).
 
 ### Changed
 - Code blocks render their source at 16px with a 20px line, up from the 13px

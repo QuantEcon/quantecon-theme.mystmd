@@ -1,7 +1,8 @@
 import type { GenericNode } from 'myst-common';
 import type { NodeRenderers } from '@myst-theme/providers';
-import { MyST } from 'myst-to-react';
+import { Block, MyST } from 'myst-to-react';
 import { OUTPUT_RENDERERS } from '@myst-theme/jupyter';
+import { ProjectTOCBlock } from './components/ProjectTOC';
 
 /**
  * Fancy ordered lists (QuantEcon/mystmd#50): `list` nodes carry `style`
@@ -98,5 +99,28 @@ export const STDERR_RENDERERS: NodeRenderers = {
       );
     }
     return <UpstreamOutput {...props} />;
+  },
+};
+
+/**
+ * Landing-page `{tableofcontents}`: the CLI's toc transform turns the
+ * directive into a `block` whose only marker is `data.part === 'toc:project'`
+ * — unreachable by `selectRenderer`'s unist-util-select keys, which match
+ * top-level props only. So this wraps the base `block` renderer instead:
+ * project TOCs go to ProjectTOCBlock (app/components/ProjectTOC.tsx), every
+ * other block — including `toc:children`/`toc:page`/`toc:section` — falls
+ * through to upstream's Block untouched.
+ */
+const UpstreamBlock = Block as (props: {
+  node: GenericNode;
+  className?: string;
+}) => JSX.Element;
+
+export const TOC_RENDERERS: NodeRenderers = {
+  block(props: { node: GenericNode; className?: string }) {
+    if ((props.node.data as { part?: string } | undefined)?.part === 'toc:project') {
+      return <ProjectTOCBlock {...props} />;
+    }
+    return <UpstreamBlock {...props} />;
   },
 };

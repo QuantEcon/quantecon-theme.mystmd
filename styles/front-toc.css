@@ -1,0 +1,76 @@
+/* ---------------------------------------------------------------------------
+   LANDING-PAGE TABLE OF CONTENTS
+
+   Styles the `nav.qe-front-toc` emitted by app/components/ProjectTOC.tsx for
+   the `{tableofcontents}` directive, matching the lecture builds'
+   `.toctree-wrapper` (quantecon-book-theme on top of pydata-sphinx-theme):
+   section captions in serif, bulletless un-indented lists, links at 1.1em,
+   underline on hover only.
+
+   Sizes are `em`, not `rem`, so they track the content size like the heading
+   scale in quantecon.css (UNITS there). Measured on the live python,
+   python-programming and julia quantecon.org sites (2026-09-15): toctree
+   links compute to 19.8px (1.1em of the 18px root) at every depth. The
+   caption needs care about WHICH element is measured: the `p.caption`
+   wrapper computes 27px Source Sans Pro, but every visible character sits
+   in its `.caption-text` span, which quantecon-book-theme overrides to
+   1.2rem PT Serif -- 21.6px serif is what renders. The wrapper still
+   contributes the spacing: its 1em top margin resolves at its own 27px.
+
+   Selectors are `.article .qe-front-toc ...` (0,2,1)+ to outweigh the content
+   rules they replace: `.article h2` (0,1,1) for the caption, and the
+   typography plugin's `:where(ul)` padding for the lists. Link colour rides
+   the `--qe-link-*` tokens (quantecon.css), which flip to white under `.dark`
+   -- and in dark mode `.dark .article :where(a)` paints these classless
+   anchors white anyway, so no separate dark rules are needed here.
+   --------------------------------------------------------------------------- */
+@layer components {
+  /* Section captions. Real <h2>s at the lecture builds' rendered caption
+     scale: 1.2em (21.6px) PT Serif 400, matching the `.caption-text` span
+     the builds' text actually draws in (see header) rather than the 27px
+     sans `p.caption` wrapper around it -- and, conveniently, the h4 step of
+     this theme's own heading scale. The wrapper's top margin is 1em of its
+     27px self, so 1.25em of the 21.6px here lands on the same 27px; no
+     bottom margin, so the list hugs its caption. */
+  .article .qe-front-toc h2 {
+    font-size: 1.2em; /* 21.6px */
+    font-weight: normal;
+    margin: 1.25em 0 0; /* 27px */
+  }
+
+  /* Bulletless lists: no markers at any depth, no indent on the top level,
+     1.5em per nested level (logical, so the RTL builds mirror it). */
+  .article .qe-front-toc ul {
+    list-style: none;
+    padding-inline-start: 0;
+  }
+
+  .article .qe-front-toc ul ul {
+    padding-inline-start: 1.5em;
+  }
+
+  /* The lecture builds' item rhythm: 9px above (their 0.5rem of an 18px
+     root, so 0.5em of the 18px content here, not 0.5rem of this 16px root),
+     0.2em below. The typography plugin pads every `li` by 0.375em; the
+     builds' items sit flush, so that goes too. */
+  .article .qe-front-toc li {
+    margin: 0.5em 0 0.2em;
+    padding-inline-start: 0;
+  }
+
+  /* Links at 1.1em (19.8px), every depth, as the lecture builds render.
+     Colour through the tokens; underline only on hover/keyboard focus,
+     drawn in the link's own colour. */
+  .article .qe-front-toc a {
+    font-size: 1.1em;
+    color: var(--qe-link-color, #0072bc);
+    text-decoration: none;
+  }
+
+  .article .qe-front-toc a:hover,
+  .article .qe-front-toc a:focus-visible {
+    color: var(--qe-link-hover-color, #004979);
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+  }
+}
