@@ -82,14 +82,14 @@ jobs:
           THEME_TEMPLATE: ${{ github.workspace }}/.deploy/quantecon-theme
           PORT: "3111"
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: visual-playwright-report
           path: playwright-report/
           retention-days: 30
       - name: Upload test results (actual/diff images) on failure
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: steps.visual.outcome == 'failure'
         with:
           name: visual-test-diff
@@ -132,7 +132,7 @@ jobs:
         env:
           THEME_TEMPLATE: ${{ github.workspace }}/.deploy/quantecon-theme
           PORT: "3111"
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: fouc-playwright-report
