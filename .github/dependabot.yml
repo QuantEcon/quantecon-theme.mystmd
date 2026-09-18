@@ -1,0 +1,27 @@
+# Dependabot version updates, modelled on QuantEcon/quantecon-book-theme's
+# config. GitHub Actions pins are checked weekly and npm dependencies monthly;
+# each ecosystem's updates arrive grouped in a single PR.
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    commit-message:
+      prefix: ⬆️
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: npm
+    directory: /
+    commit-message:
+      prefix: ⬆️
+    schedule:
+      interval: monthly
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
