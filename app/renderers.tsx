@@ -1,8 +1,12 @@
 import type { GenericNode } from 'myst-common';
 import type { NodeRenderers } from '@myst-theme/providers';
-import { Block, MyST } from 'myst-to-react';
-import { OUTPUT_RENDERERS } from '@myst-theme/jupyter';
+import { useSiteManifest } from '@myst-theme/providers';
+import { Block, DEFAULT_RENDERERS, MyST } from 'myst-to-react';
+import { NOTEBOOK_BLOCK_RENDERERS, OUTPUT_RENDERERS } from '@myst-theme/jupyter';
 import { ProjectTOCBlock } from './components/ProjectTOC';
+import { Capped, LongCellProvider, useLongCellCap } from './components/LongCell';
+import { longCellSpec } from './longCell';
+import type { TemplateOptions } from './types';
 
 /**
  * Fancy ordered lists (QuantEcon/mystmd#50): `list` nodes carry `style`
@@ -122,5 +126,76 @@ export const TOC_RENDERERS: NodeRenderers = {
       return <ProjectTOCBlock {...props} />;
     }
     return <UpstreamBlock {...props} />;
+  },
+};
+
+/**
+ * Long-cell tags -- PROTOTYPE (QuantEcon/quantecon-theme.mystmd#242), off
+ * unless the site sets `options.long_cell_tags: true`.
+ *
+ * Every cell tag survives the engine into the block's `data.tags`
+ * (QuantEcon/mystmd#106), so the theme can act on `collapse-N`, `scroll-input`,
+ * `scroll-output` / `output_scroll` and the prototype-only `collapse-output-N`
+ * without an engine change. Three renderers cooperate:
+ *
+ *  - `block`, under the SAME selector key upstream registers for notebook
+ *    cells, so this replaces upstream's entry and delegates to it: a tagged
+ *    cell gets the parsed spec (app/longCell.ts) in context; every other cell,
+ *    and every cell when the option is off, goes to upstream untouched.
+ *  - `code` and `outputs` read their side of that spec and wrap upstream's
+ *    element in the capped region (app/components/LongCell.tsx). With no spec
+ *    in context they return upstream's element as it is, so nothing outside a
+ *    tagged cell changes.
+ *
+ * Whether the theme keeps a bar, a scrollbar or both is the policy decision
+ * QuantEcon/project-theme-parity#19; what merges from here follows it.
+ */
+type Renderer = (props: { node: GenericNode; className?: string }) => JSX.Element | null;
+
+const NOTEBOOK_BLOCK_KEY = 'block[kind=notebook-code],block[kind=notebook-content]';
+const UpstreamNotebookBlock = (NOTEBOOK_BLOCK_RENDERERS.block as Record<string, Renderer>)[
+  NOTEBOOK_BLOCK_KEY
+];
+const UpstreamCode = (DEFAULT_RENDERERS.code as { base: Renderer }).base;
+const UpstreamOutputs = OUTPUT_RENDERERS.outputs as Renderer;
+
+function useLongCellTagsEnabled(): boolean {
+  const options = (useSiteManifest() as { options?: TemplateOptions } | undefined)?.options;
+  return options?.long_cell_tags === true;
+}
+
+export const LONG_CELL_RENDERERS: NodeRenderers = {
+  block: {
+    [NOTEBOOK_BLOCK_KEY]: function LongCellBlock(props: { node: GenericNode; className?: string }) {
+      const enabled = useLongCellTagsEnabled();
+      const tags = (props.node.data as { tags?: unknown } | undefined)?.tags;
+      const spec = enabled && props.node.kind === 'notebook-code' ? longCellSpec(tags) : null;
+      if (!spec) return <UpstreamNotebookBlock {...props} />;
+      return (
+        <LongCellProvider spec={spec}>
+          <UpstreamNotebookBlock {...props} />
+        </LongCellProvider>
+      );
+    },
+  },
+  code(props: { node: GenericNode; className?: string }) {
+    const cap = useLongCellCap('input');
+    // Only the cell's own executable input: a `{code-block}` quoted inside an
+    // output, say, is not what the tag is about.
+    if (!cap || !props.node.executable) return <UpstreamCode {...props} />;
+    return (
+      <Capped cap={cap} side="input">
+        <UpstreamCode {...props} />
+      </Capped>
+    );
+  },
+  outputs(props: { node: GenericNode; className?: string }) {
+    const cap = useLongCellCap('output');
+    if (!cap) return <UpstreamOutputs {...props} />;
+    return (
+      <Capped cap={cap} side="output">
+        <UpstreamOutputs {...props} />
+      </Capped>
+    );
   },
 };

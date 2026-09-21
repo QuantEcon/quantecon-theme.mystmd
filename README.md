@@ -268,6 +268,7 @@ block inside a string (`key: |`), which the theme parses.
 | `favicon` | site | Favicon file, relative to `myst.yml`; served at `/favicon.ico` (the QuantEcon lectures favicon when unset) |
 | `analytics_google`, `analytics_plausible` | site | Analytics IDs, rendered by `@myst-theme/site` |
 | `hide_toc`, `hide_search` | site or page | Hide the contents drawer / the search control |
+| `long_cell_tags` | site | **Prototype**, off by default: cap long code inputs and outputs from their cell tags (`collapse-N`, `scroll-input`, `scroll-output`, `output_scroll`, `collapse-output-N`); see `docs/notebooks.md` |
 | `launch_notebook_repo`, `launch_notebook_branch`, `launch_notebook_dir`, `launch_notebook_source_dir`, `launch_colab` | site | Notebook launcher ([Launch buttons](#launch-buttons)) |
 | `current_language`, `enable_rtl`, `languages`, `language_switcher_label` | site | Multilingual editions ([below](#multilingual-editions)) |
 | `translators`, `translators_label` | site or page | Translator credit in the page header |

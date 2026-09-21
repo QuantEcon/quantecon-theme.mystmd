@@ -10,6 +10,11 @@ export interface TemplateOptions {
   hide_toc?: boolean;
   hide_search?: boolean;
 
+  // PROTOTYPE (#242): render the long-cell tags (`collapse-N`, `scroll-input`,
+  // `scroll-output` / `output_scroll`, `collapse-output-N`). Off by default, and
+  // what merges for good follows QuantEcon/project-theme-parity#19.
+  long_cell_tags?: boolean;
+
   // Meta / SEO and analytics, passed through to @myst-theme/site.
   twitter?: string; // handle for twitter:site / twitter:creator, `@` optional
   site_url?: string; // public URL, for og:url; site.domains never reaches the manifest

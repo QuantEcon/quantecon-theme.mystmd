@@ -25,6 +25,7 @@ below.
 | `analytics_plausible` | string | site | — | Plausible domain |
 | `hide_toc` | boolean | site or page | `false` | hide the contents drawer and its toggle |
 | `hide_search` | boolean | site or page | `false` | hide the search control |
+| `long_cell_tags` | boolean | site | `false` | **prototype** ([#242](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/242)): cap long code inputs and outputs from their cell tags ([notebooks](notebooks.md#long-cells-prototype)) |
 | `launch_notebook_repo` | string | site | — | notebook repository (full URL or `org/repo`); no Launch control without it |
 | `launch_notebook_branch` | string | site | `main` | notebook repo branch |
 | `launch_notebook_dir` | string | site | — | sub-directory of the notebook repo |
