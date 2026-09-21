@@ -10,16 +10,16 @@
  * combinations so the decision can be taken on a side-by-side:
  *
  *   collapse-N          input  capped at N em, Expand / Collapse bar
- *   scroll-input        input  capped at SCROLL_EMS, scrollbar      (prototype-only)
+ *   scroll-input        input  capped at SCROLL_EMS, scrollbar      (a myst-nb tag; no lecture uses it)
  *   scroll-output       output capped at SCROLL_EMS, scrollbar
  *   output_scroll       output, as scroll-output
- *   collapse-output-N   output capped at N em, the same bar          (prototype-only)
+ *   collapse-output-N   output capped at N em, the same bar          (prototype-only: neither stack has it)
  *
  * Plain TypeScript with no React, so `node --test` can import it
  * (tests/unit/long-cell.test.mjs).
  */
 
-/** The scroll cap, in em of the code font: the Sphinx theme's `output_scroll` height. */
+/** The scroll cap, in em of the code font: myst-nb's own `max-height: 24em` for both scroll tags. */
 export const SCROLL_EMS = 24;
 
 export type Cap = { kind: 'collapse'; ems: number } | { kind: 'scroll'; ems: number };

@@ -54,9 +54,9 @@ site:
 | Tag on the cell | Input | Output |
 | --- | --- | --- |
 | `collapse-N` | capped at N em of the code font, Expand / Collapse bar | |
-| `scroll-input` (prototype-only) | capped at 24 em, scrollbar | |
+| `scroll-input` (a myst-nb tag the Sphinx stack already honours; no lecture uses it) | capped at 24 em, scrollbar | |
 | `scroll-output`, `output_scroll` | | capped at 24 em, scrollbar |
-| `collapse-output-N` (prototype-only) | | capped at N em, the same bar |
+| `collapse-output-N` (prototype-only: neither stack has it) | | capped at N em, the same bar |
 
 The tags are read from the block's `data.tags`, which every cell tag reaches whatever the engine makes of it, so this needs no engine change. An input cap and an output cap are independent; where two tags claim the same side the first wins. A tagged cell that is short enough to fit shows no bar. With the option unset, tagged and untagged cells render exactly as they always have.
 
