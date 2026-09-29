@@ -105,16 +105,6 @@ options:
   - id: hide_search
     type: boolean
     description: Hide the toolbar search control.
-  # --- PROTOTYPE (#242), off by default ---
-  # Renders the long-cell tags so QuantEcon/project-theme-parity#19 can be
-  # decided on a side-by-side: `collapse-N` and `scroll-input` cap a code
-  # cell's input, `scroll-output` / `output_scroll` and `collapse-output-N` its
-  # output. With this unset the theme renders every cell as it always has.
-  - id: long_cell_tags
-    type: boolean
-    description: >-
-      PROTOTYPE. Cap long code inputs and outputs from their cell tags
-      (collapse-N, scroll-input, scroll-output, output_scroll, collapse-output-N).
   # --- Notebook launcher (see docs/launch.md) ---
   # Opt-in on both axes: the control renders only with `launch_notebook_repo`
   # set and `launch_colab` true. Names are flat because template options are

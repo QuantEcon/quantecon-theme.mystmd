@@ -7,10 +7,8 @@ Notebook outputs render through `@myst-theme/jupyter`: streams and errors as
 Plotly and widgets). Images in a cell's outputs are centred in the content
 column; tables and text stay left-aligned, as on the Sphinx sites.
 
-By default nothing limits an output's height: a long output renders at full
-length, and the Sphinx builds' `scroll-output` and `collapse-N` cell tags have
-no effect. A prototype that renders them is behind a site option; see
-[Long cells](#long-cells-prototype) below.
+A long output renders at full length unless its cell is tagged
+`collapse-output-N`; see [Long cells](#long-cells) below.
 
 ## Collapsible stderr
 
@@ -41,23 +39,43 @@ projects that need a full environment.
 The deployed Sphinx lecture sites set `thebe: false`, so a series moving from
 them changes nothing by leaving `project.thebe` unset.
 
-## Long cells (prototype)
+## Long cells
 
-**Prototype, off by default** ([#242](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/242)). The Sphinx theme caps a long cell in two ways, by cell tag: `collapse-N` caps the code *input* behind an Expand / Collapse bar, and `scroll-output` (older spelling `output_scroll`) caps the *output* with a scrollbar. Whether this theme keeps both mechanisms or one is a QuantEcon policy decision (QuantEcon/project-theme-parity#19), so the prototype renders every combination for a side-by-side, behind a site option:
+A code cell's tags can collapse a long input or long outputs behind an
+Expand / Collapse bar, the mechanism the lecture sites use for long class and
+function definitions:
 
-```yaml
-site:
-  options:
-    long_cell_tags: true
-```
-
-| Tag on the cell | Input | Output |
+| Tag on the cell | Collapses | Cap |
 | --- | --- | --- |
-| `collapse-N` | capped at N em of the code font, Expand / Collapse bar | |
-| `scroll-input` (a myst-nb tag the Sphinx stack already honours; no lecture uses it) | capped at 24 em, scrollbar | |
-| `scroll-output`, `output_scroll` | | capped at 24 em, scrollbar |
-| `collapse-output-N` (prototype-only: neither stack has it) | | capped at N em, the same bar |
+| `collapse-N` | the code input | N + 0.5 em of the 18px text: 369px for `collapse-20` |
+| `collapse-output-N` | the cell's outputs | N + 0.5 em: 441px for `collapse-output-24` |
 
-The tags are read from the block's `data.tags`, which every cell tag reaches whatever the engine makes of it, so this needs no engine change. An input cap and an output cap are independent; where two tags claim the same side the first wins. A tagged cell that is short enough to fit shows no bar. With the option unset, tagged and untagged cells render exactly as they always have.
+The cap is the height `quantecon-book-theme` gives `collapse-N` on the Sphinx
+lecture sites.
 
-`scripts/prototype-long-cell-check.mjs` checks the behaviour in a browser and crops the four regions at three viewports in both colour schemes; its header says how to run it against the theme-parity corpus's long-cells page.
+- The region is capped in the server-rendered HTML, so a page never shows a
+  tagged cell at full height first. The bar, and a fade at the foot of the
+  capped content, appear only while the content is taller than the cap: a
+  tagged cell that fits at the reader's width shows neither. The server shows
+  the bar where the line count makes the overflow certain; images, HTML and
+  lines that wrap are measured in the browser once the page is live, and
+  again whenever the region resizes.
+- The bar is a button with `aria-expanded` and `aria-controls`. Collapsing
+  brings the end of the region back into view, so a reader who expanded a long
+  cell is not left in the middle of whatever follows it.
+- Printed, or read without JavaScript, nothing is capped and there is no bar.
+- An input cap and an output cap are independent; where two tags claim the
+  same side, the first wins. `collapse-0` and non-numeric heights are ignored.
+  A cell with no stored output, or whose input or output is removed, is not
+  collapsed.
+- The tags are read from the cell's `data.tags`, which every cell tag reaches
+  whatever the engine does with it, so this needs no engine change.
+
+The scroll tags are not rendered: `scroll-output`, its older spelling
+`output_scroll`, and `scroll-input` leave a cell at full length. The lectures
+use the one mechanism, the bar, for long inputs and long outputs, and rename
+every `output_scroll` and `scroll-output` to `collapse-output-24` when they
+move to this theme: 24 gives about the height of the 24 em scroll box those
+tags asked for on the Sphinx sites. The decision is
+QuantEcon/project-theme-parity#19; the rename runs with the lecture migration,
+QuantEcon/workspace-lectures#64.

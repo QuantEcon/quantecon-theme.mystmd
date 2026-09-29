@@ -21,7 +21,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Prototype, off by default** ([#242](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/242)): with the new site option `long_cell_tags: true`, a code cell's tags cap its input or its output. `collapse-N` caps the input at N em of the code font behind an Expand / Collapse bar, as `quantecon-book-theme` does, including the scroll back to the end of the block on collapsing; `scroll-output` and `output_scroll` cap the output at 24 em with a scrollbar. Two more tags complete the square, so the two mechanisms can be compared on inputs and on outputs: `scroll-input`, which myst-nb already honours on the Sphinx stack though no lecture uses it, and the prototype-only `collapse-output-N`, which neither stack has. The tags are read from the block's `data.tags`, so no engine change is needed. The capped state is in the server HTML; the bar is a `<button>` with `aria-expanded` and `aria-controls`, a scroll region is focusable and named, and a tagged cell short enough to fit shows no bar. With the option unset every cell renders exactly as before. Which mechanism the theme keeps is the policy decision QuantEcon/project-theme-parity#19, and what ships follows it.
+- Long code inputs and long outputs collapse behind an Expand / Collapse bar,
+  from the cell's tags: `collapse-N` caps the code input and `collapse-output-N`
+  the cell's outputs at N + 0.5 em of the 18px text (369px for `collapse-20`,
+  the height `quantecon-book-theme` gives that tag on the lecture sites). The
+  bar and a fade at the foot of the capped content appear only while the content
+  overflows, so a tagged cell that fits at the reader's width shows neither: the
+  server renders the bar where the line count makes the overflow certain, and
+  the browser measures images, HTML and wrapped lines. The bar is a button with
+  `aria-expanded` and `aria-controls`, and collapsing brings the end of the
+  region back into view. Printed, or read without JavaScript, nothing is capped.
+  The scroll tags (`scroll-output`, `output_scroll`, `scroll-input`) are not
+  rendered: the lectures rename them to `collapse-output-24` when they move to
+  this theme, as decided on QuantEcon/project-theme-parity#19
+  ([#242](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/242))
+  ([#246](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/246)).
 
 ## [3.1.0] - 2026-09-16
 

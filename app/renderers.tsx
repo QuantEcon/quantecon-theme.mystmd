@@ -1,12 +1,10 @@
 import type { GenericNode } from 'myst-common';
 import type { NodeRenderers } from '@myst-theme/providers';
-import { useSiteManifest } from '@myst-theme/providers';
 import { Block, DEFAULT_RENDERERS, MyST } from 'myst-to-react';
 import { NOTEBOOK_BLOCK_RENDERERS, OUTPUT_RENDERERS } from '@myst-theme/jupyter';
 import { ProjectTOCBlock } from './components/ProjectTOC';
-import { Capped, LongCellProvider, useLongCellCap } from './components/LongCell';
-import { longCellSpec } from './longCell';
-import type { TemplateOptions } from './types';
+import { CollapseRegion, LongCellProvider, useLongCellCap } from './components/LongCell';
+import { certainlyOverflows, longCellSpec, outputTextLines, sourceLines } from './longCell';
 
 /**
  * Fancy ordered lists (QuantEcon/mystmd#50): `list` nodes carry `style`
@@ -130,25 +128,19 @@ export const TOC_RENDERERS: NodeRenderers = {
 };
 
 /**
- * Long-cell tags -- PROTOTYPE (QuantEcon/quantecon-theme.mystmd#242), off
- * unless the site sets `options.long_cell_tags: true`.
- *
- * Every cell tag survives the engine into the block's `data.tags`
- * (QuantEcon/mystmd#106), so the theme can act on `collapse-N`, `scroll-input`,
- * `scroll-output` / `output_scroll` and the prototype-only `collapse-output-N`
- * without an engine change. Three renderers cooperate:
+ * Long code inputs and long outputs, collapsed behind an Expand / Collapse
+ * bar by cell tag: `collapse-N` on the input, `collapse-output-N` on the
+ * outputs (app/longCell.ts, app/components/LongCell.tsx). Every cell tag
+ * reaches the block's `data.tags` whatever the engine makes of it, so the
+ * theme reads them there. Three renderers cooperate:
  *
  *  - `block`, under the SAME selector key upstream registers for notebook
- *    cells, so this replaces upstream's entry and delegates to it: a tagged
- *    cell gets the parsed spec (app/longCell.ts) in context; every other cell,
- *    and every cell when the option is off, goes to upstream untouched.
+ *    cells, so this replaces upstream's entry and delegates to it: a cell with
+ *    a collapse tag gets the parsed spec in context; every other cell goes to
+ *    upstream untouched.
  *  - `code` and `outputs` read their side of that spec and wrap upstream's
- *    element in the capped region (app/components/LongCell.tsx). With no spec
- *    in context they return upstream's element as it is, so nothing outside a
- *    tagged cell changes.
- *
- * Whether the theme keeps a bar, a scrollbar or both is the policy decision
- * QuantEcon/project-theme-parity#19; what merges from here follows it.
+ *    element in a CollapseRegion. With no spec in context, or nothing on the
+ *    page to collapse, they return upstream's element as it is.
  */
 type Renderer = (props: { node: GenericNode; className?: string }) => JSX.Element | null;
 
@@ -159,17 +151,11 @@ const UpstreamNotebookBlock = (NOTEBOOK_BLOCK_RENDERERS.block as Record<string, 
 const UpstreamCode = (DEFAULT_RENDERERS.code as { base: Renderer }).base;
 const UpstreamOutputs = OUTPUT_RENDERERS.outputs as Renderer;
 
-function useLongCellTagsEnabled(): boolean {
-  const options = (useSiteManifest() as { options?: TemplateOptions } | undefined)?.options;
-  return options?.long_cell_tags === true;
-}
-
 export const LONG_CELL_RENDERERS: NodeRenderers = {
   block: {
     [NOTEBOOK_BLOCK_KEY]: function LongCellBlock(props: { node: GenericNode; className?: string }) {
-      const enabled = useLongCellTagsEnabled();
       const tags = (props.node.data as { tags?: unknown } | undefined)?.tags;
-      const spec = enabled && props.node.kind === 'notebook-code' ? longCellSpec(tags) : null;
+      const spec = props.node.kind === 'notebook-code' ? longCellSpec(tags) : null;
       if (!spec) return <UpstreamNotebookBlock {...props} />;
       return (
         <LongCellProvider spec={spec}>
@@ -179,23 +165,35 @@ export const LONG_CELL_RENDERERS: NodeRenderers = {
     },
   },
   code(props: { node: GenericNode; className?: string }) {
-    const cap = useLongCellCap('input');
+    const n = useLongCellCap('input');
+    const { node } = props;
     // Only the cell's own executable input: a `{code-block}` quoted inside an
-    // output, say, is not what the tag is about.
-    if (!cap || !props.node.executable) return <UpstreamCode {...props} />;
+    // output, say, is not what the tag is about. A removed input renders
+    // nothing to collapse.
+    if (!n || !node.executable || node.visibility === 'remove') return <UpstreamCode {...props} />;
+    // A hidden input waits folded in a "Source" disclosure, so until a reader
+    // opens it there is nothing tall on the page.
+    const certain = node.visibility !== 'hide' && certainlyOverflows(sourceLines(node.value), n);
     return (
-      <Capped cap={cap} side="input">
+      <CollapseRegion n={n} side="input" overflowsInitially={certain}>
         <UpstreamCode {...props} />
-      </Capped>
+      </CollapseRegion>
     );
   },
   outputs(props: { node: GenericNode; className?: string }) {
-    const cap = useLongCellCap('output');
-    if (!cap) return <UpstreamOutputs {...props} />;
+    const n = useLongCellCap('output');
+    const { node } = props;
+    const outputs = (node.children ?? []).map((child) => child.jupyter_data);
+    // A cell that stored no output, or whose output is removed, has nothing
+    // to collapse.
+    if (!n || node.visibility === 'remove' || outputs.length === 0) {
+      return <UpstreamOutputs {...props} />;
+    }
+    const certain = node.visibility !== 'hide' && certainlyOverflows(outputTextLines(outputs), n);
     return (
-      <Capped cap={cap} side="output">
+      <CollapseRegion n={n} side="output" overflowsInitially={certain}>
         <UpstreamOutputs {...props} />
-      </Capped>
+      </CollapseRegion>
     );
   },
 };

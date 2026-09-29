@@ -1,4 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect, Locator, Page } from "@playwright/test";
 
 /**
  * Full-page visual snapshots of the fixture, one per rendering surface.
@@ -1103,6 +1103,146 @@ test.describe("Landing-page table of contents", () => {
       fullPage: true,
       maxDiffPixelRatio: 0.01,
       animations: "disabled",
+    });
+  });
+});
+
+// Long code inputs and long outputs collapse behind an Expand / Collapse bar
+// by cell tag: `collapse-N` on the input, `collapse-output-N` on the outputs.
+// The cap is N + 0.5 em of the region's 18px text, the height the lecture
+// builds give the same tag: 369px for collapse-20, 441px for
+// collapse-output-24. The cases are the "Long cells" section of the no-thebe
+// fixture's notebook.ipynb, each cell found by its code.
+test.describe("Long cells", () => {
+  const noThebeBase = `http://localhost:${process.env.NO_THEBE_PORT || "3112"}`;
+  const url = `${noThebeBase}/notebook`;
+  const cell = (page: Page, code: string) =>
+    page.locator(".myst-jp-nb-block", { has: page.locator("pre", { hasText: code }) });
+  const body = (region: Locator) => region.locator(":scope > .qe-collapse__body");
+  const height = async (locator: Locator) => Math.round((await locator.boundingBox())!.height);
+  const fullHeight = (locator: Locator) => locator.evaluate((el) => el.scrollHeight);
+
+  test("long-cell-collapsed", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "the caps are in em, not viewport-dependent");
+    await page.goto(url, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const input = cell(page, "class LongModel").locator(".qe-collapse--input");
+    const output = cell(page, "for i in range(60)").locator(".qe-collapse--output");
+    await expect(input).toHaveCount(1);
+    await expect(output).toHaveCount(1);
+    expect(await height(body(input))).toBe(369);
+    expect(await height(body(output))).toBe(441);
+    await expect(input).toHaveScreenshot("long-cell-input.png", { animations: "disabled" });
+    await expect(output).toHaveScreenshot("long-cell-output.png", { animations: "disabled" });
+
+    const bar = input.locator(".qe-collapse__bar");
+    await expect(bar).toHaveAccessibleName("Expand code");
+    await expect(bar).toHaveAttribute("aria-expanded", "false");
+    await expect(bar).toHaveAttribute("aria-controls", (await body(input).getAttribute("id"))!);
+    await expect(output.locator(".qe-collapse__bar")).toHaveAccessibleName("Expand output");
+
+    await bar.click();
+    await expect(bar).toHaveAttribute("aria-expanded", "true");
+    await expect(bar).toHaveAccessibleName("Collapse code");
+    const full = await fullHeight(body(input));
+    expect(full).toBeGreaterThan(369);
+    expect(await height(body(input))).toBe(full);
+    // The bar now sits at the foot of the whole class. Collapsing from there
+    // would strand the reader in whatever follows, so the region scrolls
+    // back into view.
+    await bar.click();
+    await expect(bar).toHaveAttribute("aria-expanded", "false");
+    expect(await height(body(input))).toBe(369);
+    await expect(bar).toBeInViewport();
+
+    // A native button: the keyboard works it too.
+    await bar.focus();
+    await page.keyboard.press("Enter");
+    await expect(bar).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Space");
+    await expect(bar).toHaveAttribute("aria-expanded", "false");
+  });
+
+  // A tagged cell that fits under its cap shows no bar and no fade, and a
+  // tagged cell with no output has nothing to collapse.
+  test("long-cell-fits", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(url, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const shortInput = cell(page, "total = sum(range(10))").locator(".qe-collapse--input");
+    const shortOutput = cell(page, 'print("a short output")').locator(".qe-collapse--output");
+    for (const region of [shortInput, shortOutput]) {
+      await expect(region).toHaveCount(1);
+      await expect(region).toHaveAttribute("data-overflows", "false");
+      await expect(region.locator(".qe-collapse__bar")).toHaveCount(0);
+      expect(await height(body(region))).toBe(await fullHeight(body(region)));
+    }
+    await expect(cell(page, "no_output = True").locator(".qe-collapse")).toHaveCount(0);
+  });
+
+  // An image has no line count, so the server leaves its bar off and the
+  // region measures itself once the image has loaded: the fixture's 560px
+  // figure is taller than the 441px cap at desktop width, and fits once a
+  // phone scales it down to the column.
+  test("long-cell-figure", async ({ page }, testInfo) => {
+    await page.goto(url, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    const figure = cell(page, "plt.subplots(figsize=(6.4, 5.6))").locator(".qe-collapse--output");
+    await expect(figure).toHaveCount(1);
+    if (testInfo.project.name === "desktop-chrome") {
+      await expect(figure).toHaveAttribute("data-overflows", "true");
+      await expect(figure.locator(".qe-collapse__bar")).toBeVisible();
+      expect(await height(body(figure))).toBe(441);
+    } else {
+      await expect(figure).toHaveAttribute("data-overflows", "false");
+      await expect(figure.locator(".qe-collapse__bar")).toHaveCount(0);
+    }
+  });
+
+  // On paper the whole cell prints: no cap and no bar.
+  test("long-cell-print", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
+    await page.goto(url, { waitUntil: "domcontentloaded" });
+    await settle(page);
+    await page.emulateMedia({ media: "print" });
+    for (const code of ["class LongModel", "for i in range(60)"]) {
+      const region = cell(page, code).locator(".qe-collapse");
+      expect(await height(body(region)), code).toBe(await fullHeight(body(region)));
+      await expect(region.locator(".qe-collapse__bar")).toBeHidden();
+    }
+  });
+
+  test.describe("without JavaScript", () => {
+    test.use({ javaScriptEnabled: false });
+
+    // The server HTML is what a reader sees before hydration. It shows a bar
+    // only where the line count makes overflow certain: the long class and
+    // the long log, not the short cells and not the figure, whose height is
+    // measured in the browser. With no script to work the bar, nothing is
+    // capped and the bar is hidden.
+    test("long-cell-server-html", async ({ page }, testInfo) => {
+      test.skip(
+        testInfo.project.name !== "desktop-chrome",
+        "asserts a server-render property; one engine is enough"
+      );
+      await page.goto(url, { waitUntil: "domcontentloaded" });
+      const regions = page.locator(".qe-collapse");
+      await expect(regions).toHaveCount(5);
+      expect(
+        await regions.evaluateAll((all) =>
+          all.map((r) => `${r.classList[1]} ${(r as HTMLElement).dataset.overflows}`)
+        )
+      ).toEqual([
+        "qe-collapse--input true",
+        "qe-collapse--output true",
+        "qe-collapse--input false",
+        "qe-collapse--output false",
+        "qe-collapse--output false",
+      ]);
+      await expect(page.locator(".qe-collapse__bar")).toHaveCount(2);
+      const longInput = cell(page, "class LongModel").locator(".qe-collapse");
+      expect(await height(body(longInput))).toBe(await fullHeight(body(longInput)));
+      await expect(longInput.locator(".qe-collapse__bar")).toBeHidden();
     });
   });
 });

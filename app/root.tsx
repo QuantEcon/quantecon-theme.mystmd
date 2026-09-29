@@ -43,9 +43,9 @@ const RENDERERS: NodeRenderers = mergeRenderers([
   STDERR_RENDERERS,
   // Wraps the base `block` renderer: `toc:project` blocks only.
   TOC_RENDERERS,
-  // PROTOTYPE (#242), inert unless `options.long_cell_tags` is set: replaces
-  // upstream's notebook-cell `block` entry under its own key, and wraps `code`
-  // and `outputs`. After JUPYTER_RENDERERS for the same reason as STDERR.
+  // The Expand / Collapse bar for long cells: replaces upstream's
+  // notebook-cell `block` entry under its own key, and wraps `code` and
+  // `outputs`. After JUPYTER_RENDERERS for the same reason as STDERR.
   LONG_CELL_RENDERERS,
 ]);
 

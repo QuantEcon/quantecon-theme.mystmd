@@ -891,25 +891,22 @@
     background-color: rgba(255, 193, 7, 0.08);
   }
 
-  /* Long-cell tags -- PROTOTYPE (#242), reached only with `long_cell_tags`
-     set. Two regions from app/components/LongCell.tsx.
+  /* Long code inputs and long outputs, collapsed behind an Expand / Collapse
+     bar (app/components/LongCell.tsx).
 
-     The caps are in em OF THE CODE FONT, as on the Sphinx theme, where
-     `collapse-20` is 20.5em of the highlighted block. Upstream sets a code
-     block at `text-sm`, so the region takes that size and its `max-height`,
-     which the component writes inline, counts in the same ems. */
-  .qe-long-cell {
-    font-size: 0.875rem;
-  }
+     The cap, which the component sets as `--qe-collapse-cap`, is N + 0.5 em
+     of the region's text, the article's 18px: 369px for `collapse-20`, the
+     height quantecon-book-theme gives the same tag on the lecture builds, and
+     441px for `collapse-output-24`, next to the 432px of the 24 em scroll box
+     that the lectures' scroll tags asked for there.
 
-  /* 1. Expand / Collapse bar: `collapse-N` on an input, `collapse-output-N` on
-     an output. The Sphinx theme's bar (quantecon-book-theme _content.scss):
-     a full-width strip under the block, 1px #ddd on three sides, #f9f9f9,
-     a bold #0072bc label. A fade at the foot of the capped body says there is
-     more; it goes when the region is expanded or never overflowed. The fade is
-     a MASK, not a gradient in a surface colour: the code block, a stream
-     output and a DataFrame sit on different grounds, in two colour schemes,
-     and a mask fades the content into whichever one is there. */
+     The bar is quantecon-book-theme's: a full-width strip under the block,
+     1px #ddd on three sides, #f9f9f9, a bold #0072bc label. A fade at the
+     foot of the capped body says there is more; it goes when the region is
+     expanded or does not overflow. The fade is a MASK, not a gradient in a
+     surface colour: the code block, a stream output and a DataFrame sit on
+     different grounds, in two colour schemes, and a mask fades the content
+     into whichever one is there. */
   .qe-collapse {
     position: relative;
     margin: 1.25rem 0; /* the code block's own my-5, which moves onto the region */
@@ -918,7 +915,13 @@
     position: relative;
     overflow: hidden;
   }
-  .qe-collapse__body > .myst-code {
+  .qe-collapse[data-expanded="false"] > .qe-collapse__body {
+    max-height: var(--qe-collapse-cap);
+  }
+  /* The region carries the block's spacing, so the bar sits flush under the
+     content rather than a margin's height below it. */
+  .qe-collapse__body > .myst-code,
+  .qe-collapse__body > [data-name="outputs-container"] {
     margin-top: 0;
     margin-bottom: 0;
   }
@@ -960,27 +963,20 @@
   .dark .qe-collapse__bar:focus-visible {
     outline-color: #6cb6ff;
   }
-
-  /* 2. Scrollbar: `scroll-input` on an input, `scroll-output` / `output_scroll`
-     on an output. The Sphinx theme's `output_scroll`: a fixed cap and the
-     browser's own scrollbar. `overscroll-behavior: contain` stops the page
-     taking over the moment the region reaches its end, which is what makes a
-     scrolling region inside a scrolling page bearable on a touch screen. */
-  .qe-scroll {
-    overflow: auto;
-    overscroll-behavior: contain;
-    margin: 1.25rem 0;
-  }
-  .qe-scroll > .myst-code {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-  .qe-scroll:focus-visible {
-    outline: 2px solid #0072bc;
-    outline-offset: 2px;
-  }
-  .dark .qe-scroll:focus-visible {
-    outline-color: #6cb6ff;
+  /* On paper, and without JavaScript to work the bar, the whole cell is there
+     to read: no cap, no fade and no bar. Each selector repeats the one it
+     undoes, so it wins on source order rather than on !important. */
+  @media print, (scripting: none) {
+    .qe-collapse[data-expanded] > .qe-collapse__body {
+      max-height: none;
+    }
+    .qe-collapse[data-expanded][data-overflows] > .qe-collapse__body {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .qe-collapse__bar {
+      display: none;
+    }
   }
 
   .qe-back-to-top a {
