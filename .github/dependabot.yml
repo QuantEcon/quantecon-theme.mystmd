@@ -1,7 +1,9 @@
 # Dependabot version updates, modelled on QuantEcon/quantecon-book-theme's
 # config and QuantEcon/actions' grouped form. GitHub Actions pins are checked
-# weekly -- minor and patch updates in one PR, majors in another -- and npm
-# dependencies monthly in one grouped PR.
+# weekly and npm dependencies monthly, each split the same way: minor and
+# patch updates in one grouped PR, majors in another. A major (Remix, React,
+# Tailwind, TypeScript) is a migration, not a routine bump, so keeping majors
+# out of the minor/patch group keeps that PR mergeable.
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
@@ -35,3 +37,11 @@ updates:
       npm-dependencies:
         patterns:
           - "*"
+        update-types:
+          - minor
+          - patch
+      npm-dependencies-major:
+        patterns:
+          - "*"
+        update-types:
+          - major
