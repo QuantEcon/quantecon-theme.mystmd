@@ -5,10 +5,13 @@ export interface TemplateOptions {
   // `site.options` key the template does not declare, so an option that is
   // read but not declared never arrives. Keep the two in step.
 
-  // Layout. Both are per-page: Page.tsx merges a page's `site:` block over
-  // the site-wide options.
+  // Layout. All are per-page (page `site:` overrides site-wide options).
+  // default_thebe is site-wide only (read from siteDesign in Page.tsx).
   hide_toc?: boolean;
   hide_search?: boolean;
+  default_thebe?: boolean; // site-wide: false = opt-in mode, absent/true = opt-out mode
+  enable_thebe?: boolean;  // per-page: show Power toggle (opt-in)
+  disable_thebe?: boolean; // per-page: hide Power toggle (opt-out); beats enable_thebe
 
   // Meta / SEO and analytics, passed through to @myst-theme/site.
   twitter?: string; // handle for twitter:site / twitter:creator, `@` optional

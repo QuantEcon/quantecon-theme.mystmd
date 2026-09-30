@@ -19,10 +19,16 @@ export function Page() {
   const pageDesign: TemplateOptions = (data.page.frontmatter as any)?.site ?? {};
   const siteDesign: TemplateOptions =
     (useSiteManifest() as SiteManifest & TemplateOptions)?.options ?? {};
-  const { hide_toc, hide_search } = {
-    ...siteDesign,
-    ...pageDesign,
-  };
+  const { hide_toc, hide_search } = { ...siteDesign, ...pageDesign };
+  // default_thebe: false in site.options → opt-in mode (Power toggle hidden
+  // unless the page sets enable_thebe: true). Absent or true → opt-out mode
+  // (toggle visible unless the page sets disable_thebe: true).
+  const defaultThebe = siteDesign.default_thebe !== false;
+  const notebookCompute = pageDesign.disable_thebe
+    ? false
+    : pageDesign.enable_thebe !== undefined
+      ? pageDesign.enable_thebe
+      : defaultThebe;
   return (
     <div className="relative bg-white dark:bg-qepage-dark">
       <ProjectProvider project={data.project}>
@@ -30,7 +36,7 @@ export function Page() {
           <NavigationAndArticleWrapper hide_toc={hide_toc} hideSearch={hide_search}>
             <ComputeOptionsProvider
               features={{
-                notebookCompute: true,
+                notebookCompute,
                 figureCompute: true,
                 launchBinder: false,
               }}

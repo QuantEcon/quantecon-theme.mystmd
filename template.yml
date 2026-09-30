@@ -105,6 +105,26 @@ options:
   - id: hide_search
     type: boolean
     description: Hide the toolbar search control.
+  - id: default_thebe
+    type: boolean
+    description: >
+      Project-level default for the live-compute Power toggle. Set to `false`
+      under `site.options` in myst.yml to switch the whole site into opt-in
+      mode: no page shows the toggle unless it sets `site: enable_thebe: true`.
+      Omit (or set `true`) to keep the default behaviour where every notebook
+      page shows the toggle when `project.jupyter.lite: true` is set.
+  - id: enable_thebe
+    type: boolean
+    description: >
+      Show the live-compute Power toggle on this page. Set under `site:` in a
+      page's frontmatter to opt that page into in-browser WASM execution.
+      Overrides `default_thebe: false` at the project level.
+  - id: disable_thebe
+    type: boolean
+    description: >
+      Hide the live-compute Power toggle on this page. Set under `site:` in a
+      page's frontmatter to opt that page out of in-browser WASM execution.
+      Takes precedence over `enable_thebe`.
   # --- Notebook launcher (see docs/launch.md) ---
   # Opt-in on both axes: the control renders only with `launch_notebook_repo`
   # set and `launch_colab` true. Names are flat because template options are
