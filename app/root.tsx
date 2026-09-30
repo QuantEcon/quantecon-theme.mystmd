@@ -20,7 +20,12 @@ import type { ISearch, MystSearchIndex } from '@myst-theme/search';
 import { SEARCH_ATTRIBUTES_ORDERED } from '@myst-theme/search';
 import { useCallback } from 'react';
 import { JUPYTER_RENDERERS } from '@myst-theme/jupyter';
-import { LIST_RENDERERS, STDERR_RENDERERS, TOC_RENDERERS } from './renderers';
+import {
+  LIST_RENDERERS,
+  LONG_CELL_RENDERERS,
+  STDERR_RENDERERS,
+  TOC_RENDERERS,
+} from './renderers';
 import { Document } from './components/Document';
 import { htmlDir, htmlLang } from './i18n';
 import { normalizeBaseurl } from './seo';
@@ -38,6 +43,10 @@ const RENDERERS: NodeRenderers = mergeRenderers([
   STDERR_RENDERERS,
   // Wraps the base `block` renderer: `toc:project` blocks only.
   TOC_RENDERERS,
+  // The Expand / Collapse bar for long cells: replaces upstream's
+  // notebook-cell `block` entry under its own key, and wraps `code` and
+  // `outputs`. After JUPYTER_RENDERERS for the same reason as STDERR.
+  LONG_CELL_RENDERERS,
 ]);
 
 export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {

@@ -891,6 +891,94 @@
     background-color: rgba(255, 193, 7, 0.08);
   }
 
+  /* Long code inputs and long outputs, collapsed behind an Expand / Collapse
+     bar (app/components/LongCell.tsx).
+
+     The cap, which the component sets as `--qe-collapse-cap`, is N + 0.5 em
+     of the region's text, the article's 18px: 369px for `collapse-20`, the
+     height quantecon-book-theme gives the same tag on the lecture builds, and
+     441px for `collapse-output-24`, next to the 432px of the 24 em scroll box
+     that the lectures' scroll tags asked for there.
+
+     The bar is quantecon-book-theme's: a full-width strip under the block,
+     1px #ddd on three sides, #f9f9f9, a bold #0072bc label. A fade at the
+     foot of the capped body says there is more; it goes when the region is
+     expanded or does not overflow. The fade is a MASK, not a gradient in a
+     surface colour: the code block, a stream output and a DataFrame sit on
+     different grounds, in two colour schemes, and a mask fades the content
+     into whichever one is there. */
+  .qe-collapse {
+    position: relative;
+    margin: 1.25rem 0; /* the code block's own my-5, which moves onto the region */
+  }
+  .qe-collapse__body {
+    position: relative;
+    overflow: hidden;
+  }
+  .qe-collapse[data-expanded="false"] > .qe-collapse__body {
+    max-height: var(--qe-collapse-cap);
+  }
+  /* The region carries the block's spacing, so the bar sits flush under the
+     content rather than a margin's height below it. */
+  .qe-collapse__body > .myst-code,
+  .qe-collapse__body > [data-name="outputs-container"] {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .qe-collapse[data-expanded="false"][data-overflows="true"] > .qe-collapse__body {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 3em), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 3em), transparent);
+  }
+  .qe-collapse__bar {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 25px;
+    border: 1px solid #ddd;
+    border-top-width: 0;
+    background-color: #f9f9f9;
+    color: #0072bc; /* 4.8:1 on #f9f9f9 -- AA */
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .qe-collapse__bar:hover {
+    background-color: #f0f0f0;
+  }
+  .qe-collapse__bar:focus-visible {
+    outline: 2px solid #0072bc;
+    outline-offset: -2px;
+  }
+  /* Neutral greys: the dark code ground is upstream's #1e1e1e, not a slate. */
+  .dark .qe-collapse__bar {
+    border-color: #3f3f3f;
+    background-color: #2a2a2a;
+    color: #6cb6ff; /* 7.0:1 on #2a2a2a */
+  }
+  .dark .qe-collapse__bar:hover {
+    background-color: #333;
+  }
+  .dark .qe-collapse__bar:focus-visible {
+    outline-color: #6cb6ff;
+  }
+  /* On paper, and without JavaScript to work the bar, the whole cell is there
+     to read: no cap, no fade and no bar. Each selector repeats the one it
+     undoes, so it wins on source order rather than on !important. */
+  @media print, (scripting: none) {
+    .qe-collapse[data-expanded] > .qe-collapse__body {
+      max-height: none;
+    }
+    .qe-collapse[data-expanded][data-overflows] > .qe-collapse__body {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .qe-collapse__bar {
+      display: none;
+    }
+  }
+
   .qe-back-to-top a {
     /* `rem` for the same reason as the footer: a fixed size, not the content
        base -- it must not move if `.article` does. The awkward figure is the

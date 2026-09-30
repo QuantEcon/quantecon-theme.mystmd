@@ -20,6 +20,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Long code inputs and long outputs collapse behind an Expand / Collapse bar,
+  from the cell's tags: `collapse-N` caps the code input and `collapse-output-N`
+  the cell's outputs at N + 0.5 em of the 18px text (369px for `collapse-20`,
+  the height `quantecon-book-theme` gives that tag on the lecture sites). The
+  bar and a fade at the foot of the capped content appear only while the content
+  overflows, so a tagged cell that fits at the reader's width shows neither: the
+  server renders the bar where the line count makes the overflow certain, and
+  the browser measures images, HTML and wrapped lines. The bar is a button with
+  `aria-expanded` and `aria-controls`, and collapsing brings the end of the
+  region back into view. Printed, or read without JavaScript, nothing is capped.
+  The scroll tags (`scroll-output`, `output_scroll`, `scroll-input`) are not
+  rendered: the lectures rename them to `collapse-output-24` when they move to
+  this theme, as decided on QuantEcon/project-theme-parity#19
+  ([#242](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/242))
+  ([#246](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/246)).
+
 ## [3.1.0] - 2026-09-16
 
 ### Added
