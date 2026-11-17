@@ -1331,11 +1331,8 @@ details.qb-env[open] > summary::after {
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 980px) {
-  .qb-masthead__search {
-    display: none;
-  }
-}
+/* Search stays at every width: the design hides its wide search box below
+   980px, but here it is an icon, so phones and tablets keep it. */
 @media (max-width: 900px) {
   .qb-crumb__btn {
     max-width: 42vw;
