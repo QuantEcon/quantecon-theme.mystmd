@@ -16,9 +16,9 @@ import { Bibliography, Footnotes } from '@myst-theme/site';
 import { MyST } from 'myst-to-react';
 import { copyNode, toText, type GenericNode, type GenericParent } from 'myst-common';
 import { PageProvider } from '@quantecon/theme-common/components/PageProvider';
-import { CONTENTS_SLUG, locate, neighbours, type Book, type BookChapter } from '~/bookNav';
+import { CONTENTS_SLUG, hasContentsPage, locate, neighbours, type Book, type BookChapter } from '~/bookNav';
 import type { BookOptions } from '~/types';
-import { BookShell, shortTitle, useBook, useContentsHref } from './BookShell';
+import { BookShell, useBook, useContentsHref } from './BookShell';
 import type { Section } from './Breadcrumbs';
 
 type ManifestProject = Required<SiteManifest>['projects'][0];
@@ -211,6 +211,7 @@ function Cover({ page }: { page: PageLoader }) {
   const Link = useLinkProvider();
   const baseurl = useBaseurl();
   const contentsHref = useContentsHref();
+  const hasContents = hasContentsPage(project);
   const tree = useMemo(() => copyNode(page.mdast) as GenericParent, [page]);
 
   const [main, ...rest] = String(project?.title ?? config?.title ?? '').split(':');
@@ -254,8 +255,13 @@ function Cover({ page }: { page: PageLoader }) {
               </ul>
             )}
             <div className="qb-hero__actions">
+              {/* As in the design: to the contents page when the book has one,
+                  else into the first page. */}
               <Link
-                to={withBaseurl(first ? `/${first.slug}` : contentsHref, baseurl)}
+                to={withBaseurl(
+                  hasContents || !first ? contentsHref : `/${first.slug}`,
+                  baseurl,
+                )}
                 className="qb-btn qb-btn--primary"
               >
                 <Icon d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5V5a2 2 0 0 1 2-2h14v14M6.5 17H20" />

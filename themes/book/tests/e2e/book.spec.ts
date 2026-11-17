@@ -14,7 +14,7 @@ test.describe('cover', () => {
     await expect(page.locator('.qb-hero h1')).toContainText('A Fixture Book');
     await expect(page.locator('.qb-hero__vol')).toHaveText('Theory and Practice');
     await expect(page.locator('.qb-hero__author')).toContainText('Example University');
-    await expect(page.getByRole('link', { name: 'Read online' })).toHaveAttribute('href', /\/preface\/?$/);
+    await expect(page.getByRole('link', { name: 'Read online' })).toHaveAttribute('href', /\/contents\/?$/);
     await expect(page.getByRole('link', { name: 'Source' })).toBeVisible();
     // No PDF in the fixture's downloads: no button.
     await expect(page.getByRole('link', { name: 'Download PDF' })).toHaveCount(0);

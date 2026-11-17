@@ -41,7 +41,9 @@
   --qb-c-definition: #a64a3a;
   --qb-c-proof: #6b6760;
   --qb-c-example: #2f7d5b;
-  --qb-c-remark: #9a6a1f;
+  /* The design's #9a6a1f is 4.44:1 on the paper, under WCAG AA for the
+     body-size italic labels it colours; #98691f is 4.52:1 and looks the same. */
+  --qb-c-remark: #98691f;
 
   /* Paper and ink (light). */
   --qb-paper: #faf8f3;
@@ -50,6 +52,9 @@
   --qb-ink: #1d1b16;
   --qb-ink-soft: #3a362e;
   --qb-muted: #6f6a5f;
+  /* As designed, 3.24:1 on the paper (3.40:1 for the dark value): under AA
+     for the small labels and code comments that use it. Raising it to pass
+     would make it the same colour as --qb-muted; left for a design decision. */
   --qb-faint: #908a7c;
   --qb-rule: #e4dece;
   --qb-link: var(--qb-blue);
