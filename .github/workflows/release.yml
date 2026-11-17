@@ -16,9 +16,16 @@ name: Release
 #   package-lock.json               (generated; node_modules is NOT shipped)
 #   CHANGELOG.md
 #
+# The lecture theme is the `themes/lecture` workspace: its package.json,
+# CHANGELOG.md, template/ and template.yml live there, and the build runs from
+# the repository root through npm workspaces. The tag series, the asset name
+# and the zip's contents are unchanged by that layout. (The book theme
+# releases separately, on `book-v*` tags — see release-book.yml.)
+#
 # Guards (both fail the release):
-#   - the tag must match `package.json` `version`
-#   - CHANGELOG.md must have a `## [X.Y.Z]` section — it becomes the release notes
+#   - the tag must match themes/lecture/package.json `version`
+#   - themes/lecture/CHANGELOG.md must have a `## [X.Y.Z]` section — it
+#     becomes the release notes
 
 on:
   push:
@@ -26,6 +33,9 @@ on:
 
 permissions:
   contents: write
+
+env:
+  LECTURE: themes/lecture
 
 jobs:
   release:
@@ -40,15 +50,15 @@ jobs:
 
       - name: Verify tag matches package.json version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./$LECTURE/package.json').version")
           if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version v$VERSION — bump package.json (see CONTRIBUTING.md \"Releases\") and re-tag."
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version v$VERSION — bump $LECTURE/package.json (see CONTRIBUTING.md \"Releases\") and re-tag."
             exit 1
           fi
 
       - name: Extract release notes from CHANGELOG.md
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./$LECTURE/package.json').version")
           # Second stage: unwrap hard-wrapped lines. CHANGELOG.md is wrapped for
           # the repo view, but GitHub renders release bodies like comments — a
           # single newline becomes <br> — so wrapped source shows as narrow
@@ -59,7 +69,7 @@ jobs:
             index($0, "## [" ver "]") == 1 { flag = 1; next }
             /^## /                         { flag = 0 }
             flag
-          ' CHANGELOG.md | awk '
+          ' "$LECTURE/CHANGELOG.md" | awk '
             function flush() { if (have) { print buf; have = 0 } }
             /^```/  { flush(); print; infence = !infence; next }
             infence { print; next }
@@ -73,7 +83,7 @@ jobs:
             END { flush() }
           ' > release-notes.md
           if ! grep -q '[^[:space:]]' release-notes.md; then
-            echo "::error::CHANGELOG.md has no \"## [$VERSION]\" section — add the curated entry (see CONTRIBUTING.md \"Releases\") and re-tag."
+            echo "::error::$LECTURE/CHANGELOG.md has no \"## [$VERSION]\" section — add the curated entry (see CONTRIBUTING.md \"Releases\") and re-tag."
             exit 1
           fi
 
@@ -91,17 +101,17 @@ jobs:
 
       - name: Assemble theme bundle and zip
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./$LECTURE/package.json').version")
           DIST=dist/quantecon-theme
           mkdir -p "$DIST"
-          find template -type f -exec cp {} "$DIST" \;
-          cp -r public "$DIST/public"
-          cp -r build "$DIST/build"
-          cp CHANGELOG.md "$DIST/CHANGELOG.md"
+          find "$LECTURE/template" -type f -exec cp {} "$DIST" \;
+          cp -r "$LECTURE/public" "$DIST/public"
+          cp -r "$LECTURE/build" "$DIST/build"
+          cp "$LECTURE/CHANGELOG.md" "$DIST/CHANGELOG.md"
           # Stamp both version fields from package.json so the shipped bundle
           # cannot drift.
           sed -i "s/VERSION/$VERSION/g" "$DIST/package.json"
-          sed -E "s/^version: .*/version: $VERSION/" template.yml > "$DIST/template.yml"
+          sed -E "s/^version: .*/version: $VERSION/" "$LECTURE/template.yml" > "$DIST/template.yml"
           # Lockfile for reproducible consumer installs, without shipping node_modules.
           (cd "$DIST" && npm install --package-lock-only)
           (cd dist && zip -r ../quantecon-theme.zip quantecon-theme)

@@ -2,9 +2,14 @@
 
 # Releases ship via the tag-triggered GitHub Release workflow
 # (.github/workflows/release.yml) — see CONTRIBUTING.md "Releases".
+#
+# The lecture theme lives in the themes/lecture workspace; its bundle is still
+# assembled at the repository root, in .deploy/$(THEME), so the test harness,
+# the preview workflow and THEME_TEMPLATE paths are unchanged.
 
 THEME = quantecon-theme
-VERSION = $(shell cat package.json | jq -r '.version')
+LECTURE = themes/lecture
+VERSION = $(shell jq -r '.version' $(LECTURE)/package.json)
 
 check:
 	@which jq > /dev/null || (echo "Error: the jq command is not available. Please install it first (brew install jq | apt-get install jq)." && exit 1)
@@ -16,13 +21,13 @@ check:
 build-theme: check
 	rm -rf .deploy/$(THEME)
 	mkdir -p .deploy/$(THEME)
-	find template -type f -exec cp {} .deploy/$(THEME) \;
-	npm run prod:build
-	cp -r public .deploy/$(THEME)/public
-	cp -r build .deploy/$(THEME)/build
-	cp CHANGELOG.md .deploy/$(THEME)/CHANGELOG.md
+	find $(LECTURE)/template -type f -exec cp {} .deploy/$(THEME) \;
+	npm run prod:build -w $(LECTURE)
+	cp -r $(LECTURE)/public .deploy/$(THEME)/public
+	cp -r $(LECTURE)/build .deploy/$(THEME)/build
+	cp $(LECTURE)/CHANGELOG.md .deploy/$(THEME)/CHANGELOG.md
 	sed -i.bak "s/VERSION/$(VERSION)/g" .deploy/$(THEME)/package.json && rm .deploy/$(THEME)/package.json.bak
-	sed -E "s/^version: .*/version: $(VERSION)/" template.yml > .deploy/$(THEME)/template.yml
+	sed -E "s/^version: .*/version: $(VERSION)/" $(LECTURE)/template.yml > .deploy/$(THEME)/template.yml
 	cd .deploy/$(THEME) && npm install
 
 # Zips the bundle for testing the release artifact locally — node_modules
