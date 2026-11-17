@@ -1,0 +1,112 @@
+name: Release (book theme)
+
+# Tag-triggered build → zip → GitHub Release for the book theme
+# (themes/book), on its own tag series, separate from the lecture theme's
+# `vX.Y.Z` (release.yml):
+#
+#   book-vX.Y.Z  →  a GitHub Release with quantecon-theme-book.zip
+#
+# Books pin a release URL:
+#   …/releases/download/book-vX.Y.Z/quantecon-theme-book.zip
+#
+# The zip has the lecture bundle's layout: build/, public/, template.yml
+# (version stamped), server.js, package.json, LICENSE, README.md,
+# thumbnail.png, a generated package-lock.json, and CHANGELOG.md.
+#
+# Guards (both fail the release):
+#   - the tag must be `book-v` + themes/book/package.json `version`
+#   - themes/book/CHANGELOG.md must have a `## [X.Y.Z]` section, which
+#     becomes the release notes
+#
+# The release is never marked "latest": that badge, and
+# /releases/latest, stay with the lecture theme's series.
+#
+# The tag patterns cannot overlap: release.yml's `v*.*.*` matches from the
+# start of the tag name, so `book-v…` never triggers it, and this pattern
+# needs the `book-` prefix.
+
+on:
+  push:
+    tags: ['book-v*.*.*']
+
+permissions:
+  contents: write
+
+env:
+  BOOK: themes/book
+  ASSET: quantecon-theme-book
+
+jobs:
+  release:
+    name: Build & publish book theme zip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Verify tag matches themes/book/package.json version
+        run: |
+          VERSION=$(node -p "require('./$BOOK/package.json').version")
+          if [ "book-v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match $BOOK/package.json version book-v$VERSION — bump the version (see CONTRIBUTING.md \"Releases\") and re-tag."
+            exit 1
+          fi
+
+      - name: Extract release notes from themes/book/CHANGELOG.md
+        run: |
+          VERSION=$(node -p "require('./$BOOK/package.json').version")
+          # Same unwrapping as release.yml: GitHub renders release bodies
+          # with single newlines as line breaks.
+          awk -v ver="$VERSION" '
+            index($0, "## [" ver "]") == 1 { flag = 1; next }
+            /^## /                         { flag = 0 }
+            flag
+          ' "$BOOK/CHANGELOG.md" | awk '
+            function flush() { if (have) { print buf; have = 0 } }
+            /^```/  { flush(); print; infence = !infence; next }
+            infence { print; next }
+            /^ {2,}[^ ]/ && have && $0 !~ /^ +[-*] / {
+              line = $0; sub(/^ +/, "", line); buf = buf " " line; next
+            }
+            /^> [^ ]/ && have && buf ~ /^> / {
+              line = $0; sub(/^> /, "", line); buf = buf " " line; next
+            }
+            { flush(); buf = $0; have = 1 }
+            END { flush() }
+          ' > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "::error::$BOOK/CHANGELOG.md has no \"## [$VERSION]\" section — add the entry and re-tag."
+            exit 1
+          fi
+
+      - run: npm ci
+      - run: npm run compile
+      - run: npm run test:unit
+      - name: Build
+        # esbuild occasionally deadlocks: time out so the run can be retried.
+        timeout-minutes: 20
+        run: npm run prod:build -w "$BOOK"
+
+      - name: Assemble theme bundle and zip
+        run: |
+          VERSION=$(node -p "require('./$BOOK/package.json').version")
+          DIST="dist/$ASSET"
+          mkdir -p "$DIST"
+          find "$BOOK/template" -type f -exec cp {} "$DIST" \;
+          cp -r "$BOOK/public" "$DIST/public"
+          cp -r "$BOOK/build" "$DIST/build"
+          cp "$BOOK/CHANGELOG.md" "$DIST/CHANGELOG.md"
+          sed -i "s/VERSION/$VERSION/g" "$DIST/package.json"
+          sed -E "s/^version: .*/version: $VERSION/" "$BOOK/template.yml" > "$DIST/template.yml"
+          (cd "$DIST" && npm install --package-lock-only)
+          (cd dist && zip -r "../$ASSET.zip" "$ASSET")
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          body_path: release-notes.md
+          files: ${{ env.ASSET }}.zip
+          make_latest: false
