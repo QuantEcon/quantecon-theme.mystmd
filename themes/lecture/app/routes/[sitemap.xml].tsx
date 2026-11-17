@@ -4,7 +4,7 @@ import {
   getDomainFromRequest,
 } from "@myst-theme/site";
 import type { LoaderFunction } from "@remix-run/node";
-import { getConfig } from "~/backend/loaders.server";
+import { getConfig } from "@quantecon/theme-common/backend/loaders.server";
 
 export const loader: LoaderFunction = async ({
   request,

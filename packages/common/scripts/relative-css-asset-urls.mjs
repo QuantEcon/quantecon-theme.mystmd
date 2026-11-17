@@ -41,7 +41,11 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 // Both read from the Remix config rather than hardcoded, so this cannot drift
 // out of step with where the build actually puts things.
-const { publicPath = '/', assetsBuildDirectory = 'public/build' } = require('../remix.config.prod.js');
+// Run from a theme's directory (its `prod:build` script), so the config is the
+// one beside the build being rewritten.
+const { publicPath = '/', assetsBuildDirectory = 'public/build' } = require(
+  path.resolve('remix.config.prod.js'),
+);
 
 const buildDir = path.resolve(assetsBuildDirectory);
 const assetsDir = path.join(buildDir, '_assets');

@@ -1,0 +1,87 @@
+jtex: v1
+title: QuantEcon Book Theme
+description: The QuantEcon book theme for MyST, in the Manuscript direction
+version: 0.1.0
+license: MIT
+source: https://github.com/QuantEcon/quantecon-theme.mystmd
+thumbnail: ./thumbnail.png
+authors:
+  - name:
+      literal: QuantEcon
+    website: https://quantecon.org
+tags:
+  - book
+parts:
+  - id: footer
+    description: The colophon at the foot of every page
+# Site options (`site.options` in myst.yml). The CLI validates against this
+# list and drops any key not declared here, so every option the theme reads
+# is declared below. No `default:` on any option: a declared default is
+# written into every page's validated `site:` block and overrides the site
+# value. Defaults live in code (app/root.tsx, app/types.ts).
+options:
+  - id: default_color_scheme
+    type: string
+    description: >
+      The colour scheme a reader sees until they choose one with the toggle:
+      `light` (the default; figures are drawn for white paper), `dark`, or
+      `system` to follow the reader's operating system.
+  - id: masthead_title
+    type: string
+    description: Title for the masthead. Defaults to the project title up to any colon.
+  - id: series
+    type: string
+    description: Series line above the title on the cover. Defaults to the venue title.
+  - id: license_label
+    type: string
+    description: Licence shown on the cover when the project declares none.
+  - id: style
+    type: file
+    description: >
+      A stylesheet of the book's own, appended after the theme's (served in
+      /myst-theme.css), as in upstream book-theme.
+  - id: numbered_references
+    type: boolean
+    description: Show parenthetical citations as numbered references.
+  - id: twitter
+    type: string
+    description: Handle for the twitter:site and twitter:creator card meta tags.
+  - id: site_url
+    type: string
+    description: >
+      The site's public URL, for the canonical link, og:url and
+      citation_public_url. Leave unset for no canonical link.
+  - id: og_logo_url
+    type: string
+    description: og:image for pages without a thumbnail.
+  - id: twitter_logo_url
+    type: string
+    description: twitter:image; falls back to og_logo_url.
+  - id: favicon
+    type: file
+    description: Favicon file, relative to myst.yml.
+  - id: analytics_google
+    type: string
+    description: Google Analytics key.
+  - id: analytics_plausible
+    type: string
+    description: Plausible Analytics domain.
+  - id: hide_search
+    type: boolean
+    description: Hide the search control.
+  - id: layout
+    type: string
+    description: >
+      Per page (under `site:` in a page's frontmatter): `contents` renders the
+      page as the full table of contents. A page with the slug `contents` does
+      so without it.
+build:
+  # `npm ci`: the release asset ships a lockfile (release-book.yml generates it).
+  install: npm ci
+  start: npm run start
+files:
+  - server.js
+  - package.json
+  - package-lock.json
+  - public/**/*
+  - build/**/*

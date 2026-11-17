@@ -8,7 +8,7 @@ import { getProject, isFlatSite, type PageLoader } from '@myst-theme/common';
 import { getMetaTagsForArticle } from '@myst-theme/site';
 // Self-hosted, not the CDN-backed KatexCSS from @myst-theme/site — see app/links.ts.
 import { KatexCSS } from '~/links';
-import { getConfig, getPage } from '~/backend/loaders.server';
+import { getConfig, getPage } from '@quantecon/theme-common/backend/loaders.server';
 import type { SiteManifest } from 'myst-config';
 import { ErrorPage } from '~/components/ErrorPage';
 import { Page } from '~/components/Page';
@@ -17,7 +17,7 @@ import { canonicalLink, mergeMeta, pageUrl, siteOrigin, socialMetaTags } from '@
 
 // Never re-run the loader on a navigation that changes neither pathname nor
 // search (Back off an in-page anchor on a static build).
-export { shouldRevalidate } from '~/revalidate';
+export { shouldRevalidate } from '@quantecon/theme-common/revalidate';
 
 type ManifestProject = Required<SiteManifest>['projects'][0];
 

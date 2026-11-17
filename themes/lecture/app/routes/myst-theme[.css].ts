@@ -1,6 +1,6 @@
 import { type LoaderFunction } from "@remix-run/node";
 import { type ThemeCssOptions, themeCSS, cssResponse } from "@myst-theme/site";
-import { getConfig } from "~/backend/loaders.server";
+import { getConfig } from "@quantecon/theme-common/backend/loaders.server";
 
 export const loader: LoaderFunction = async (): Promise<Response> => {
   const site = await getConfig();

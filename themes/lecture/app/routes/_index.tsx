@@ -3,7 +3,7 @@ import { getMetaTagsForArticle, responseNoArticle, responseNoSite } from '@myst-
 import { KatexCSS } from '~/links';
 import type { LinksFunction, LoaderFunction, V2_MetaFunction } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
-import { getConfig, getPage } from '~/backend/loaders.server';
+import { getConfig, getPage } from '@quantecon/theme-common/backend/loaders.server';
 import type { SiteManifest } from 'myst-config';
 import { getProject } from '@myst-theme/common';
 
@@ -13,7 +13,7 @@ import { canonicalLink, mergeMeta, pageUrl, siteOrigin, socialMetaTags } from '@
 
 // Never re-run the loader on a navigation that changes neither pathname nor
 // search (Back off an in-page anchor on a static build).
-export { shouldRevalidate } from '~/revalidate';
+export { shouldRevalidate } from '@quantecon/theme-common/revalidate';
 
 type ManifestProject = Required<SiteManifest>['projects'][0];
 
