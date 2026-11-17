@@ -135,3 +135,32 @@ test("the fork's part headings number the parts, as in print", () => {
   // A single engine part (Economic Networks' appendices) gets no label.
   assert.equal(buildBook(networks).groups[2].label, undefined);
 });
+
+test("upstream mystmd's shape: groups as level-1 entries, pages at level 2, no section keys", () => {
+  const upstream = {
+    index: 'index',
+    toc: [
+      { file: 'index.md' },
+      { title: 'Front Matter', children: [{ file: 'preface.md' }] },
+      { title: 'Foundations', children: [{ file: 'ch-one.md' }] },
+      { title: 'Applications', children: [{ file: 'ch-two.md' }] },
+    ],
+    pages: [
+      { level: 1, title: 'Front Matter' },
+      { level: 2, slug: 'preface', title: 'Preface' },
+      { level: 1, title: 'Foundations' },
+      { level: 2, slug: 'ch-one', title: 'Operators' },
+      { level: 1, title: 'Applications' },
+      { level: 2, slug: 'ch-two', title: 'Computation' },
+    ],
+  };
+  const book = buildBook(upstream);
+  assert.deepEqual(
+    book.groups.map((g) => [g.kind, g.label ?? null, g.chapters.map((c) => `${c.num} ${c.slug}`)]),
+    [
+      ['matter', null, ['i preface']],
+      ['part', 'Part I', ['· ch-one']],
+      ['part', 'Part II', ['· ch-two']],
+    ],
+  );
+});

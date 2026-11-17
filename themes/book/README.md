@@ -80,5 +80,19 @@ make build-book             # → .deploy/quantecon-theme-book
 npm run test:unit -w themes/book
 ```
 
-The unit tests cover the book structure (`app/bookNav.ts`) and the citation
-meta (`app/citation.ts`).
+The unit tests cover the book structure (`app/bookNav.ts`, in both the
+QuantEcon fork's and upstream mystmd's manifest shapes) and the citation meta
+(`app/citation.ts`).
+
+The behavioural suite builds the fixture book in `tests/fixture` with the
+`myst` on `PATH` and checks each page type, the breadcrumb, the drawer, the
+environments, the code cards, the colour-scheme default and a clean
+hydration (no pixel snapshots):
+
+```sh
+make build-book
+cd themes/book
+THEME_TEMPLATE="$PWD/../../.deploy/quantecon-theme-book" npm run test:e2e
+```
+
+CI runs it as the `book` job.

@@ -1,0 +1,37 @@
+# The book theme's test fixture: a two-part book exercising each page type
+# and the constructs the theme restyles. `__THEME__` is replaced by the
+# theme under test (tests/serve.sh).
+version: 1
+project:
+  title: "A Fixture Book: Theory and Practice"
+  description: A small book for the book theme's tests.
+  authors:
+    - name: Ada Example
+      affiliations:
+        - Example University
+  github: https://github.com/QuantEcon/quantecon-theme.mystmd
+  doi: 10.0000/fixture
+  venue:
+    title: QuantEcon
+  subject: Economics
+  numbering:
+    headings: true
+    proof:property:
+      template: "Fact %s"
+  toc:
+    - file: index.md
+    - title: Front Matter
+      section: frontmatter
+      children:
+        - file: contents.md
+        - file: preface.md
+    - title: Foundations
+      children:
+        - file: ch-one.md
+    - title: Applications
+      children:
+        - file: ch-two.md
+site:
+  template: __THEME__
+  options:
+    site_url: https://example.org/fixture
