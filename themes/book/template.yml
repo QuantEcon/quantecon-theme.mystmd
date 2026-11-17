@@ -29,6 +29,18 @@ options:
   - id: masthead_title
     type: string
     description: Title for the masthead. Defaults to the project title up to any colon.
+  - id: logo
+    type: file
+    description: An image before the masthead title (upstream book-theme's option).
+  - id: logo_dark
+    type: file
+    description: The logo for the dark scheme; defaults to `logo`.
+  - id: logo_alt
+    type: string
+    description: Alt text for the logo.
+  - id: logo_text
+    type: string
+    description: Text beside the logo; replaces the masthead title.
   - id: series
     type: string
     description: Series line above the title on the cover. Defaults to the venue title.

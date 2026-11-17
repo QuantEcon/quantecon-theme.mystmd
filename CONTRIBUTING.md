@@ -65,12 +65,19 @@ scripts/             # repository tooling (rewrite-raw-blocks.mjs, used by previ
 docs/                # lecture theme feature reference
 packages/
   common/            # @quantecon/theme-common — shared by every theme
-    components/      #   Search, LanguageSwitcher, Tooltip, ProjectFrontmatter,
+    backend/         #   loaders.server.ts (content-server loaders)
+    components/      #   Document, Search, LanguageSwitcher, Tooltip, ProjectFrontmatter,
                      #   PageHeaderHistory, PageProvider, LongCell
+    renderers/       #   lists.tsx (fancy ordered lists)
+    scripts/         #   relative-css-asset-urls.mjs (a build step of every theme)
     styles/          #   lists.css, rtl.css
-    i18n.ts seo.ts longCell.ts
+    i18n.ts seo.ts longCell.ts revalidate.ts colorScheme.tsx
     tests/unit/      #   unit tests for the helpers above
 themes/
+  book/              # @quantecon/book-theme — ships as quantecon-theme-book.zip (book-v* tags)
+    app/             #   Remix app: page types, breadcrumb, drawer, renderers
+    styles/          #   manuscript.css (the design tokens) and book.css
+    template/, template.yml, CHANGELOG.md, tests/unit/
   lecture/           # @quantecon/lecture-theme — ships as quantecon-theme.zip
     app/             #   Remix app: backend/, components/, hooks/, routes/, root.tsx
     styles/          #   Tailwind entry (app.css) and the lecture styles
@@ -366,6 +373,16 @@ To cut a release:
    `quantecon-theme.zip` attached, using the version's `CHANGELOG.md` section as the
    release notes. The workflow **fails** if the tag does not match
    `themes/lecture/package.json` or if `themes/lecture/CHANGELOG.md` has no `## [X.Y.Z]` section.
+
+### Releasing the book theme
+
+The book theme (`themes/book`) follows the same steps on its own files and
+tags: its changelog is `themes/book/CHANGELOG.md`, its version
+`themes/book/package.json`, and its tag `book-vX.Y.Z`. The tag triggers
+[`release-book.yml`](./.github/workflows/release-book.yml), which attaches
+`quantecon-theme-book.zip` to a release that is **not** marked latest, so the
+repository's latest release stays the lecture theme's. The two tag patterns
+cannot overlap (`v*.*.*` matches from the start of the tag name).
 
 If a release run fails, the failed run published nothing, so recovery is safe:
 

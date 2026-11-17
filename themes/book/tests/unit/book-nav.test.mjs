@@ -115,3 +115,23 @@ test('the contents page is built but not listed', () => {
   assert.equal(hasContentsPage(withContents), true);
   assert.equal(hasContentsPage(networks), false);
 });
+
+test("the fork's part headings number the parts, as in print", () => {
+  const primer = {
+    toc: [
+      { title: 'Introduction', section: 'chapters', children: [{ file: 'ch01.md' }] },
+      { title: 'Background', section: 'parts', children: [{ file: 'ch02.md' }] },
+      { title: 'Foundations of Statistics', section: 'parts', children: [{ file: 'ch08.md' }] },
+    ],
+    pages: [
+      { slug: 'ch01', enumerator: '1' },
+      { level: -1, title: 'Part I — Background' },
+      { slug: 'ch02', enumerator: '2' },
+      { level: -1, title: 'Part II — Foundations of Statistics' },
+      { slug: 'ch08', enumerator: '8' },
+    ],
+  };
+  assert.deepEqual(buildBook(primer).groups.map((g) => g.label ?? null), [null, 'Part I', 'Part II']);
+  // A single engine part (Economic Networks' appendices) gets no label.
+  assert.equal(buildBook(networks).groups[2].label, undefined);
+});

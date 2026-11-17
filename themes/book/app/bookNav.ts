@@ -193,9 +193,27 @@ export function buildBook(project?: ProjectLike | null): Book {
       else c.num = '·';
     });
   }
-  // "Part I", "Part II" only when there is more than one numbered part.
-  const parts = groups.filter((g) => g.kind === 'part' && g.title);
-  if (parts.length > 1) parts.forEach((g, i) => (g.label = `Part ${upperRoman(i + 1)}`));
+  // Part labels. The QuantEcon mystmd fork numbers the `section: parts` groups
+  // itself and lists them in `pages` as `level: -1` entries ("Part II —
+  // Background"); those are authoritative, so a book whose introduction
+  // stands before Part I keeps print's numbering. Without them, "Part I",
+  // "Part II" go on the titled part groups. Either way a book with a single
+  // part gets no label.
+  const engineParts = (project?.pages ?? [])
+    .filter((p) => (p.level ?? 0) < 0 && p.title)
+    .map((p) => /^(Part\s+[IVXLCDM]+)\s*[—–:-]\s*(.+)$/i.exec(String(p.title)))
+    .filter((m): m is RegExpExecArray => !!m);
+  if (engineParts.length) {
+    if (engineParts.length > 1) {
+      for (const [, label, title] of engineParts) {
+        const g = groups.find((x) => x.title.trim().toLowerCase() === title.trim().toLowerCase());
+        if (g) g.label = label;
+      }
+    }
+  } else {
+    const parts = groups.filter((g) => g.kind === 'part' && g.title);
+    if (parts.length > 1) parts.forEach((g, i) => (g.label = `Part ${upperRoman(i + 1)}`));
+  }
 
   return { groups, order };
 }

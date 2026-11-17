@@ -160,7 +160,23 @@ export function BookShell({
           </svg>
         </button>
         <Link to={withBaseurl('/', baseurl)} className="qb-masthead__title">
-          <b>QuantEcon</b> · {shortTitle(project?.title ?? config?.title, options)}
+          {options.logo && (
+            <>
+              <img className="qb-logo qb-logo--light" src={withBaseurl(options.logo, baseurl)} alt={options.logo_alt ?? ''} />
+              <img
+                className="qb-logo qb-logo--dark"
+                src={withBaseurl(options.logo_dark ?? options.logo, baseurl)}
+                alt={options.logo_alt ?? ''}
+              />
+            </>
+          )}
+          <span className="qb-masthead__text">
+            {options.logo_text ?? (
+              <>
+                <b>QuantEcon</b> · {shortTitle(project?.title ?? config?.title, options)}
+              </>
+            )}
+          </span>
         </Link>
         <Breadcrumbs book={book} type={type} slug={slug} sections={sections} />
         <div className="qb-masthead__spacer" />

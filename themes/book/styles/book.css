@@ -120,6 +120,26 @@ body.qb-body {
 .qb-masthead__title:hover {
   text-decoration: none;
 }
+.qb-masthead__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.qb-masthead__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qb-logo {
+  height: 26px;
+  width: auto;
+}
+.qb-logo--dark,
+.dark .qb-logo--light {
+  display: none;
+}
+.dark .qb-logo--dark {
+  display: block;
+}
 .qb-masthead__spacer {
   flex: 1;
 }
@@ -1364,4 +1384,11 @@ details.qb-env[open] > summary::after {
   .qb-chap-nav__next {
     grid-column: 1;
   }
+}
+
+/* Citations and cross-reference hovers: `.hover-link` spans as well as links,
+   in the link colour rather than upstream's blue. */
+.qb-article .hover-link {
+  color: var(--qb-link);
+  text-decoration-color: color-mix(in oklab, var(--qb-link) 50%, transparent);
 }

@@ -8,6 +8,11 @@ export interface BookOptions {
   default_color_scheme?: string;
   /** Short title for the masthead; defaults to the project title before any colon. */
   masthead_title?: string;
+  /** Upstream book-theme's logo options, shown in the masthead. */
+  logo?: string;
+  logo_dark?: string;
+  logo_alt?: string;
+  logo_text?: string;
   /** Series line above the title on the cover; defaults to the venue title. */
   series?: string;
   /** Licence line for the cover and colophon, when the project sets none. */
