@@ -30,8 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   CSS classes, but the maths HTML on a lecture page comes from the KaTeX bundled
   in the `mystmd` CLI (0.15.6), so the theme's stylesheet has to stay on the
   0.16 class names: with the 0.18 stylesheet, superscripts, equation tags and
-  root indices lose their styling
-  ([#275](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/275)).
+  root indices lose their styling, which failed the visual regression suite on
+  the katex 0.18.2 bump
+  ([#275](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/275))
+  ([#276](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/276)).
 
 ## [3.2.0] - 2026-09-30
 
