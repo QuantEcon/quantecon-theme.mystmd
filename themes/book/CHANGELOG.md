@@ -34,13 +34,6 @@ keeps its own changelog in `themes/lecture/CHANGELOG.md`.
 - Margin notes show their hairline in the gutter, and below 1080px take a
   clay rule rather than a filled box ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
 
-### Fixed
-
-- The footnotes were ruled off twice, over their heading and over the list
-  ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
-- On wide screens a page with footnotes or references scrolled sideways: the
-  sections took the reading column's negative margin a second time ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
-
 ## [0.1.0] - unreleased
 
 ### Added
