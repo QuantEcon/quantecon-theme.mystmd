@@ -1,6 +1,7 @@
 /**
  * The book structure the navigation is drawn from (app/bookNav.ts).
- * Requires Node >= 23.6 (type stripping of the imported `.ts`).
+ * Requires Node 22.18+ or 23.6+, which strip types from the imported `.ts`
+ * by default (the workspace's `engines`).
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
