@@ -20,6 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- The Playwright CI jobs (the visual regression, the FOUC guard and
+  `/update-snapshots`) run on `ubuntu-24.04`, not `ubuntu-latest`. `ubuntu-latest`
+  is now Ubuntu 26.04, where Playwright 1.60 cannot install browsers, so both CI
+  jobs were failing before any test ran. The committed baselines are unchanged
+  ([#272](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/272)).
+
 ## [3.2.0] - 2026-09-30
 
 ### Added
