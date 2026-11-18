@@ -325,6 +325,15 @@ step doubles as a migration-readiness check: if the Jupyter Book upgrade breaks
 on real lecture content, the preview build is where it shows. The preview is
 qualitative — it is not a gate.
 
+The same run builds the book theme on a real book, *Economic Networks*
+(`QuantEcon/book-networks.mystmd`), and publishes it at
+`pr-preview/pr-<n>/book/`. The book is built with the renderer its edition
+deploys with, the QuantEcon mystmd fork (`MYSTMD_FORK_REF` in `preview.yml`,
+built from its tag), with the edition's fancy-lists plugin and stylesheet
+removed, since the theme replaces them. The edition has no contents page yet,
+so the preview adds one to show that page type. A shared change that breaks
+either theme's static build fails the preview.
+
 ## Commit Convention
 
 We use conventional commits:

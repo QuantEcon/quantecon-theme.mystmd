@@ -22,3 +22,6 @@ keeps its own changelog in `themes/lecture/CHANGELOG.md`.
 - `default_color_scheme` (`light` by default), replacing the converted
   editions' `light_default.py` rewrite of the built pages.
 - `citation_*` meta for Google Scholar and reference managers.
+- PR previews build *Economic Networks* with the book theme, at
+  `pr-preview/pr-<n>/book/` beside the lecture preview
+  ([#271](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/271)).
