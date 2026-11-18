@@ -22,7 +22,7 @@ shared code in `packages/`, and thin theme apps in `themes/`.
 
 | Path | What it is |
 | ---- | ---------- |
-| [`themes/lecture/`](./themes/lecture) | The lecture theme, `@quantecon/lecture-theme`: the Remix app, its styles, `template/` and `template.yml`, its `CHANGELOG.md` and its test suites. It ships as `quantecon-theme.zip` on `vX.Y.Z` tags. |
+| [`themes/lecture/`](./themes/lecture) | The lecture theme, `@quantecon/lecture-theme`: the React Router app, its styles, `template/` and `template.yml`, its `CHANGELOG.md` and its test suites. It ships as `quantecon-theme.zip` on `vX.Y.Z` tags. |
 | [`packages/common/`](./packages/common) | `@quantecon/theme-common`: components, helpers and styles every theme uses (search, the language switcher, project frontmatter and git history in the page header, long-cell collapsing, i18n and SEO helpers, list and right-to-left styles). It is TypeScript source, compiled by each theme's build, and is never published on its own. |
 | [`plugins/`](./plugins) | Build-time MyST plugins (`git-metadata.mjs`). They stay at the repository root so the raw URLs consumers pin keep working. |
 | [`scripts/`](./scripts) | Repository tooling that is not part of a theme build (`rewrite-raw-blocks.mjs`, used by the preview workflow). |
@@ -311,6 +311,12 @@ site:
 Pin a specific version rather than tracking a branch, and bump it deliberately: the
 [releases page](https://github.com/QuantEcon/quantecon-theme.mystmd/releases) carries the
 changelog entry for each version, including anything consumers need to change.
+
+Releases after v3.2.0 run on React Router 8 and need **mystmd 1.11.0 or later**
+(QuantEcon/mystmd builds from `qe-v11` on) and **Node 22.22 or later**: from
+1.11.0, `myst build --html` runs the theme's own static renderer. With an older
+mystmd, `myst start` still works but `myst build --html` stops with a message
+saying so; pin v3.2.0 there instead.
 
 Then start the local server:
 
