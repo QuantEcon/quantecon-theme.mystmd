@@ -426,6 +426,12 @@ body.qb-body {
   .qb-reading .qb-grid {
     margin-right: calc(-1 * (var(--qb-gutter) + var(--qb-gutter-gap)));
   }
+  /* A grid inside the article (upstream's footnotes and references are
+     sections on the same grid) already spans the gutter: without this it
+     takes the negative margin again and the page scrolls sideways. */
+  .qb-reading .qb-grid .qb-grid {
+    margin-right: 0;
+  }
   .qb-reading {
     padding-right: calc(40px + var(--qb-gutter) + var(--qb-gutter-gap));
   }
@@ -854,12 +860,19 @@ details.qb-env[open] > summary::after {
   }
 }
 
-/* ---------- Footnotes and references ---------- */
-.qb-footnotes,
-.qb-bibliography {
+/* ---------- Footnotes and references ----------
+   Upstream's sections (`myst-footnotes`, `myst-bibliography`), each closed
+   off by one hairline over the column. The theme passes `qb-notes` as the
+   section's class (app/components/Pages.tsx): as the inner class, upstream
+   put it on both the header and the list, so the rule was drawn twice. */
+.qb-notes {
   margin-top: 3.5em;
-  padding-top: 1.2em;
+}
+.qb-notes > :first-child {
   border-top: 1px solid var(--qb-rule);
+  padding-top: 1.2em;
+}
+.qb-notes > div {
   font-size: 0.9em;
   color: var(--qb-muted);
 }
