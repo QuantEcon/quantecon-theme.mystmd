@@ -1,0 +1,24 @@
+# Paths here are relative to themes/lecture.
+
+/public/build
+/public/*thebe*
+/public/service-worker-*.js
+/public/service-worker.js
+/api/*
+/build/*
+
+/app/styles/app.css
+
+# This is ignored as it is built
+remix.config.js
+
+# Visual regression (generated artifacts; __snapshots__ IS committed)
+/playwright-report
+/test-results
+/tests/visual/fixture/myst.yml
+/tests/visual/fixture/_build
+/tests/visual/fixture-no-thebe/myst.yml
+/tests/visual/fixture-no-thebe/_build
+/tests/visual/fixture-rtl/myst.yml
+/tests/visual/fixture-rtl/_build
+/tests/visual/.static
