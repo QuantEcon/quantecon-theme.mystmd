@@ -10,29 +10,10 @@ node_modules
 yalc.lock
 .DS_Store
 
-/public/build
-/public/*thebe*
-/public/service-worker-*.js
-/public/service-worker.js
-/api/*
-/build/*
-
-/app/styles/app.css
-
-# This is ignored as it is built
-remix.config.js
+# Release-workflow staging (release.yml assembles bundles here)
+/dist
+/*.zip
 
 # Claude Code local / session state
 .claude/scheduled_tasks.lock
 .claude/settings.local.json
-
-# Visual regression (generated artifacts; __snapshots__ IS committed)
-/playwright-report
-/test-results
-/tests/visual/fixture/myst.yml
-/tests/visual/fixture/_build
-/tests/visual/fixture-no-thebe/myst.yml
-/tests/visual/fixture-no-thebe/_build
-/tests/visual/fixture-rtl/myst.yml
-/tests/visual/fixture-rtl/_build
-/tests/visual/.static

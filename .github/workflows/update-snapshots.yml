@@ -18,7 +18,10 @@ name: Update Visual Snapshots
 #   - The push needs write access to the PR head branch, so this works for
 #     same-repo branches, not forks.
 #   - Local macOS baselines (…-darwin) are unaffected — refresh those locally
-#     with `npm run test:visual:update` (see tests/visual/README.md).
+#     with `npm run test:visual:update` (see themes/lecture/tests/visual/README.md).
+#   - The baselines live in the lecture theme's workspace
+#     (themes/lecture/tests/visual/__snapshots__), so Playwright runs from
+#     themes/lecture.
 on:
   issue_comment:
     types: [created]
@@ -75,6 +78,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Update snapshots
+        working-directory: themes/lecture
         run: |
           MODE=all
           case "$COMMENT_BODY" in
@@ -105,7 +109,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tests/visual/__snapshots__
+          git add themes/lecture/tests/visual/__snapshots__
           if git diff --cached --quiet; then
             gh pr comment "${{ github.event.issue.number }}" \
               --body "🎭 The snapshot update produced no baseline changes."
