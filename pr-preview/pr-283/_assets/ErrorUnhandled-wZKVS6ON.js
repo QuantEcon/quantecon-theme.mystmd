@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-DXLHXe7E.js";var t=e();function n({error:e}){return e instanceof Error?(0,t.jsxs)(t.Fragment,{children:[(0,t.jsx)(`h1`,{children:`Unexpected Error Occurred`}),(0,t.jsx)(`p`,{children:e.message}),!1]}):(0,t.jsx)(`h1`,{children:`Unknown Error`})}export{n as t};
