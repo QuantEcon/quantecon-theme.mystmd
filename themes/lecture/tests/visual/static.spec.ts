@@ -14,8 +14,8 @@ import { test, expect, type Page } from "@playwright/test";
  * cannot answer the loader request, and the page falls into an error screen.
  * Guarded by the `shouldRevalidate` exports in app/revalidate.ts.
  *
- * React Router requests a route's loader data at `<path>.data` (`/_root.data`
- * for the site root, `<path>/_.data` for a slashed path).
+ * React Router requests a route's loader data at `<path>.data`, or at
+ * `<path>/_.data` when the path ends in a slash (`/_.data` for the site root).
  */
 
 /** Same-document fragment navigations must leave the JS context intact. */
