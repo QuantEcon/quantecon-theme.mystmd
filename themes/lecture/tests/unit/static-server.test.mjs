@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 
 const SERVER = fileURLToPath(new URL("../visual/static-server.mjs", import.meta.url));
 
-let base, port, server;
+let base, port, server, serverExited;
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -48,16 +48,25 @@ before(async () => {
   server = spawn(process.execPath, [SERVER, join(base, "site"), String(port)], {
     stdio: ["ignore", "pipe", "pipe"],
   });
+  serverExited = new Promise((resolve) => server.once("exit", resolve));
+  // Buffer stdout: the "serving" line can arrive split across chunks.
+  let out = "";
   await new Promise((resolve, reject) => {
     server.stdout.on("data", (chunk) => {
-      if (String(chunk).includes("serving")) resolve();
+      out += chunk;
+      if (out.includes("serving")) resolve();
     });
     server.once("exit", (code) => reject(new Error(`server exited early (${code})`)));
   });
 });
 
 after(async () => {
-  server?.kill();
+  // Wait for the server to exit before removing its root, so no process is
+  // left behind and nothing holds the directory open.
+  if (server && server.exitCode === null && server.signalCode === null) {
+    server.kill();
+    await serverExited;
+  }
   await rm(base, { recursive: true, force: true });
 });
 
