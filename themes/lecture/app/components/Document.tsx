@@ -4,13 +4,12 @@ import { BaseUrlProvider, SiteProvider, ThemeProvider, useThemeSwitcher } from '
 import {
   Link,
   Links,
-  LiveReload,
   Meta,
   NavLink,
   Scripts,
   ScrollRestoration,
   useNavigate,
-} from '@remix-run/react';
+} from 'react-router';
 import {
   Analytics,
   BlockingThemeLoader,
@@ -18,6 +17,7 @@ import {
   renderers as defaultRenderers,
   useTheme,
 } from '@myst-theme/site';
+import { useScrollToCellFragment } from 'myst-to-react';
 import classNames from 'classnames';
 
 /**
@@ -40,14 +40,20 @@ import classNames from 'classnames';
  * `@radix-ui/react-direction`, so a context from any other copy is invisible
  * to them.)
  *
+ * Two more differences, both the theme's own styling rather than markup:
+ * the `<body>` classes (upstream's `bg-myst-bg` is the same white and
+ * stone-900, but the theme keeps the colour transition, and CRITICAL_CSS in
+ * app/root.tsx mirrors these classes), and the base-aware favicon and
+ * `/myst-theme.css` links in the head (see below).
+ *
  * Everything else is upstream's, unchanged, so a future upstream `lang` /
  * `dir` prop (see UPSTREAM-CANDIDATES.yml) lets this file be deleted.
- * Kept in step with @myst-theme/site 1.3.0.
+ * Kept in step with @myst-theme/site 2.1.1.
  */
 export function Document({
   children,
   scripts,
-  theme: ssrTheme,
+  theme: overrideMediaTheme,
   config,
   title,
   staticBuild,
@@ -83,26 +89,35 @@ export function Document({
         navigate,
       };
 
-  // (Local) theme state driven by SSR and cookie/localStorage
-  const [theme, setTheme] = useTheme({ ssrTheme: ssrTheme, useLocalStorage: staticBuild });
+  // (Local) theme state, persisted in localStorage on every kind of site
+  const [theme, setTheme] = useTheme({
+    overrideMediaTheme: overrideMediaTheme ?? undefined,
+    useLocalStorage: true,
+  });
 
   // Inject blocking element to set proper pre-hydration state
   const headAndLoader = (
     <>
       {head}
-      {ssrTheme ? undefined : <BlockingThemeLoader useLocalStorage={!!staticBuild} />}
+      <BlockingThemeLoader useLocalStorage={true} />
     </>
   );
 
   return (
-    <ThemeProvider theme={theme} setTheme={setTheme} renderers={renderers} {...links} top={top}>
+    <ThemeProvider
+      theme={theme}
+      setTheme={setTheme}
+      renderers={renderers}
+      {...links}
+      top={top}
+      staticBuild={staticBuild}
+    >
       <DocumentWithoutProviders
         children={children}
         scripts={scripts}
         head={headAndLoader}
         config={config}
         title={title}
-        liveReloadListener={!staticBuild}
         baseurl={baseurl}
         top={top}
         lang={lang}
@@ -120,7 +135,6 @@ export function DocumentWithoutProviders({
   title,
   baseurl,
   top = DEFAULT_NAV_HEIGHT,
-  liveReloadListener,
   lang = 'en',
   dir,
 }: {
@@ -131,12 +145,14 @@ export function DocumentWithoutProviders({
   title?: string;
   baseurl?: string;
   top?: number;
-  liveReloadListener?: boolean;
   lang?: string;
   dir?: 'ltr' | 'rtl';
 }) {
-  // Theme value from theme context; see upstream for the SSR / BlockingThemeLoader handshake.
+  // Theme value from theme context; the server renders none, and the
+  // BlockingThemeLoader sets the stored or preferred one before hydration.
   const { theme } = useThemeSwitcher();
+  // Honor incoming `#cell-id=<id>` notebook-cell deep-links (load + hashchange)
+  useScrollToCellFragment();
   return (
     <html lang={lang} dir={dir} className={classNames(theme)} style={{ scrollPadding: top }}>
       <head>
@@ -145,14 +161,13 @@ export function DocumentWithoutProviders({
         {title && <title>{title}</title>}
         <Meta />
         <Links />
-        {/* Head links whose href has to carry the static build's base URL.
-            They cannot come from a route's `links()`, which takes no arguments
-            in Remix 1.17 while BASE_URL reaches the app only through the root
-            loader -- but this Document is handed it directly.
+        {/* Head links whose href has to carry the base URL. They cannot come
+            from a route's `links()`, which takes no arguments while BASE_URL
+            reaches the app only through the root loader -- but this Document
+            is handed it directly.
 
-            The export writes both files at the build root, and rewrites only
-            `/myst_assets_folder/` URLs for the base, so a root-absolute href
-            resolves to the domain root and 404s on a sub-path site.
+            Both files are served at the site root, so a root-absolute href
+            resolves to the domain root and 404s on a site under a sub-path.
 
             The icon is emitted only when there is a base to add: without one
             the root route's own `/favicon.ico` is already right, and a second
@@ -172,7 +187,6 @@ export function DocumentWithoutProviders({
         </BaseUrlProvider>
         <ScrollRestoration />
         <Scripts />
-        {liveReloadListener && <LiveReload />}
         {scripts}
       </body>
     </html>

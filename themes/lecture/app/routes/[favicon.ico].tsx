@@ -1,7 +1,6 @@
-import type { LoaderFunction } from "@remix-run/node";
 import { getFavicon } from "~/backend/loaders.server";
 
-export const loader: LoaderFunction = async (): Promise<Response> => {
+export async function loader(): Promise<Response> {
   const favicon = await getFavicon();
   if (!favicon) return new Response("No favicon found", { status: 404 });
   return new Response(
@@ -10,4 +9,4 @@ export const loader: LoaderFunction = async (): Promise<Response> => {
       ? { headers: { "Content-Type": favicon.contentType } }
       : undefined
   );
-};
+}

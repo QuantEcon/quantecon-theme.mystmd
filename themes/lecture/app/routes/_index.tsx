@@ -1,8 +1,5 @@
 import { getMetaTagsForArticle, responseNoArticle, responseNoSite } from '@myst-theme/site';
-// Self-hosted, not the CDN-backed KatexCSS from @myst-theme/site — see app/links.ts.
-import { KatexCSS } from '~/links';
-import type { LinksFunction, LoaderFunction, V2_MetaFunction } from '@remix-run/node';
-import { json, redirect } from '@remix-run/node';
+import { redirect, type LoaderFunctionArgs, type MetaArgs } from 'react-router';
 import { getConfig, getPage } from '~/backend/loaders.server';
 import type { SiteManifest } from 'myst-config';
 import { getProject } from '@myst-theme/common';
@@ -17,19 +14,15 @@ export { shouldRevalidate } from '~/revalidate';
 
 type ManifestProject = Required<SiteManifest>['projects'][0];
 
-export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }) => {
-  if (!data) return [];
+export function meta({ loaderData, matches, location }: MetaArgs<typeof loader>) {
+  if (!loaderData) return [];
 
-  const config: SiteManifest = data.config;
-  const project: ManifestProject = data.project;
-  // `matches` is typed `never` under this generic; the root match's data is the root loader's.
-  const rootMatch = (matches as Array<{ id: string; data?: { BASE_URL?: string } }>).find(
-    (m) => m.id === 'root',
-  );
-  const baseurl = rootMatch?.data?.BASE_URL;
+  const config: SiteManifest = loaderData.config;
+  const project: ManifestProject = loaderData.project;
+  const rootMatch = matches.find((m) => m?.id === 'root');
+  const baseurl = (rootMatch?.loaderData as { BASE_URL?: string } | undefined)?.BASE_URL;
 
-  // The page's public URL, shared by og:url and the canonical link -- see the
-  // article route for why the base is stripped before it is re-applied.
+  // The page's public URL, shared by og:url and the canonical link.
   const url = pageUrl({
     origin: siteOrigin((config?.options as any)?.site_url, config?.domains),
     pathname: location.pathname,
@@ -61,18 +54,16 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
     ...hreflangLinks(config?.options, location.pathname, baseurl),
     ...canonicalLink(url),
   ];
-};
+}
 
-export const links: LinksFunction = () => [KatexCSS];
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export async function loader({ request }: LoaderFunctionArgs) {
   const config = await getConfig();
   if (!config) throw responseNoSite();
   const project = getProject(config);
   if (!project) throw responseNoArticle();
-  if (project.slug) return redirect(`/${project.slug}`);
+  if (project.slug) throw redirect(`/${project.slug}`);
   const page = await getPage(request, { slug: project.index });
-  return json({ config, page, project });
-};
+  return { config, page, project };
+}
 
 export default Page;

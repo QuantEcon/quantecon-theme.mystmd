@@ -27,14 +27,14 @@
  *                  otherwise the og:image
  *   twitter:card   "summary" whenever `twitter` is set, in place of upstream's
  *                  own card type
- *   twitter:site   upstream puts it in the root route's meta, which Remix v2
+ *   twitter:site   upstream puts it in the root route's meta, which React Router
  *                  replaces with the article route's, so it never renders
  *   og:locale      from `current_language`, when set
  *
  * Pure TypeScript with no React; tests/unit/seo.test.mjs runs it under
  * `node --test` with type stripping like the other helpers.
  */
-import type { V2_MetaDescriptor } from '@remix-run/react';
+import type { MetaDescriptor } from 'react-router';
 
 export interface SeoSiteOptions {
   site_url?: string;
@@ -61,7 +61,7 @@ export interface PageUrlInput {
   origin?: string;
   /** The page's render-time path, which may or may not carry the base URL. */
   pathname: string;
-  /** The static build's base URL, if the site has one. */
+  /** The site's base URL, if it has one. */
   baseurl?: string;
   /** `project.slug`, on a site whose projects are not at the site root. */
   projectSlug?: string;
@@ -73,10 +73,10 @@ export interface PageUrlInput {
  * The page's public URL. The canonical link and og:url are both built here, so
  * that the two rules below apply to both and they cannot drift apart.
  *
- * The home page resolves to the site root. With a base URL, mystmd renders the
- * root `index.html` by requesting the index slug, so the page's render-time
- * path is that slug -- and the slug's own URL is not served at all, so naming
- * it would point every home page at a 404.
+ * The home page resolves to the site root, also when it is rendered at the
+ * index slug's own path (as older mystmd static exports did): that URL is not
+ * served as a page of its own, so naming it would point every home page at a
+ * 404.
  *
  * Every URL takes the trailing-slash form, which is what the export writes
  * (`<slug>/index.html`) and what a host redirects the slashless form to; a URL
@@ -112,20 +112,18 @@ export function pageUrl({
   const base = normalizeBaseurl(baseurl) ?? '';
 
   // The base is stripped only where it is a real prefix -- `<base>/...` -- and
-  // never on an exact match. The browser router has no basename, so on the
-  // client the path carries the base and has to lose it before it is
-  // re-applied; at render time it does not carry it at all, and a page whose
-  // own slug happens to equal the base segment would otherwise be mistaken
-  // for the site root and canonicalised onto it.
+  // never on an exact match. A router with a basename hands over paths
+  // without it, so usually there is nothing to strip; a page whose own slug
+  // happens to equal the base segment would otherwise be mistaken for the
+  // site root and canonicalised onto it.
   let path = pathname || '/';
   if (base && path.startsWith(`${base}/`)) path = path.slice(base.length);
   const slug = trim(path);
 
-  // The project's root, which serves the index page. With a base URL the
-  // export renders that page by requesting the index slug -- under the
-  // project's own slug when it has one -- and writes it as the root's
-  // index.html, so the render-time path is that slug and its own URL is not
-  // served at all.
+  // The project's root, which serves the index page. Rendered at the index
+  // slug -- under the project's own slug when it has one -- the page is
+  // still the root's index.html, and the slug's own URL is not served at
+  // all.
   const project = trim(projectSlug ?? '');
   const home = [project, indexSlug].filter(Boolean).join('/');
   let tail: string;
@@ -139,14 +137,14 @@ export interface CanonicalLink {
   tagName: 'link';
   rel: 'canonical';
   href: string;
-  // Remix's meta descriptor type is an open record; the index signature lets
+  // React Router's meta descriptor type is an open record; the index signature lets
   // this spread into a route's `meta` return without a cast, as the hreflang
   // alternates do.
   [key: string]: unknown;
 }
 
 /**
- * `<link rel="canonical">` for the page, in the shape Remix's v2 `meta`
+ * `<link rel="canonical">` for the page, in the shape a route's `meta`
  * renders. Empty without a URL, so a site that sets no `site_url` emits
  * nothing -- what Sphinx does without `html_baseurl`.
  */
@@ -209,11 +207,11 @@ export function ogLocale(code?: string): string | undefined {
  * so a site-level image does not sit beside a missing page image and
  * twitter:image follows the site's Twitter logo when one is configured.
  */
-export function socialMetaTags({ domains, siteTitle, pageImage, url, options }: SeoInput): V2_MetaDescriptor[] {
+export function socialMetaTags({ domains, siteTitle, pageImage, url, options }: SeoInput): MetaDescriptor[] {
   const origin = siteOrigin(options?.site_url, domains);
   const image = absoluteImage(pageImage || options?.og_logo_url, origin);
   const twitterImage = absoluteImage(options?.twitter_logo_url, origin) || image;
-  const tags: V2_MetaDescriptor[] = [{ property: 'og:type', content: 'website' }];
+  const tags: MetaDescriptor[] = [{ property: 'og:type', content: 'website' }];
   if (siteTitle) tags.push({ property: 'og:site_name', content: siteTitle });
   if (url) tags.push({ property: 'og:url', content: url });
   if (image) tags.push({ property: 'og:image', content: image });
@@ -230,7 +228,7 @@ export function socialMetaTags({ domains, siteTitle, pageImage, url, options }: 
   return tags;
 }
 
-function key(tag: V2_MetaDescriptor): string | undefined {
+function key(tag: MetaDescriptor): string | undefined {
   const t = tag as Record<string, unknown>;
   if (typeof t.property === 'string') return `property:${t.property}`;
   if (typeof t.name === 'string') return `name:${t.name}`;
@@ -238,7 +236,7 @@ function key(tag: V2_MetaDescriptor): string | undefined {
 }
 
 /** `additions` win over `base` on the same name/property; order otherwise kept. */
-export function mergeMeta(base: V2_MetaDescriptor[], additions: V2_MetaDescriptor[]): V2_MetaDescriptor[] {
+export function mergeMeta(base: MetaDescriptor[], additions: MetaDescriptor[]): MetaDescriptor[] {
   const replaced = new Set(additions.map(key).filter((k): k is string => !!k));
   return [...base.filter((t) => !replaced.has(key(t) ?? '')), ...additions];
 }

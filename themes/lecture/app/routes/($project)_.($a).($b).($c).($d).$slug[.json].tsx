@@ -1,15 +1,9 @@
 import { isFlatSite } from "@myst-theme/common";
-import type { LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import {
-  getConfig,
-  getMystXrefJson,
-  getMystSearchJson,
-  getPage,
-} from "~/backend/loaders.server";
+import { data, type LoaderFunctionArgs } from "react-router";
+import { getConfig, getPage } from "~/backend/loaders.server";
 
 function api404(message = "No API route found at this URL") {
-  return json(
+  return data(
     {
       status: 404,
       message,
@@ -18,43 +12,31 @@ function api404(message = "No API route found at this URL") {
   );
 }
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  const [first, ...rest] = new URL(request.url).pathname
-    .slice(1)
-    .replace(/\.json$/, "")
-    .split("/");
-  // Handle /myst.xref.json as slug
-  if (rest.length === 0 && first === "myst.xref") {
-    const xref = await getMystXrefJson();
-    if (!xref) {
-      return json(
-        { message: "myst.xref.json not found", status: 404 },
-        { status: 404 }
-      );
-    }
-    return json(xref);
-  }
-  // Handle /myst.search.json as slug
-  else if (rest.length === 0 && first === "myst.search") {
-    const search = await getMystSearchJson();
-    if (!search) {
-      return json(
-        { message: "myst.search.json not found", status: 404 },
-        { status: 404 }
-      );
-    }
-    return json(search);
-  }
+/**
+ * A page's JSON (`/<path>.json`), which hover previews and cross-references
+ * fetch. The segments come from the route params, which are relative to the
+ * router's basename, rather than from the request URL, which is not.
+ * `/myst.xref.json` and `/myst.search.json` have routes of their own.
+ */
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const [first, ...rest] = [
+    params.project,
+    params.a,
+    params.b,
+    params.c,
+    params.d,
+    params.slug,
+  ].filter((part): part is string => !!part);
   const config = await getConfig();
   const flat = isFlatSite(config);
   const project = flat ? undefined : first;
   const slugParts = flat ? [first, ...rest] : rest;
   const slug = slugParts.join(".");
-  const data = await getPage(request, { project, slug });
-  if (!data) return api404("No page found at this URL.");
-  return json(data, {
+  const pageData = await getPage(request, { project, slug });
+  if (!pageData) return api404("No page found at this URL.");
+  return data(pageData, {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
   });
-};
+}

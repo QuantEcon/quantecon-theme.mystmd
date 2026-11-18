@@ -195,9 +195,10 @@ export function htmlDir(options?: I18nOptions): 'rtl' | undefined {
 }
 
 /**
- * The site-relative path of the current page. Static builds prefix every
- * route with the site's base URL, which is not part of the page's identity
- * across editions.
+ * The site-relative path of the current page. A path that still carries the
+ * site's base URL loses it here: the base is not part of the page's identity
+ * across editions. (The router hands over paths below its basename, so
+ * usually there is nothing to strip.)
  */
 export function stripBaseurl(pathname: string, baseurl?: string): string {
   let path = pathname || '/';
@@ -218,14 +219,14 @@ export interface AlternateLink {
   rel: 'alternate';
   hrefLang: string;
   href: string;
-  // Remix's meta descriptor type is an open record; the index signature lets
+  // React Router's meta descriptor type is an open record; the index signature lets
   // these spread into a route's `meta` return without a cast.
   [key: string]: unknown;
 }
 
 /**
  * `<link rel="alternate" hreflang>` descriptors for the page, one per
- * edition plus `x-default` on the first, in the shape Remix's v2 `meta`
+ * edition plus `x-default` on the first, in the shape a route's `meta`
  * renders. Empty when fewer than two editions are configured.
  */
 export function hreflangLinks(

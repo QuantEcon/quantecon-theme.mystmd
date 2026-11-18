@@ -1,19 +1,23 @@
-import type { LinksFunction, V2_MetaFunction, LoaderFunction } from '@remix-run/node';
-import tailwind from '~/styles/app.css';
-import thebeCoreCss from 'thebe-core/dist/lib/thebe-core.css';
-import { PTSerifCSS, SourceSans3CSS } from '~/links';
+import type { LinksFunction, MetaArgs } from 'react-router';
+// Stylesheets are imported for their side effect, not as URLs for `links()`:
+// Vite then lists them as this route's CSS in the route manifest, which is the
+// one place the static renderer re-bases asset URLs onto the site's BASE_URL.
+// Order is cascade order: the Tailwind bundle, then Thebe's, then the
+// self-hosted fonts and KaTeX stylesheet (see app/links.ts).
+import '~/styles/app.css';
+import 'thebe-core/dist/lib/thebe-core.css';
+import '~/links';
 import { getConfig } from '~/backend/loaders.server';
 import type { SiteLoader } from '@myst-theme/common';
 import {
   responseNoSite,
   getMetaTagsForSite,
-  getThemeSession,
   ContentReload,
   SkipTo,
   renderers as defaultRenderers,
 } from '@myst-theme/site';
 import { createSearch as createMiniSearch } from '@myst-theme/search-minisearch';
-import { Outlet, useLoaderData } from '@remix-run/react';
+import { Outlet, useLoaderData } from 'react-router';
 import type { NodeRenderers } from '@myst-theme/providers';
 import { mergeRenderers, SearchFactoryProvider } from '@myst-theme/providers';
 import type { ISearch, MystSearchIndex } from '@myst-theme/search';
@@ -49,13 +53,14 @@ const RENDERERS: NodeRenderers = mergeRenderers([
   LONG_CELL_RENDERERS,
 ]);
 
-export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
+export function meta({ loaderData }: MetaArgs<typeof loader>) {
   return getMetaTagsForSite({
-    title: data?.config?.title,
-    description: data?.config?.description,
-    twitter: data?.config?.options?.twitter,
+    // Typed as required; a site without a title has always passed undefined.
+    title: loaderData?.config?.title as string,
+    description: loaderData?.config?.description,
+    twitter: loaderData?.config?.options?.twitter,
   });
-};
+}
 
 /**
  * Critical CSS — inlined in <head> to fix the Safari/WebKit FOUC on navigation
@@ -185,21 +190,15 @@ export const links: LinksFunction = () => {
       rel: 'icon',
       href: '/favicon.ico',
     },
-    // Self-hosted Source Sans 3 (see app/links.ts). Declared on the *root*
-    // route rather than the two page routes like KatexCSS, because root's
-    // links() are the only ones that also apply when the root ErrorBoundary
-    // renders — a 404, or the missing-site response thrown below — and the body
-    // font has to be right on those pages too.
-    ...SourceSans3CSS,
-    // Self-hosted PT Serif for the article headings (see app/links.ts). Also
-    // on the root route: the ErrorBoundary pages render an <h1> too.
-    ...PTSerifCSS,
-    { rel: 'stylesheet', href: tailwind },
-    { rel: 'stylesheet', href: thebeCoreCss },
+    // The stylesheets are this route's CSS (the imports at the top of the
+    // file), which React Router emits ahead of these links. Being the *root*
+    // route's, they also apply when the root ErrorBoundary renders -- a 404,
+    // or the missing-site response thrown below -- so the body font and the
+    // headings' PT Serif are right on those pages too.
     // `/myst-theme.css` (the consumer's own stylesheet slot) is NOT declared
-    // here: its href has to carry the static build's base URL, and `links()`
-    // takes no arguments in Remix 1.17 while BASE_URL reaches the app only
-    // through the root loader. The local Document emits it instead.
+    // here: its href has to carry the base URL, and `links()` takes no
+    // arguments while BASE_URL reaches the app only through the root loader.
+    // The local Document emits it instead.
     // jupyter-matplotlib's stylesheet is vendored into the Tailwind bundle
     // (styles/mpl-widget.css) rather than linked from jsdelivr here: that
     // would be a render-blocking request to a third-party CDN that is
@@ -209,25 +208,22 @@ export const links: LinksFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async ({ request }): Promise<SiteLoader> => {
+export async function loader(): Promise<SiteLoader> {
   // Normalised here, at the one place the value enters the app: it reaches the
   // Document's head links and the base-URL provider unchanged, and both join it
   // to a path that already starts with a slash.
   const baseURL = normalizeBaseurl(process.env.BASE_URL);
-  const [config, themeSession] = await Promise.all([
-    getConfig().catch(() => null),
-    getThemeSession(request),
-  ]);
+  const config = await getConfig().catch(() => null);
   if (!config) throw responseNoSite();
-  const data = {
-    theme: themeSession.getTheme(),
+  return {
     config,
     CONTENT_CDN_PORT: process.env.CONTENT_CDN_PORT ?? 3100,
-    MODE: (process.env.MODE ?? 'app') as 'app' | 'static',
+    // Fixed at build time: true only in the pre-renderer (renderer.ts), which
+    // `npm run build:renderer` builds with VITE_BUILD_HTML set.
+    STATIC_BUILD: !!import.meta.env.VITE_BUILD_HTML,
     BASE_URL: baseURL,
   };
-  return data;
-};
+}
 
 function createSearch(index: MystSearchIndex): ISearch {
   const options = {
@@ -242,8 +238,8 @@ function createSearch(index: MystSearchIndex): ISearch {
   return createMiniSearch(index.records, options);
 }
 
-export default function AppWithReload() {
-  const { theme, config, CONTENT_CDN_PORT, MODE, BASE_URL } = useLoaderData<SiteLoader>();
+export default function App() {
+  const { config, CONTENT_CDN_PORT, STATIC_BUILD, BASE_URL } = useLoaderData<SiteLoader>();
 
   const searchFactory = useCallback((index: MystSearchIndex) => createSearch(index), []);
   // Edition language and direction, from the declared site options (see
@@ -253,10 +249,9 @@ export default function AppWithReload() {
   return (
     <SearchFactoryProvider factory={searchFactory}>
       <Document
-        theme={theme}
         config={config}
-        scripts={MODE === 'static' ? undefined : <ContentReload port={CONTENT_CDN_PORT} />}
-        staticBuild={MODE === 'static'}
+        scripts={STATIC_BUILD ? undefined : <ContentReload port={CONTENT_CDN_PORT} />}
+        staticBuild={STATIC_BUILD}
         baseurl={BASE_URL}
         renderers={RENDERERS}
         top={50}

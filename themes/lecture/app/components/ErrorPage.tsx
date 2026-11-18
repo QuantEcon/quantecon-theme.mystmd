@@ -1,5 +1,5 @@
 import { ErrorDocumentNotFound, ErrorUnhandled } from '@myst-theme/site';
-import { isRouteErrorResponse, useRouteError } from '@remix-run/react';
+import { isRouteErrorResponse, useRouteError } from 'react-router';
 import { NavigationAndArticleWrapper } from '~/components/NavigationAndArticleWrapper';
 
 export function ErrorPage() {
