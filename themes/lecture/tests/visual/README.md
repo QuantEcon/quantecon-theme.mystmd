@@ -100,8 +100,8 @@ THEME_TEMPLATE="$PWD/.deploy/quantecon-theme" \
 `serve-static.sh` copies the fixture to a gitignored `.static/` working copy,
 runs `myst build --html` with the chosen `THEME_TEMPLATE`, and serves
 `_build/html` from `static-server.mjs` -- a deliberately dumb file server, so a
-Remix `?_data=` fetch gets the page's own HTML back with a 200, exactly as
-Netlify or GitHub Pages would. The spec asserts that Back after an in-page
+router loader request (`<path>.data`) gets a 404, exactly as Netlify or GitHub
+Pages would answer it. The spec asserts that Back after an in-page
 anchor (an outline entry, "↑ Top") fires no loader fetch and leaves the page
 intact, and that "↑ Top" is a same-document fragment link. Snapshot-free, and
 it runs on the `static-chrome` project only. The three `myst start` servers run

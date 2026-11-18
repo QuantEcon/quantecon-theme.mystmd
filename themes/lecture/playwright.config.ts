@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Visual-regression config for the QuantEcon MyST theme.
  *
- * This theme is a runtime Remix server, so tests run against a live
+ * This theme is a runtime React Router server, so tests run against a live
  * `myst start` of the fixture in `tests/visual/fixture` (static.spec.ts
  * instead runs against a `myst build --html` of it), with the theme under
  * test selected via the `THEME_TEMPLATE` env var (see `tests/visual/serve.sh`
@@ -38,7 +38,7 @@ if (RTL_PORT === PORT || RTL_PORT === NO_THEBE_PORT) {
 }
 process.env.RTL_PORT = RTL_PORT;
 // Fourth server: a `myst build --html` of the main fixture behind a plain
-// file server (MODE=static, the deployed shape) for static.spec.ts.
+// file server (pre-rendered, the deployed shape) for static.spec.ts.
 const STATIC_PORT = process.env.STATIC_PORT || "3114";
 const staticURL = `http://localhost:${STATIC_PORT}`;
 if ([PORT, NO_THEBE_PORT, RTL_PORT].includes(STATIC_PORT)) {

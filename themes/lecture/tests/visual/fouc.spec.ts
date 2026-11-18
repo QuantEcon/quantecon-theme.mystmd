@@ -98,8 +98,8 @@ type FirstPaint = {
  *
  * Sampling from an init script closes that window: it runs on
  * `DOMContentLoaded`, in-page and synchronously, and it reads only the DOM. The
- * ordering is empirical rather than guaranteed — Remix v1 emits its entry as an
- * inline `type="module" async` script whose imports must resolve before
+ * ordering is empirical rather than guaranteed — React Router emits its entry
+ * as an inline `type="module" async` script whose imports must resolve before
  * `entry.client.tsx` even schedules `requestIdleCallback`/`setTimeout` for
  * `hydrateRoot`, and WebKit dispatches DOMContentLoaded at end of parse — but
  * that ordering is what the #126 timings show, with the earliest observed
