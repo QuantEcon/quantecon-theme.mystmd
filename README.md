@@ -13,7 +13,27 @@ QuantEcon lectures and books, distributed as a zip attached to each
 - Page Footer based on MyST Content
 - Bundled QuantEcon brand assets
 
-![](./template/thumbnail.png)
+### Repository layout
+
+This repository is an [npm workspace](https://docs.npmjs.com/cli/using-npm/workspaces)
+holding QuantEcon's MyST themes, in the shape upstream
+[`jupyter-book/myst-theme`](https://github.com/jupyter-book/myst-theme) uses:
+shared code in `packages/`, and thin theme apps in `themes/`.
+
+| Path | What it is |
+| ---- | ---------- |
+| [`themes/lecture/`](./themes/lecture) | The lecture theme, `@quantecon/lecture-theme`: the Remix app, its styles, `template/` and `template.yml`, its `CHANGELOG.md` and its test suites. It ships as `quantecon-theme.zip` on `vX.Y.Z` tags. |
+| [`packages/common/`](./packages/common) | `@quantecon/theme-common`: components, helpers and styles every theme uses (search, the language switcher, project frontmatter and git history in the page header, long-cell collapsing, i18n and SEO helpers, list and right-to-left styles). It is TypeScript source, compiled by each theme's build, and is never published on its own. |
+| [`plugins/`](./plugins) | Build-time MyST plugins (`git-metadata.mjs`). They stay at the repository root so the raw URLs consumers pin keep working. |
+| [`scripts/`](./scripts) | Repository tooling that is not part of a theme build (`rewrite-raw-blocks.mjs`, used by the preview workflow). |
+| [`patches/`](./patches) | `patch-package` patches, applied to the root `node_modules` on install. |
+| [`docs/`](./docs) | The lecture theme's feature reference. |
+
+Every command runs from the repository root: `npm ci` installs all workspaces
+into one root `node_modules`, and `make build-theme` assembles the lecture
+theme's bundle in `.deploy/quantecon-theme`, as before.
+
+![](./themes/lecture/template/thumbnail.png)
 
 ### Downloads
 
@@ -168,7 +188,7 @@ Notes:
 - A page can pin the control by hand with the same shape under `site:` in its
   frontmatter, as a YAML block string (`git_metadata: |` then the indented
   `last_modified` and `changelog`); it takes precedence over the injected data.
-  `tests/visual/fixture/features.md` is an example.
+  `themes/lecture/tests/visual/fixture/features.md` is an example.
 - The plugin is a silent no-op for untracked files, non-git checkouts, missing
   `git`, or a `git log` timeout (5s). Shallow CI clones (`fetch-depth: 1`)
   produce truncated history — use `fetch-depth: 0` when building for deploy.
@@ -253,7 +273,7 @@ stays visible. It is a native `<details>`, so it works without JavaScript.
 ## Site options
 
 Everything the theme reads from `site.options` is declared in
-[`template.yml`](./template.yml). That list is not documentation only: the MyST
+[`template.yml`](./themes/lecture/template.yml). That list is not documentation only: the MyST
 CLI validates `site.options` against it and **drops any key the template does
 not declare**, so an undeclared option never reaches the theme
 ([#173](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/173)).
@@ -314,7 +334,7 @@ To preview against real MyST content instead, run a headless content server in
 your content project (`myst start --headless`) alongside the theme dev server.
 
 See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the full development setup,
-available scripts, and the test suites, and [`tests/visual/README.md`](./tests/visual/README.md)
+available scripts, and the test suites, and [`themes/lecture/tests/visual/README.md`](./themes/lecture/tests/visual/README.md)
 for the visual-regression harness.
 
 ## Release
@@ -322,6 +342,6 @@ for the visual-regression harness.
 Releases are cut by pushing a `vX.Y.Z` git tag: the
 [`release.yml`](./.github/workflows/release.yml) workflow builds the theme and
 publishes a GitHub Release with `quantecon-theme.zip` attached, using that
-version's [`CHANGELOG.md`](./CHANGELOG.md) section as the release notes. The
+version's [`CHANGELOG.md`](./themes/lecture/CHANGELOG.md) section as the release notes. The
 step-by-step flow is documented in
 [`CONTRIBUTING.md`](./CONTRIBUTING.md#releases).

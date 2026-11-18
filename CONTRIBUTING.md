@@ -31,34 +31,75 @@ The dev server runs at `http://localhost:3000` by default.
 
 ## Available Scripts
 
+Run these from the repository root. Each one delegates to the workspaces
+(`--workspaces` for `compile` and `test:unit`, `-w @quantecon/lecture-theme`
+for the lecture-only ones), so the root needs no `cd`. Inside a theme
+directory the same script names run that theme's own version.
+
 | Command             | Description                                      |
 | ------------------- | ------------------------------------------------ |
 | `npm run dev`       | Start dev server with CSS watch + hot reload     |
 | `npm run prod:build`| Production build (CSS + Thebe assets + Remix)    |
-| `npm run compile`   | TypeScript type-check (`tsc --noEmit --skipLibCheck`) |
-| `npm run test:unit` | Pure-function unit tests (`node --test`, Node ≥ 23.6) |
+| `npm run compile`   | TypeScript type-check of every workspace (`tsc --noEmit --skipLibCheck`) |
+| `npm run test:unit` | Pure-function unit tests of every workspace (`node --test`, Node ≥ 23.6) |
 | `npm run test:plugin` | End-to-end test of `plugins/git-metadata.mjs` (needs `myst`) |
 | `npm run test:visual` | Playwright pixel-diff suite against the fixture |
 | `npm run test:visual:update` | Refresh the local (`-darwin`) baselines |
 | `npm run test:fouc` | WebKit first-paint guard (`webkit-fouc` project) |
-| `npm run build:css` | Tailwind build only (`styles/app.css` → `app/styles/app.css`) |
-| `npm run format`    | Format code with Prettier                        |
-| `npm run clean`     | Remove build artifacts                           |
+| `npm run build:css -w themes/lecture` | Tailwind build only (`styles/app.css` → `app/styles/app.css`) |
+| `npm run format -w themes/lecture` | Format code with Prettier |
+| `npm run clean -w themes/lecture` | Remove build artifacts |
 
 ## Project Structure
 
+The repository is an npm workspace (`workspaces` in the root `package.json`)
+with one lockfile and one root `node_modules`:
+
 ```
-app/
-  backend/       # Server-side loaders (Remix loader functions)
-  components/    # React components (toolbar/, sidebar, page layout)
-  hooks/         # Custom React hooks
-  routes/        # Remix route modules
-  root.tsx       # App shell (document head, theme providers)
-styles/
-  app.css        # Tailwind CSS entry point
-public/          # Static assets (logos, Thebe bundles)
-patches/         # patch-package patches for upstream fixes
+package.json         # workspace root: scripts, overrides, postinstall (patch-package)
+package-lock.json
+Makefile             # build-theme / build-zip → .deploy/quantecon-theme
+patches/             # patch-package patches, applied to the root node_modules
+plugins/             # build-time MyST plugins (git-metadata.mjs), pinned by raw URL
+scripts/             # repository tooling (rewrite-raw-blocks.mjs, used by preview.yml)
+docs/                # lecture theme feature reference
+packages/
+  common/            # @quantecon/theme-common — shared by every theme
+    components/      #   Search, LanguageSwitcher, Tooltip, ProjectFrontmatter,
+                     #   PageHeaderHistory, PageProvider, LongCell
+    styles/          #   lists.css, rtl.css
+    i18n.ts seo.ts longCell.ts
+    tests/unit/      #   unit tests for the helpers above
+themes/
+  lecture/           # @quantecon/lecture-theme — ships as quantecon-theme.zip
+    app/             #   Remix app: backend/, components/, hooks/, routes/, root.tsx
+    styles/          #   Tailwind entry (app.css) and the lecture styles
+    public/          #   static assets (logos, Thebe bundles)
+    template/        #   files copied into the bundle (server.js, package.json, …)
+    template.yml     #   declared site options
+    CHANGELOG.md     #   the lecture theme's release notes (vX.Y.Z tags)
+    tests/           #   unit, plugin and Playwright (visual, FOUC, static) suites
 ```
+
+### The package boundary
+
+`packages/common` holds code a book or article theme needs as much as the
+lecture theme does. Lecture-only code — the contents drawer, the outline, the
+landing-page table of contents, the launch and compute toolbar — stays in
+`themes/lecture`. When moving code across, keep these rules:
+
+- **Common code never imports from a theme.** No `~/` imports in
+  `packages/common`: `~` is each theme's own `app/` alias. Use relative imports
+  inside the package, and give a component the options type it reads rather
+  than a theme's `TemplateOptions` (see `LanguageSwitcher`).
+- **Themes import by package name,** e.g.
+  `import { Search } from '@quantecon/theme-common/components/Search'`.
+- **The package is source, not a build.** It has no `dist/`: each theme's
+  Remix build compiles it (`serverDependenciesToBundle` covers it), and its
+  third-party imports are `peerDependencies` that the theme supplies.
+- **Tailwind must see it.** A theme's `tailwind.config.js` lists
+  `../../packages/common/**` in `content`, or classes used only in common
+  components are purged from the build.
 
 ## Architecture: what the theme can and cannot compute
 
@@ -141,7 +182,7 @@ Two rules make patches safe to live with:
 
 - **Write a test that fails without the patch.** A patch that silently stops
   applying is worse than no patch — the package looks installed and behaves
-  wrongly. `tests/unit/execute-nested-cells.test.mjs` is the pattern: it imports
+  wrongly. `themes/lecture/tests/unit/execute-nested-cells.test.mjs` is the pattern: it imports
   the patched file directly, so it fails if the patch is missing. `test:unit`
   runs in CI *and* in `release.yml`, so the published bundle is covered too.
 - **Expect a version warning, not a failure.** Patch filenames pin the version
@@ -226,7 +267,7 @@ one.
 
 ### Matching the lecture builds, and when not to
 
-Most values in `styles/quantecon.css` are measurements of the deployed Sphinx
+Most values in `themes/lecture/styles/quantecon.css` are measurements of the deployed Sphinx
 lecture sites, and most inherited colours come from `quantecon-book-theme`'s
 own palettes. The rule the theme follows is: **match them, except where
 matching them would fail WCAG.** Where it diverges it says so, with the
@@ -258,7 +299,9 @@ Two things run on every pull request.
 
 **The visual gate.** A `visual` job pixel-diffs the fixture (desktop, mobile and
 sidebar-open) against the committed baselines in
-`tests/visual/__snapshots__`. Baselines are platform-suffixed: refresh the
+`themes/lecture/tests/visual/__snapshots__`. Playwright runs from
+`themes/lecture`, so to run a single project locally, `cd themes/lecture`
+first (or use the root `npm run test:visual`). Baselines are platform-suffixed: refresh the
 `-linux` ones by commenting `/update-snapshots` on the PR, and the `-darwin`
 ones locally with `npm run test:visual:update`. Playwright is the only gate.
 
@@ -290,20 +333,25 @@ We use conventional commits:
 Versioning is **manual**: a curated [Keep a Changelog](https://keepachangelog.com/) entry +
 a `vX.Y.Z` git tag. (Changesets was removed — see [#71](https://github.com/QuantEcon/quantecon-theme-src/issues/71).)
 
-As you work, add your change to the `## [Unreleased]` section of [`CHANGELOG.md`](./CHANGELOG.md)
+Each theme keeps its own changelog and tag series. The lecture theme's is
+[`themes/lecture/CHANGELOG.md`](./themes/lecture/CHANGELOG.md), released on `vX.Y.Z` tags; the
+steps below are for it.
+
+As you work, add your change to the `## [Unreleased]` section of [`themes/lecture/CHANGELOG.md`](./themes/lecture/CHANGELOG.md)
 under the appropriate category (`Added` / `Changed` / `Fixed` / `Security` / `Dependencies`),
 with a link to the PR.
 
 To cut a release:
 
-1. In `CHANGELOG.md`, move the `## [Unreleased]` entries under a new `## [X.Y.Z] - YYYY-MM-DD`
+1. In `themes/lecture/CHANGELOG.md`, move the `## [Unreleased]` entries under a new `## [X.Y.Z] - YYYY-MM-DD`
    heading, add the footer compare link, and re-point the `[Unreleased]` compare link's base
    at the new tag (`compare/vX.Y.Z...HEAD`).
    Wrapping the entry text is fine — the release workflow unwraps it, because GitHub renders
    release bodies (unlike committed Markdown) with single newlines as line breaks.
-2. Bump the version in `package.json` (e.g. `npm version X.Y.Z --no-git-tag-version`).
+2. Bump the version in `themes/lecture/package.json` (e.g.
+   `npm version X.Y.Z --no-git-tag-version -w themes/lecture`).
    You do **not** need to bump `template.yml` — the release workflow stamps its `version`
-   from `package.json` into the published bundle, so the two cannot drift.
+   from that `package.json` into the published bundle, so the two cannot drift.
    Do bump the two pinned `vX.Y.Z` URLs in `README.md` (the `site.template` example
    under "Usage with MyST" and the git-metadata plugin URL): the release guard does not
    check them, and a stale example hands consumers a superseded release
@@ -316,8 +364,8 @@ To cut a release:
 5. The tag triggers [`release.yml`](./.github/workflows/release.yml), which builds the
    theme, zips the bundle, and publishes a **GitHub Release** for the tag with
    `quantecon-theme.zip` attached, using the version's `CHANGELOG.md` section as the
-   release notes. The workflow **fails** if the tag does not match `package.json` or if
-   `CHANGELOG.md` has no `## [X.Y.Z]` section.
+   release notes. The workflow **fails** if the tag does not match
+   `themes/lecture/package.json` or if `themes/lecture/CHANGELOG.md` has no `## [X.Y.Z]` section.
 
 If a release run fails, the failed run published nothing, so recovery is safe:
 
@@ -339,5 +387,5 @@ release-equivalent zip).
 ## Notes
 
 - The theme is built on [Remix v1](https://remix.run/) and [@myst-theme](https://github.com/jupyter-book/myst-theme).
-- Tailwind CSS is used for styling — see `tailwind.config.js` for the theme configuration.
+- Tailwind CSS is used for styling — see `themes/lecture/tailwind.config.js` for the theme configuration.
 - TypeScript strict mode is enabled — all code must pass `tsc --noEmit`.

@@ -26,14 +26,15 @@ jobs:
       #
       # --exclude=README.md: prose docs keep their history, and tests/visual's
       # README sits inside a scanned path (it carries eight issue references
-      # today). -I: skip the binary snapshots under tests/visual/__snapshots__,
-      # where grep would report "Binary file ... matches" and fail the step.
+      # today). --exclude=CHANGELOG.md: the lecture theme's changelog is prose
+      # and sits inside themes/. -I: skip the binary snapshots under
+      # tests/visual/__snapshots__, where grep would report "Binary file ...
+      # matches" and fail the step.
       - name: No project framing in code comments
         run: |
-          if grep -rnIE --exclude=README.md \
+          if grep -rnIE --exclude=README.md --exclude=CHANGELOG.md --exclude-dir=node_modules \
                '(Phas[e] [0-9]|PLA[N]\.md|parit[y] milestone|open questio[n] [0-9])' \
-               app styles plugins scripts tests template.yml tailwind.config.js \
-               playwright.config.ts .github/workflows; then
+               themes packages plugins scripts .github/workflows; then
             echo "::error::Project framing in a code comment -- see CONTRIBUTING.md 'Code comments'."
             exit 1
           fi
@@ -43,7 +44,7 @@ jobs:
       - run: npm run prod:build
 
   # Pixel-diffs the fixture against the committed -linux baselines
-  # (tests/visual/__snapshots__). On intentional design changes, refresh the
+  # (themes/lecture/tests/visual/__snapshots__). On intentional design changes, refresh the
   # baselines by commenting /update-snapshots on the PR (update-snapshots.yml).
   visual:
     name: Visual regression (Chromium)
@@ -81,6 +82,7 @@ jobs:
         # The report/diff artifacts and PR comment below must still be
         # produced on failure — that is when reviewers need them.
         continue-on-error: true
+        working-directory: themes/lecture
         run: npx playwright test --project=desktop-chrome --project=mobile-chrome --project=static-chrome
         env:
           THEME_TEMPLATE: ${{ github.workspace }}/.deploy/quantecon-theme
@@ -90,24 +92,24 @@ jobs:
         if: always()
         with:
           name: visual-playwright-report
-          path: playwright-report/
+          path: themes/lecture/playwright-report/
           retention-days: 30
       - name: Upload test results (actual/diff images) on failure
         uses: actions/upload-artifact@v7
         if: steps.visual.outcome == 'failure'
         with:
           name: visual-test-diff
-          path: test-results/
+          path: themes/lecture/test-results/
           retention-days: 30
       - name: Post results summary to PR
         uses: daun/playwright-report-summary@v4
         # hashFiles guard: if Playwright died before writing results.json
         # (e.g. the fixture server never came up), skip the summarizer and let
         # the gate step below attribute the failure to the test run.
-        if: github.event_name == 'pull_request' && hashFiles('playwright-report/results.json') != ''
+        if: github.event_name == 'pull_request' && hashFiles('themes/lecture/playwright-report/results.json') != ''
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          report-file: playwright-report/results.json
+          report-file: themes/lecture/playwright-report/results.json
           comment-title: "🎭 Visual regression results"
       - name: Fail if visual tests failed
         if: steps.visual.outcome == 'failure'
@@ -144,5 +146,5 @@ jobs:
         if: failure()
         with:
           name: fouc-playwright-report
-          path: playwright-report/
+          path: themes/lecture/playwright-report/
           retention-days: 7
