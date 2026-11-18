@@ -1090,6 +1090,30 @@ details.qb-env[open] > summary::after {
   margin-top: auto;
   letter-spacing: -0.01em;
 }
+/* The project's thumbnail, as cover art: it takes the space between the
+   series line and the title. Multiplied onto the paper, so a white ground
+   takes the paper's colour; in dark mode it sits as a plate. */
+.qb-bookcover__art {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 16px -6px 0 -8px;
+  overflow: hidden;
+}
+.qb-bookcover__art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+.dark .qb-bookcover__art img {
+  mix-blend-mode: normal;
+  border-radius: 2px;
+  opacity: 0.92;
+}
+.qb-bookcover__art + .qb-bookcover__title {
+  margin-top: 14px;
+}
 .qb-bookcover__rule {
   height: 2px;
   width: 46px;

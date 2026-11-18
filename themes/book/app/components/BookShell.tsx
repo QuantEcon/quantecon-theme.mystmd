@@ -162,10 +162,10 @@ export function BookShell({
         <Link to={withBaseurl('/', baseurl)} className="qb-masthead__title">
           {options.logo && (
             <>
-              <img className="qb-logo qb-logo--light" src={withBaseurl(options.logo, baseurl)} alt={options.logo_alt ?? ''} />
+              <img className="qb-logo qb-logo--light" src={options.logo} alt={options.logo_alt ?? ''} />
               <img
                 className="qb-logo qb-logo--dark"
-                src={withBaseurl(options.logo_dark ?? options.logo, baseurl)}
+                src={options.logo_dark ?? options.logo}
                 alt={options.logo_alt ?? ''}
               />
             </>

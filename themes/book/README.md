@@ -25,7 +25,7 @@ use, and runs on any mystmd that runs the lecture theme.
 
 | Page | What it shows | Comes from |
 | ---- | ------------- | ---------- |
-| **Cover** | title and subtitle (split at the title's colon), authors with affiliations, *Read online* (to the contents page, or the first page without one) / *Download PDF* / *Source*, a strip of facts, the index page's text, and a card per chapter | the project's index page and `myst.yml` (`authors`, `downloads`, `github`, `doi`, `venue`) |
+| **Cover** | title and subtitle (split at the title's colon), authors with affiliations, *Read online* (to the contents page, or the first page without one) / *Download PDF* / *Source*, a drawn book (with the project's `thumbnail` as its cover art, when it has one), a strip of facts, the index page's text, and a card per chapter | the project's index page and `myst.yml` (`authors`, `downloads`, `github`, `doi`, `venue`, `thumbnail`) |
 | **Contents** | front matter in roman numerals, the parts and chapters with their one-line glosses, the appendices | a page with the slug `contents` (or `layout: contents` under `site:`), listed in the toc. Glosses are each page's `description`. Print page numbers are not shown |
 | **Chapter** | eyebrow (the part), chapter numeral, title, lede (`subtitle` or `description`), the text, previous / next | every other page |
 | **Chapter with code** | the same, with code cards: language, file name, copy button, highlighting in the theme's palette | `code` blocks, any language; Python, Julia, R, shell, JavaScript, JSON, YAML and LaTeX are highlighted |

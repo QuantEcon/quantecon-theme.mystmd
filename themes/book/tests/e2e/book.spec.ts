@@ -22,6 +22,16 @@ test.describe('cover', () => {
     await expect(page.locator('meta[name="citation_doi"]')).toHaveAttribute('content', '10.0000/fixture');
     expect(errors).toEqual([]);
   });
+
+  test('cover art: the project thumbnail on the drawn book', async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto('/');
+    const art = page.locator('.qb-bookcover__art img');
+    await expect(art).toHaveCount(1);
+    // Loaded, not a broken image: the URL is used as mystmd gives it.
+    await expect.poll(() => art.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+    expect(errors).toEqual([]);
+  });
 });
 
 test.describe('contents', () => {

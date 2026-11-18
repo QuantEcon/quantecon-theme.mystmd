@@ -137,6 +137,9 @@ jobs:
         working-directory: preview-book
         env:
           THEME_DIR: ${{ github.workspace }}/.deploy/quantecon-theme-book
+          # The hero image of the book's public site, networks.quantecon.org
+          # (QuantEcon/book-networks-public), drawn on the cover page's book.
+          COVER_URL: https://raw.githubusercontent.com/QuantEcon/book-networks-public/main/website/images/network3.jpg
         run: |
           yq -i '.site.template = env(THEME_DIR)' myst.yml
           # The theme replaces the edition's fancy-lists plugin and stylesheet.
@@ -148,6 +151,20 @@ jobs:
             printf -- '---\ntitle: Contents\n---\n' > contents.md
             yq -i '(.project.toc[] | select(.section == "frontmatter") | .children) |= [{"file": "contents.md"}] + .' myst.yml
             grep -q 'contents.md' myst.yml
+          fi
+          # The cover art is the project thumbnail, which mystmd copies as it
+          # is. The image is 6000 px square (2 MB), so it is scaled to 1200 px
+          # first. It is cosmetic: if it cannot be fetched, the preview warns
+          # and builds without it.
+          add_cover() {
+            curl -fsSL --retry 3 "$COVER_URL" -o "$RUNNER_TEMP/cover-full.jpg" &&
+              python3 -m venv "$RUNNER_TEMP/pillow" &&
+              "$RUNNER_TEMP/pillow/bin/pip" install --quiet --disable-pip-version-check pillow &&
+              "$RUNNER_TEMP/pillow/bin/python" -c 'import sys; from PIL import Image; im = Image.open(sys.argv[1]); im.thumbnail((1200, 1200)); im.save(sys.argv[2], quality=85)' "$RUNNER_TEMP/cover-full.jpg" cover.jpg &&
+              yq -i '.project.thumbnail = "cover.jpg"' myst.yml
+          }
+          if ! yq -e '.project.thumbnail' myst.yml > /dev/null 2>&1; then
+            add_cover || echo "::warning::Could not add the cover art from $COVER_URL; the preview's cover shows the drawn book only."
           fi
       - name: Build book site
         if: github.event.action != 'closed'

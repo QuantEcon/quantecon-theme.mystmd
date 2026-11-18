@@ -223,6 +223,8 @@ function Cover({ page }: { page: PageLoader }) {
   const license = project?.license?.content?.name ?? project?.license?.content?.id ?? options.license_label;
   const doi = project?.doi;
   const first = book.order[0];
+  // The project's thumbnail, when it has one, is the art on the drawn book.
+  const art: string | undefined = project?.thumbnailOptimized || project?.thumbnail || undefined;
 
   return (
     <BookShell type="cover" slug={page.slug}>
@@ -268,7 +270,7 @@ function Cover({ page }: { page: PageLoader }) {
                 Read online
               </Link>
               {pdf && (
-                <a className="qb-btn qb-btn--ghost" href={withBaseurl(pdf.url, baseurl)} download={pdf.filename}>
+                <a className="qb-btn qb-btn--ghost" href={pdf.url} download={pdf.filename}>
                   <Icon d="M12 3v12M7 11l5 5 5-5M5 21h14" />
                   Download PDF
                 </a>
@@ -284,6 +286,11 @@ function Cover({ page }: { page: PageLoader }) {
           <div className="qb-bookwrap" aria-hidden="true">
             <div className="qb-bookcover">
               <div className="qb-bookcover__top">{series}</div>
+              {art && (
+                <div className="qb-bookcover__art">
+                  <img src={art} alt="" />
+                </div>
+              )}
               <div className="qb-bookcover__title">{main.trim()}</div>
               <div className="qb-bookcover__rule" />
               {subtitle && <div className="qb-bookcover__vol">{subtitle}</div>}

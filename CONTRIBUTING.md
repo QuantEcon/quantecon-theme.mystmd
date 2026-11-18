@@ -330,9 +330,11 @@ The same run builds the book theme on a real book, *Economic Networks*
 `pr-preview/pr-<n>/book/`. The book is built with the renderer its edition
 deploys with, the QuantEcon mystmd fork (`MYSTMD_FORK_REF` in `preview.yml`,
 built from its tag), with the edition's fancy-lists plugin and stylesheet
-removed, since the theme replaces them. The edition has no contents page yet,
-so the preview adds one to show that page type. A shared change that breaks
-either theme's static build fails the preview.
+removed, since the theme replaces them. The edition has no contents page or
+cover image yet, so the preview adds a contents page, and the hero image of
+the book's public site (networks.quantecon.org) as the project thumbnail,
+which the cover draws on its book. A shared change that breaks either theme's
+static build fails the preview.
 
 ## Commit Convention
 
