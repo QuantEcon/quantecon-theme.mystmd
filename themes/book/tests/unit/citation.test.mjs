@@ -1,4 +1,4 @@
-/** citation_* meta (app/citation.ts). Requires Node >= 23.6. */
+/** citation_* meta (app/citation.ts). Requires Node 22.18+ or 23.6+ (type stripping). */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { citationMeta } from '../../app/citation.ts';

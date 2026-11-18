@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { Theme } from '@myst-theme/providers';
 import { isTheme } from '@myst-theme/providers';
 
@@ -47,10 +47,21 @@ export function DefaultThemeLoader({
   return <script dangerouslySetInnerHTML={{ __html: source }} />;
 }
 
+function hasSavedTheme(): boolean {
+  try {
+    const t = localStorage.getItem(STORAGE_KEY);
+    return t === 'light' || t === 'dark';
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Upstream's `useTheme` with a configurable fallback. The OS-preference
  * listener only runs when the default is `system`: with a fixed default, an
- * OS switch must not override the site's choice.
+ * OS switch must not override the site's choice. Even then it follows the OS
+ * only while the reader has made no choice, and what it picks is not saved,
+ * so the order above holds after an OS switch too.
  */
 export function useDefaultTheme({
   ssrTheme,
@@ -61,7 +72,7 @@ export function useDefaultTheme({
   useLocalStorage?: boolean;
   defaultScheme: DefaultColorScheme;
 }): [Theme | null, (theme: Theme) => void] {
-  const [theme, setTheme] = React.useState<Theme | null>(() => {
+  const [theme, setThemeState] = React.useState<Theme | null>(() => {
     if (isTheme(ssrTheme)) return ssrTheme;
     if (typeof window !== 'object') return null;
     // Whatever the blocking loader put on <html> is the hydrated state.
@@ -71,13 +82,25 @@ export function useDefaultTheme({
     return null;
   });
 
+  // Whether the reader has chosen a scheme: in this session through the
+  // toggle, or earlier, which arrives as the theme cookie (`ssrTheme`) under
+  // `myst start` and sits in localStorage on a static build.
+  const chosen = useRef(isTheme(ssrTheme));
+  const setTheme = useCallback((next: Theme) => {
+    chosen.current = true;
+    setThemeState(next);
+  }, []);
+
   useEffect(() => {
     if (defaultScheme !== 'system') return;
     const mq = window.matchMedia(PREFERS_LIGHT_MQ);
-    const onChange = () => setTheme((mq.matches ? 'light' : 'dark') as Theme);
+    const onChange = () => {
+      if (chosen.current || (useLocalStorage && hasSavedTheme())) return;
+      setThemeState((mq.matches ? 'light' : 'dark') as Theme);
+    };
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
-  }, [defaultScheme]);
+  }, [defaultScheme, useLocalStorage]);
 
   const mounted = useRef(false);
   useEffect(() => {
@@ -85,7 +108,8 @@ export function useDefaultTheme({
       mounted.current = true;
       return;
     }
-    if (!isTheme(theme)) return;
+    // Only the reader's own choice is saved, never a scheme the OS picked.
+    if (!chosen.current || !isTheme(theme)) return;
     if (useLocalStorage) {
       try {
         localStorage.setItem(STORAGE_KEY, theme);
