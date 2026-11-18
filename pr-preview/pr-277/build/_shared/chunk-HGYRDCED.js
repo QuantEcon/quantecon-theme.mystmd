@@ -1,1 +1,0 @@
-import{a as i}from"/quantecon-theme.mystmd/pr-preview/pr-277/build/_shared/chunk-UZULVGB7.js";function t(c,e){c.accDescr&&e.setAccDescription?.(c.accDescr),c.accTitle&&e.setAccTitle?.(c.accTitle),c.title&&e.setDiagramTitle?.(c.title)}i(t,"populateCommonDb");export{t as a};
