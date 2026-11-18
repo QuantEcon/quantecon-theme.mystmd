@@ -45,7 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tailwindcss` or `typescript`. Each is a migration rather than a bump:
   myst-theme 2.x replaces Remix with React Router 8 and Vite (tracked in
   [#28](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/28)), and
-  Tailwind 4 and TypeScript 7 need config changes of their own. The monthly
+  Tailwind 4 ([#281](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/281))
+  and TypeScript 7 ([#280](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/280))
+  need config changes of their own. The monthly
   major-version PR that bundled them failed every CI job
   ([#278](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/278)).
   Minor and patch updates to these packages still arrive
