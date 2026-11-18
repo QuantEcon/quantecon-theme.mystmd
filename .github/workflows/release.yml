@@ -9,11 +9,15 @@ name: Release
 #   …/releases/download/vX.Y.Z/quantecon-theme.zip
 #
 # The zip contains:
-#   build/, public/                 (from `npm run prod:build`)
+#   server/, renderer/              (from `npm run prod:build`: the server
+#                                   `myst start` runs and the pre-renderer
+#                                   `myst build --html` runs, each with every
+#                                   dependency compiled in -- there is no
+#                                   node_modules and no lockfile to ship)
+#   .env.prod                       (NODE_ENV for both)
 #   template.yml                    (version stamped from package.json)
-#   server.js, package.json, LICENSE, README.md, thumbnail.png, qe-logo.png
+#   package.json, LICENSE, README.md, thumbnail.png, qe-logo.png
 #                                   (from template/, with VERSION substituted)
-#   package-lock.json               (generated; node_modules is NOT shipped)
 #   CHANGELOG.md
 #
 # The lecture theme is the `themes/lecture` workspace: its package.json,
@@ -94,8 +98,7 @@ jobs:
       # the published artifact.
       - run: npm run test:unit
       - name: Build
-        # esbuild occasionally deadlocks: the build hangs rather than failing.
-        # Time out fast so the run can simply be retried.
+        # A hung build is cheaper to retry than to wait out: time out fast.
         timeout-minutes: 20
         run: npm run prod:build
 
@@ -105,15 +108,14 @@ jobs:
           DIST=dist/quantecon-theme
           mkdir -p "$DIST"
           find "$LECTURE/template" -type f -exec cp {} "$DIST" \;
-          cp -r "$LECTURE/public" "$DIST/public"
-          cp -r "$LECTURE/build" "$DIST/build"
+          cp -r "$LECTURE/build/server" "$DIST/server"
+          cp -r "$LECTURE/build/renderer" "$DIST/renderer"
+          cp "$LECTURE/.env.prod" "$DIST/.env.prod"
           cp "$LECTURE/CHANGELOG.md" "$DIST/CHANGELOG.md"
           # Stamp both version fields from package.json so the shipped bundle
           # cannot drift.
           sed -i "s/VERSION/$VERSION/g" "$DIST/package.json"
           sed -E "s/^version: .*/version: $VERSION/" "$LECTURE/template.yml" > "$DIST/template.yml"
-          # Lockfile for reproducible consumer installs, without shipping node_modules.
-          (cd "$DIST" && npm install --package-lock-only)
           (cd dist && zip -r ../quantecon-theme.zip quantecon-theme)
 
       - name: Publish GitHub Release
