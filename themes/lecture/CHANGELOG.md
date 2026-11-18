@@ -26,6 +26,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is now Ubuntu 26.04, where Playwright 1.60 cannot install browsers, so both CI
   jobs were failing before any test ran. The committed baselines are unchanged
   ([#272](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/272)).
+- The PR preview workflow calls `JamesIves/github-pages-deploy-action@v4` and
+  `marocchino/sticky-pull-request-comment@v3` directly, in place of
+  `rossjrw/pr-preview-action@v1`, which still pins Node 20 versions of both. The
+  preview path, the commit messages and the sticky comment's header are
+  unchanged, and the QR code is gone from the comment
+  ([#269](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/269)).
+
+### Fixed
+- The static file server behind the `static-chrome` Playwright project
+  (`tests/visual/static-server.mjs`) serves only files under its root. Its guard
+  was a prefix test on the path, which a request for a sibling folder whose name
+  starts with the root's (`<root>-other/`) passed. It also answers a malformed
+  percent-escape with 400 instead of failing the request. Test-only: nothing in
+  the theme bundle changes
+  ([#277](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/277)).
 
 ## [3.2.0] - 2026-09-30
 
