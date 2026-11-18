@@ -113,6 +113,8 @@ jobs:
           target-folder: pr-preview/pr-${{ github.event.number }}
           commit-message: Deploy preview for PR ${{ github.event.number }} 🛫
           force: false
+          # Replace the folder's contents, so files a later build drops go too.
+          clean: true
       - name: Comment with the preview link
         if: github.event.action != 'closed'
         uses: marocchino/sticky-pull-request-comment@v3
@@ -135,6 +137,9 @@ jobs:
           target-folder: pr-preview/pr-${{ github.event.number }}
           commit-message: Remove preview for PR ${{ github.event.number }} 🛬
           force: false
+          # The teardown depends on this: deploying an empty folder with clean
+          # on is what deletes the preview.
+          clean: true
       - name: Comment that the preview was removed
         if: github.event.action == 'closed'
         uses: marocchino/sticky-pull-request-comment@v3
