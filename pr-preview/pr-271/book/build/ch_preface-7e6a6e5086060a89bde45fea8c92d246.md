@@ -1,0 +1,22 @@
+---
+title: "Preface"
+label: c-preface
+---
+
+The development and use of network science has grown exponentially since the beginning of the 21st century. The ideas and techniques found in this field are already core tools for analyzing a vast range of phenomena, from epidemics and disinformation campaigns to chemical reactions and brain function.
+
+In economics, network theory is typically taught as a specialized subfield, available to students as one of many elective courses towards the end of their program. However, we are rapidly approaching the stage where every aspiring scientist—including social scientists and economists—wants to know the foundations of this field. It is arguably the case that, just as every well-trained economist learns the basics of convex optimization, maximum likelihood and linear regression, so too should every graduate student in economics learn the fundamental ideas of network theory.
+
+This book is an introduction to economic networks, intended for students and researchers in the fields of economics and applied mathematics. The book emphasizes quantitative modeling, with the main underlying tools being graph theory, linear algebra, fixed point theory and programming. Most mathematical tools are covered from first principles, with the two main technical results—the Neumann series lemma and the Perron–Frobenius theorem—playing a central role.
+
+The book is suitable for a one-semester course, taught either to advanced undergraduate students who are comfortable with linear algebra or to beginning graduate students. (For example, although we define eigenvalues, an ideal student would already know what eigenvalues and eigenvectors are, so that concepts like "eigenvector centrality" or results like the Neumann series lemma are readily absorbed.) The text will also suit students from mathematics, engineering, computer science and other related fields who wish to learn about connection between economics and networks.
+
+Several excellent books on network theory in economics and social science already exist, including {cite}`jackson2010social`, {cite}`easley2010networks`, {cite}`borgatti2018analyzing`, and {cite}`goyal2023networks`, as well as the handbook by {cite}`bramoulle2016oxford`. These texts have broad scope and treat many useful applications. In contrast, our book is narrower and more technical. It provides mathematical, computational and graph-theoretic foundations that are required to understand and apply network theory, along with a treatment of some of the most important network applications in economics, finance and operations research. It can be used as a complementary resource, or as a preliminary course that facilitates understanding of the alternative texts listed above, as well as research papers in the area.
+
+Our book contains a mix of Python and Julia code. The majority is in Python because the libraries are more stable at the time of writing, although Julia also has strong graph manipulation and optimization libraries. Code for figures is available from the authors. There are many solved exercises, ranging from simple to quite hard. At the end of each chapter we provide notes, informal comments and references.
+
+We are greatly indebted to Jim Savage and Schmidt Futures for generous financial support, as well as to Shu Hu and Chien Yeh for their outstanding research assistance. QuantEcon research fellow Matthew McKay generously lent us his time and expertise in data analysis, networks and visualization. QuantEcon research assistant Mark Dawkins turned an unstructured collection of code files into an elegant companion Jupyter book.
+
+Qianbin Dou has prepared a Chinese translation of this book, with assistance from his colleagues Meilu Sun and Ling Hu. In the process, Qianbin raised many important points that greatly enhanced the quality of all chapters. We thank Qianbin and his colleagues for their extremely valuable help.
+
+For many additional fixes, comments and suggestions, we thank Quentin Batista, Rolf Campos, Fernando Cirelli, Rebekah Dix, Saya Ikegawa, Fazeleh Kazemian, Dawie van Lill, Simon Mishricky, Pietro Monticone, Flint O'Neil, Richard Rivero, Zejin Shi, Akshay Shanker, Arnav Sood, Natasha Watkins, Chao Wei, and Zhuoying Ye. Finally, Chase Coleman, Alfred Galichon, Spencer Lyon, Daisuke Oyama and Jesse Perla are collaborators at QuantEcon, and almost everything we write has benefited from their input. This text is no exception.
