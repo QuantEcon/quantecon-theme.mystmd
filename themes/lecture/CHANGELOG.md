@@ -32,6 +32,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   preview path, the commit messages and the sticky comment's header are
   unchanged, and the QR code is gone from the comment
   ([#269](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/269)).
+- Dependabot no longer proposes `katex` 0.17 or later. KaTeX 0.18 renamed its
+  CSS classes, but the maths HTML on a lecture page comes from the KaTeX bundled
+  in the `mystmd` CLI (0.15.6), so the theme's stylesheet has to stay on the
+  0.16 class names: with the 0.18 stylesheet, superscripts, equation tags and
+  root indices lose their styling, which failed the visual regression suite on
+  the katex 0.18.2 bump
+  ([#275](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/275))
+  ([#276](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/276)).
 
 ### Fixed
 - The static file server behind the `static-chrome` Playwright project

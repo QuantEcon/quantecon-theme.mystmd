@@ -45,3 +45,17 @@ updates:
           - "*"
         update-types:
           - major
+    # Hold katex on 0.16.x. KaTeX 0.18 prefixes its CSS classes (.sizing ->
+    # .katex-sizing, likewise .base, .strut, .tag, .root, ...). The maths HTML
+    # on a lecture page is not rendered by this package: the mystmd CLI renders
+    # it at build time with the KaTeX it bundles (0.15.6 as of mystmd 1.13.0),
+    # and the theme only serves katex.min.css (themes/lecture/app/links.ts).
+    # With 0.18+ CSS that HTML loses its script sizes, equation-tag placement
+    # and root indices, and the visual regression suite fails on every page
+    # with maths.
+    # 0.17.0 is held back too: it keeps the old class names but brings no fix
+    # we need. Lift this once mystmd bundles KaTeX 0.18 or later.
+    ignore:
+      - dependency-name: katex
+        versions:
+          - ">=0.17.0"
