@@ -14,25 +14,25 @@ VERSION = $(shell jq -r '.version' $(LECTURE)/package.json)
 check:
 	@which jq > /dev/null || (echo "Error: the jq command is not available. Please install it first (brew install jq | apt-get install jq)." && exit 1)
 
-# Assembles the release workflow's bundle into .deploy/$(THEME), then
-# npm-installs it so the visual/FOUC test harness can serve it directly
-# (THEME_TEMPLATE=$$PWD/.deploy/$(THEME)). The node_modules this creates is
-# local-only — `build-zip` excludes it, matching the release asset.
+# Assembles the release workflow's bundle into .deploy/$(THEME), which the
+# visual/FOUC test harness serves directly (THEME_TEMPLATE=$$PWD/.deploy/$(THEME)).
+# The bundle is two self-contained Vite builds (every dependency compiled in,
+# so there is no `npm install` to run): server/, which `myst start` runs, and
+# renderer/, which `myst build --html` runs (template.yml `build`).
 build-theme: check
 	rm -rf .deploy/$(THEME)
 	mkdir -p .deploy/$(THEME)
 	find $(LECTURE)/template -type f -exec cp {} .deploy/$(THEME) \;
 	npm run prod:build -w $(LECTURE)
-	cp -r $(LECTURE)/public .deploy/$(THEME)/public
-	cp -r $(LECTURE)/build .deploy/$(THEME)/build
+	cp -r $(LECTURE)/build/server .deploy/$(THEME)/server
+	cp -r $(LECTURE)/build/renderer .deploy/$(THEME)/renderer
+	cp $(LECTURE)/.env.prod .deploy/$(THEME)/.env.prod
 	cp $(LECTURE)/CHANGELOG.md .deploy/$(THEME)/CHANGELOG.md
 	sed -i.bak "s/VERSION/$(VERSION)/g" .deploy/$(THEME)/package.json && rm .deploy/$(THEME)/package.json.bak
 	sed -E "s/^version: .*/version: $(VERSION)/" $(LECTURE)/template.yml > .deploy/$(THEME)/template.yml
-	cd .deploy/$(THEME) && npm install
 
-# Zips the bundle for testing the release artifact locally — node_modules
-# excluded, so the zip's contents match what the release workflow attaches
-# to the GitHub Release (which ships only a lockfile).
+# Zips the bundle for testing the release artifact locally, with the same
+# contents the release workflow attaches to the GitHub Release.
 build-zip: build-theme
-	cd .deploy && rm -f $(THEME).zip && zip -rq $(THEME).zip $(THEME) -x "$(THEME)/node_modules/*"
+	cd .deploy && rm -f $(THEME).zip && zip -rq $(THEME).zip $(THEME) -x "$(THEME)/node_modules/*" "$(THEME)/package-lock.json"
 	@echo "Wrote .deploy/$(THEME).zip"

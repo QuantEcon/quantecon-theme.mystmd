@@ -2,21 +2,8 @@
   "name": "@quantecon/lecture-theme",
   "version": "VERSION",
   "private": true,
-  "sideEffects": false,
-  "scripts": {
-    "start": "node ./server.js"
-  },
-  "dependencies": {
-    "@remix-run/express": "~1.17.0",
-    "@remix-run/node": "~1.17.0",
-    "compression": "^1.8.0",
-    "cross-env": "^7.0.3",
-    "express": "^4.21.2",
-    "get-port": "^5.1.1",
-    "isbot": "^3.8.0",
-    "morgan": "^1.10.0"
-  },
+  "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.22.0"
   }
 }

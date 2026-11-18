@@ -137,18 +137,21 @@ options:
       short_hash, author, date, message}`, set under `site:` in a page's
       frontmatter to pin the "Last changed" control by hand. Normally injected
       at build time by the git-metadata plugin instead.
+# How mystmd runs the theme. Both bundles are self-contained (every dependency
+# is compiled in), so there is nothing to install: the `install` step only has
+# to succeed, and mystmd skips it altogether before `render`.
+#   start   `myst start`: the theme server, with the content server's port in
+#           CONTENT_CDN_PORT.
+#   render  `myst build --html` on mystmd 1.11.0 and later: pre-renders the
+#           site into BUILD_DIRECTORY from the content server at CONTENT_CDN.
+#           Older mystmd ignores it and runs `start` with MODE=static, which
+#           the server refuses with a message naming the mystmd it needs.
 build:
-  # `npm ci`, not `npm install`: the release asset ships a lockfile (release.yml
-  # generates it with `npm install --package-lock-only` and it is in `files`
-  # below), so consumer installs are reproducible and the lockfile is never
-  # mutated in place. `npm ci` fails without a lockfile, but the only
-  # lockfile-less path is a source checkout, which is not a usable template
-  # until `make build-theme` has run -- and that target installs its own.
-  install: npm ci
-  start: npm run start
+  install: npm install --no-audit --no-fund
+  start: node --env-file=./.env.prod server/server/index.js
+  render: node --env-file=./.env.prod renderer/server/index.js
 files:
-  - server.js
+  - server/**/*
+  - renderer/**/*
+  - .env.prod
   - package.json
-  - package-lock.json
-  - public/**/*
-  - build/**/*
