@@ -650,11 +650,11 @@ details.qb-env[open] > summary::after {
   content: ' ▾';
 }
 
-/* Exercises, solutions and admonitions (myst-to-react's boxes), quietened
-   to match the environments: a hairline rule, no fill, a mono clay label. */
+/* Exercises and solutions (myst-to-react's boxes; a solution is an
+   `.myst-exercise` too), quietened to match the environments: a hairline
+   rule, no fill, a mono clay label. Admonitions have their own rules below. */
 .qb-article .myst-exercise,
-.qb-article .myst-solution,
-.qb-article .myst-admonition {
+.qb-article .myst-solution {
   background: transparent !important;
   box-shadow: none !important;
   border: 0 !important;
@@ -665,8 +665,7 @@ details.qb-env[open] > summary::after {
   overflow: visible;
 }
 .qb-article .myst-exercise-header,
-.qb-article .myst-solution-header,
-.qb-article .myst-admonition-header {
+.qb-article .myst-solution-header {
   background: transparent !important;
   border: 0 !important;
   padding: 0 !important;
@@ -678,26 +677,170 @@ details.qb-env[open] > summary::after {
   color: var(--qb-clay);
 }
 .qb-article .myst-exercise-header *,
-.qb-article .myst-solution-header *,
-.qb-article .myst-admonition-header * {
+.qb-article .myst-solution-header * {
   margin-left: 0 !important;
   color: var(--qb-clay) !important;
   text-decoration: none !important;
 }
 .qb-article .myst-exercise-header svg,
-.qb-article .myst-solution-header svg,
-.qb-article .myst-admonition-header svg {
+.qb-article .myst-solution-header svg {
   display: none;
 }
 .qb-article .myst-exercise-body,
 .qb-article .myst-solution-body,
-.qb-article .myst-admonition-body,
 .qb-article .myst-exercise > div:not(:first-child),
 .qb-article .myst-solution > div:not(:first-child) {
   padding: 0 !important;
 }
 .qb-article .myst-exercise-body > :last-child,
 .qb-article .myst-solution-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Admonitions ----------
+   In the environments' language: an italic label and a hairline rule in the
+   kind's hue, no fill, no icon. The kinds fall into five families of the
+   environment hues (the design draws no admonitions):
+     blue   note, seealso, and a generic `{admonition}` (upstream renders it
+            as a note)
+     green  tip, hint
+     clay   important
+     amber  attention, caution, warning
+     red    danger, error
+   Exercises and solutions keep their own rules, above. */
+.qb-article .myst-admonition {
+  --qb-c: var(--qb-c-theorem);
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-left: 1.5px solid var(--qb-c) !important;
+  border-radius: 0 !important;
+  padding: 2px 0 2px 20px !important;
+  margin: 1.5em 0 !important;
+  overflow: visible;
+}
+.qb-article .myst-admonition-tip,
+.qb-article .myst-admonition-hint {
+  --qb-c: var(--qb-c-example);
+}
+.qb-article .myst-admonition-important {
+  --qb-c: var(--qb-c-definition);
+}
+.qb-article .myst-admonition-attention,
+.qb-article .myst-admonition-caution,
+.qb-article .myst-admonition-warning {
+  --qb-c: var(--qb-c-remark);
+}
+.qb-article .myst-admonition-danger,
+.qb-article .myst-admonition-error {
+  --qb-c: var(--qb-c-danger);
+}
+.qb-article .myst-admonition-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 0 0.25em !important;
+  font-family: var(--qb-font-body);
+  font-size: 1rem;
+  line-height: var(--qb-leading);
+  min-height: 0;
+}
+.qb-article .myst-admonition-header-text {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--qb-c) !important;
+  overflow: visible;
+}
+.qb-article .myst-admonition-header-text::after {
+  content: '.';
+}
+.qb-article .myst-admonition-header svg {
+  display: none;
+}
+.qb-article .myst-admonition-body {
+  padding: 0 !important;
+}
+.qb-article .myst-admonition-body > :first-child {
+  margin-top: 0;
+}
+.qb-article .myst-admonition-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* Collapsible admonitions (`:class: dropdown`) and `{dropdown}`: a native
+   <details>, its label followed by the same ▸ / ▾ as a folded environment.
+   A dropdown has no kind, so it takes the proof's grey. */
+.qb-article .myst-dropdown {
+  --qb-c: var(--qb-c-proof);
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-left: 1.5px solid var(--qb-rule) !important;
+  border-radius: 0 !important;
+  padding: 2px 0 2px 20px !important;
+  margin: 1.5em 0 !important;
+  overflow: visible;
+}
+.qb-article details.myst-admonition > summary,
+.qb-article .myst-dropdown > summary {
+  cursor: pointer;
+  list-style: none;
+  box-shadow: none !important;
+}
+.qb-article details.myst-admonition > summary::-webkit-details-marker,
+.qb-article .myst-dropdown > summary::-webkit-details-marker {
+  display: none;
+}
+.qb-article .myst-dropdown-header {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  font-family: var(--qb-font-body);
+  font-size: 1rem;
+  line-height: var(--qb-leading);
+}
+.qb-article .myst-dropdown-header-title {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--qb-ink-soft) !important;
+}
+.qb-article .myst-dropdown-header-title > span:first-child {
+  display: none;
+}
+.qb-article details.myst-admonition > summary::after,
+.qb-article .myst-dropdown > summary::after {
+  content: '▸';
+  font-style: normal;
+  color: var(--qb-muted);
+}
+.qb-article .myst-dropdown > summary::after {
+  margin-left: 0.4em;
+}
+.qb-article details.myst-admonition[open] > summary::after,
+.qb-article .myst-dropdown[open] > summary::after {
+  content: '▾';
+}
+.qb-article details.myst-admonition > summary .myst-admonition-header-text {
+  flex-grow: 0;
+}
+.qb-article details.myst-admonition > summary > div:last-of-type:not(.myst-admonition-header-text) {
+  display: none;
+}
+.qb-article details.myst-admonition > summary:hover .myst-admonition-header-text,
+.qb-article .myst-dropdown > summary:hover .myst-dropdown-header-title {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.qb-article .myst-dropdown-body {
+  padding: 0.3em 0 0 !important;
+}
+.qb-article .myst-dropdown-body > :last-child {
   margin-bottom: 0;
 }
 
@@ -831,7 +974,10 @@ details.qb-env[open] > summary::after {
   font-weight: 600;
 }
 
-/* ---------- Margin notes (MyST `aside` / `margin`) ---------- */
+/* ---------- Margin notes (MyST `aside` / `margin`) ----------
+   In the 16rem gutter at 1080px and wider: small, muted, set off by a
+   hairline. Below that they fall into the column, as a note in the clay
+   hue rather than a filled box. */
 .qb-article .myst-aside {
   font-size: 0.8em;
   line-height: 1.5;
@@ -843,25 +989,144 @@ details.qb-env[open] > summary::after {
   padding: 0 0 0 1rem !important;
   margin: 0.25em 0 1em;
 }
+.qb-article .myst-aside > :last-child {
+  margin-bottom: 0;
+}
+.qb-article .myst-aside p {
+  margin: 0 0 0.6em;
+}
+.qb-article .myst-aside-title,
+.qb-article .myst-aside header {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--qb-ink-soft);
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 0 0.2em;
+  font-size: 1em;
+}
+.qb-article .myst-aside a {
+  color: var(--qb-link);
+}
 @media (max-width: 1079px) {
   .qb-article .myst-aside {
     height: auto;
-    margin: 1em 0;
-    padding: 12px 14px !important;
-    background: var(--qb-paper-2) !important;
-    border-left: 3px solid var(--qb-clay);
-    border-radius: var(--qb-radius);
+    margin: 1.2em 0;
+    padding: 2px 0 2px 1rem !important;
+    border-left: 1.5px solid var(--qb-clay);
+    border-radius: 0;
+    font-size: 0.86em;
   }
 }
 
-/* ---------- Footnotes and references ---------- */
-.qb-footnotes,
-.qb-bibliography {
+/* ---------- Footnotes and references ----------
+   Upstream's sections (`myst-footnotes`, `myst-bibliography`), each closed
+   off by one hairline over the column, headed by a mono kicker. The theme
+   passes `qb-notes` as the section's class (app/components/Pages.tsx). */
+.qb-notes {
   margin-top: 3.5em;
-  padding-top: 1.2em;
+}
+.qb-notes + .qb-notes {
+  margin-top: 1.6em;
+}
+.qb-notes > :first-child {
   border-top: 1px solid var(--qb-rule);
-  font-size: 0.9em;
+  padding-top: 1.2em;
+}
+.qb-notes .myst-footnotes-header,
+.qb-notes .myst-bibliography-header {
+  font-family: var(--qb-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--qb-muted) !important;
+  margin: 0 0 1em;
+}
+.qb-notes .myst-footnotes-list,
+.qb-notes .myst-bibliography-list {
+  padding-left: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 0.84rem !important;
+  line-height: 1.55;
+  color: var(--qb-ink-soft) !important;
+}
+.qb-notes .myst-footnotes-list ol {
+  list-style: decimal;
+  margin: 0;
+  padding-left: 1.7em;
+}
+.qb-notes .myst-footnotes-item {
+  margin: 0 0 0.5em;
+  scroll-margin-top: calc(var(--qb-masthead-h) + 16px);
+}
+.qb-notes .myst-footnotes-item::marker {
+  font-family: var(--qb-font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--qb-blue);
+}
+.qb-notes .myst-footnotes-item:target .myst-footnote-content {
+  color: var(--qb-ink);
+}
+.qb-notes .myst-footnote-content p {
+  margin: 0;
+}
+.qb-notes .myst-footnote-backlinks a {
+  padding: 0 0 0 0.5em !important;
+  line-height: inherit;
+  color: var(--qb-muted) !important;
+  font-family: var(--qb-font-mono);
+  font-size: 12px;
+  text-decoration: none !important;
+}
+.qb-notes .myst-footnote-backlinks a:hover {
+  color: var(--qb-blue) !important;
+}
+/* The references: author–year entries with a hanging indent, unnumbered. */
+.qb-notes .myst-bibliography-list ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.qb-notes .myst-bibliography-item {
+  margin: 0 0 0.55em;
+  padding-left: 1.6em;
+  text-indent: -1.6em;
+  scroll-margin-top: calc(var(--qb-masthead-h) + 16px);
+}
+.qb-notes .myst-bibliography-item:target {
+  color: var(--qb-ink);
+}
+.qb-notes .myst-bibliography-item a {
+  color: var(--qb-link);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.qb-notes .myst-bibliography-item a:hover {
+  text-decoration: underline;
+}
+.qb-notes .myst-bibliography-toggle {
+  font-family: var(--qb-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
   color: var(--qb-muted);
+  background: var(--qb-paper-2);
+  border: 1px solid var(--qb-rule) !important;
+  border-radius: 5px;
+  padding: 2px 9px !important;
+  cursor: pointer;
+}
+.qb-notes .myst-bibliography-toggle:hover {
+  color: var(--qb-ink);
+  border-color: var(--qb-blue) !important;
+}
+
+/* Footnote marks in the text: a small mono numeral in the house blue. */
+.qb-article sup.hover-link,
+.qb-article [id^='fnref-'] sup {
+  font-size: 0.68em;
+  text-decoration: none;
 }
 .qb-article [class*='footnote'] sup a,
 .qb-article sup a {
@@ -869,6 +1134,10 @@ details.qb-env[open] > summary::after {
   font-family: var(--qb-font-mono);
   font-weight: 600;
   color: var(--qb-blue) !important;
+  padding: 0 0.08em;
+}
+.qb-article sup a:hover {
+  color: var(--qb-blue-press) !important;
 }
 
 /* ---------- Previous / next ---------- */
@@ -1407,9 +1676,274 @@ details.qb-env[open] > summary::after {
   }
 }
 
-/* Citations and cross-reference hovers: `.hover-link` spans as well as links,
-   in the link colour rather than upstream's blue. */
-.qb-article .hover-link {
+/* ---------- Citations and cross-references in the text ----------
+   Citations read as part of the sentence: upright, in the text colour, with
+   a dotted hairline in the link hue that turns to the link colour on hover.
+   Cross-references (equations, figures, tables, environments, sections) are
+   links, with the same dotted hairline to say that they preview. */
+.qb-article cite {
+  font-style: normal;
+}
+.qb-article cite > .hover-link,
+.qb-article cite > a.hover-link {
+  color: inherit !important;
+  text-decoration: underline dotted !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklab, var(--qb-link) 60%, transparent) !important;
+  cursor: pointer;
+}
+.qb-article cite > .hover-link:hover,
+.qb-article cite[data-state='open'] > .hover-link {
+  color: var(--qb-link) !important;
+  text-decoration-color: var(--qb-link) !important;
+}
+.qb-article a.hover-link {
   color: var(--qb-link);
-  text-decoration-color: color-mix(in oklab, var(--qb-link) 50%, transparent);
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklab, var(--qb-link) 55%, transparent);
+}
+.qb-article a.hover-link:hover {
+  text-decoration-color: var(--qb-link);
+}
+/* Citations in the exercises' and solutions' mono headers stay as they are. */
+
+/* ---------- Hover cards ----------
+   myst-to-react's HoverPopover (`.hover-card-content`), portalled into
+   body.qb-body, for citations, footnotes and cross-references: a sheet of
+   the paper with a hairline border and the theme's shadow, a 1.5px rule in
+   the house blue down its left edge as on the environments, and the
+   article's type at a smaller size. No arrow. */
+.qb-body .hover-card-content {
+  z-index: 60;
+}
+.qb-body .hover-card-content > span:has(> svg) {
+  display: none;
+}
+.qb-body .hover-document {
+  width: min(30rem, calc(100vw - 32px)) !important;
+  max-width: min(30rem, calc(100vw - 32px)) !important;
+  max-height: min(26rem, 60vh);
+  overflow: auto;
+  padding: 14px 18px 14px 18px !important;
+  background: var(--qb-paper) !important;
+  color: var(--qb-ink-soft);
+  border: 1px solid var(--qb-rule) !important;
+  border-left: 1.5px solid var(--qb-blue) !important;
+  border-radius: 0 var(--qb-radius) var(--qb-radius) 0 !important;
+  box-shadow: var(--qb-shadow) !important;
+  font-family: var(--qb-font-body);
+  font-size: 0.84rem !important;
+  line-height: 1.55;
+  text-align: left;
+}
+.dark .qb-body .hover-document {
+  background: var(--qb-paper-2) !important;
+}
+.qb-body .hover-document > .px-3 {
+  padding: 0 !important;
+}
+.qb-body .hover-document p {
+  margin: 0 0 0.6em;
+}
+.qb-body .hover-document > :last-child,
+.qb-body .hover-document > .px-3 > :last-child,
+.qb-body .hover-document p:last-child {
+  margin-bottom: 0;
+}
+.qb-body .hover-document a {
+  color: var(--qb-link);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.qb-body .hover-document a:hover {
+  text-decoration: underline;
+}
+.qb-body .hover-document i,
+.qb-body .hover-document em {
+  color: var(--qb-ink);
+}
+/* What a cross-reference shows: an equation, figure, table, environment or
+   section, set as in the article. */
+.qb-body .hover-document .katex-display {
+  margin: 0.3em 0;
+}
+.qb-body .hover-document .katex {
+  color: var(--qb-ink);
+}
+.qb-body .hover-document figure {
+  margin: 0;
+}
+.qb-body .hover-document figure img {
+  max-height: 14rem;
+  width: auto !important;
+  max-width: 100%;
+  margin-inline: auto;
+  background: var(--qb-figure-bg);
+  border-radius: 2px;
+}
+.qb-body .hover-document figcaption {
+  margin-top: 8px;
+  font-size: 0.92em;
+  color: var(--qb-muted);
+}
+.qb-body .hover-document figcaption p {
+  margin: 0;
+}
+.qb-body .hover-document figcaption > p > span:first-child {
+  color: var(--qb-ink-soft);
+  font-weight: 600;
+}
+.qb-body .hover-document figure.fig-table figcaption {
+  margin: 0 0 8px;
+}
+.qb-body .hover-document table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  margin-inline: auto;
+}
+.qb-body .hover-document th,
+.qb-body .hover-document td {
+  border-bottom: 1px solid var(--qb-rule);
+  padding: 0.3em 0.8em;
+}
+.qb-body .hover-document tr:first-child > th,
+.qb-body .hover-document thead th {
+  border-bottom: 1.5px solid var(--qb-ink-soft);
+  font-weight: 600;
+}
+.qb-body .hover-document th p,
+.qb-body .hover-document td p {
+  margin: 0;
+}
+.qb-body .hover-document .qb-env {
+  margin: 0;
+  color: var(--qb-ink-soft);
+}
+.qb-body .hover-document h1,
+.qb-body .hover-document h2,
+.qb-body .hover-document h3,
+.qb-body .hover-document h4 {
+  font-family: var(--qb-font-head);
+  font-size: 1.08em;
+  font-weight: var(--qb-h-weight);
+  color: var(--qb-ink);
+  margin: 0 0 0.45em;
+  line-height: 1.3;
+}
+.qb-body .hover-document h2 .qb-num,
+.qb-body .hover-document h3 .qb-num {
+  margin-right: 0.5em;
+}
+.qb-body .hover-document a[aria-label^='Link to'],
+.qb-body .hover-document a[title^='Link to'] {
+  display: none;
+}
+.qb-body .hover-document code {
+  font-family: var(--qb-font-mono);
+  font-size: 0.88em;
+}
+
+/* ---------- Search dialog ----------
+   The shared Search (packages/common) portals into body.qb-body. Its
+   overlay colour is hard-coded, so it is matched by that value. */
+.qb-body [class*='bg-[#656c85cc]'] {
+  background: color-mix(in oklab, var(--qb-ink) 24%, transparent) !important;
+  backdrop-filter: blur(2px);
+}
+.qb-body .myst-search-dialog {
+  background: var(--qb-paper) !important;
+  color: var(--qb-ink) !important;
+  border: 1px solid var(--qb-rule);
+  box-shadow: var(--qb-shadow);
+  font-family: var(--qb-font-body);
+  padding: 18px 20px !important;
+}
+@media (min-width: 640px) {
+  .qb-body .myst-search-dialog {
+    border-radius: var(--qb-radius) !important;
+  }
+}
+.qb-body .myst-search-input {
+  background: var(--qb-paper-2) !important;
+  color: var(--qb-ink) !important;
+  border: 1px solid var(--qb-rule) !important;
+  border-radius: var(--qb-radius) !important;
+  font-family: var(--qb-font-body);
+  font-size: 17px;
+  box-shadow: none !important;
+}
+.qb-body .myst-search-input::placeholder {
+  color: var(--qb-muted);
+  font-style: italic;
+}
+.qb-body .myst-search-input:focus {
+  outline: 2px solid var(--qb-blue);
+  outline-offset: 0;
+  border-color: var(--qb-blue) !important;
+}
+.qb-body .myst-search-dialog form svg {
+  color: var(--qb-muted) !important;
+}
+.qb-body .myst-search-shortcut {
+  color: var(--qb-muted) !important;
+  font-family: var(--qb-font-mono);
+}
+.qb-body .myst-search-shortcut kbd {
+  font-family: var(--qb-font-mono);
+  font-size: 11px;
+  border-color: var(--qb-rule) !important;
+  background: var(--qb-paper);
+  box-shadow: none !important;
+  padding: 1px 6px !important;
+}
+.qb-body .myst-search-results {
+  scrollbar-color: var(--qb-rule) transparent;
+}
+.qb-body .myst-search-result-item > a {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--qb-ink-soft) !important;
+  border-left: 1.5px solid transparent;
+  border-radius: 0 !important;
+  padding: 6px 4px !important;
+}
+.qb-body .myst-search-result-item + .myst-search-result-item {
+  border-top: 1px solid var(--qb-rule);
+}
+.qb-body .myst-search-results ul {
+  row-gap: 0 !important;
+}
+.qb-body .myst-search-result-item[aria-selected='true'] > a {
+  background: var(--qb-paper-2) !important;
+  color: var(--qb-ink) !important;
+  border-left-color: var(--qb-blue);
+}
+.qb-body .myst-search-result-item .text-xs {
+  font-family: var(--qb-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--qb-muted);
+}
+.qb-body .myst-search-result-highlight {
+  font-size: 15px !important;
+}
+.qb-body .myst-search-result-item mark {
+  background: transparent !important;
+  color: var(--qb-blue) !important;
+  font-weight: 600;
+  text-decoration: none !important;
+}
+.qb-body .myst-search-result-icon,
+.qb-body .myst-search-result-item svg {
+  color: var(--qb-muted);
+}
+.qb-body .myst-search-result-item[aria-selected='true'] svg {
+  color: var(--qb-blue);
+}
+.qb-body .myst-search-no-results {
+  color: var(--qb-muted) !important;
+  font-style: italic;
 }

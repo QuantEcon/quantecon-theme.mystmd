@@ -111,8 +111,8 @@ function Chapter({ page }: { page: PageLoader }) {
               {!fm.subtitle && fm.description && <p className="qb-lede">{fm.description}</p>}
             </header>
             <MyST ast={tree} />
-            <Footnotes innerClassName="qb-footnotes" />
-            <Bibliography innerClassName="qb-bibliography" />
+            <Footnotes containerClassName="qb-notes qb-footnotes" />
+            <Bibliography containerClassName="qb-notes qb-bibliography" />
             <ChapterNav book={book} slug={page.slug} />
           </article>
         </Article>

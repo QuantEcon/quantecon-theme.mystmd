@@ -44,6 +44,10 @@
   /* The design's #9a6a1f is 4.44:1 on the paper, under WCAG AA for the
      body-size italic labels it colours; #98691f is 4.52:1 and looks the same. */
   --qb-c-remark: #98691f;
+  /* Admonitions' fifth family (danger, error), which the environments do not
+     use: a brick red, 6.27:1 on the paper (dark value 6.21:1). Not in the
+     design, which draws no admonitions. */
+  --qb-c-danger: #a8322a;
 
   /* Paper and ink (light). */
   --qb-paper: #faf8f3;
@@ -84,5 +88,6 @@
   --qb-c-proof: #9a958a;
   --qb-c-example: #5ec095;
   --qb-c-remark: #d6a55e;
+  --qb-c-danger: #e5786a;
   --qb-figure-bg: #fff;
 }
