@@ -30,7 +30,11 @@ jobs:
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
       (startsWith(github.event.comment.body, '/update-snapshots') ||
        startsWith(github.event.comment.body, '/update-new-snapshots'))
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.60 cannot install browsers on ubuntu-latest, which is
+    # now Ubuntu 26.04. The -linux baselines were made on 24.04. Keep this job
+    # and both Playwright jobs in ci.yml on the same image, and move all three
+    # together when Playwright is bumped.
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       pull-requests: write
