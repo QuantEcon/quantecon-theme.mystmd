@@ -7,6 +7,40 @@ keeps its own changelog in `themes/lecture/CHANGELOG.md`.
 
 ## [Unreleased]
 
+### Added
+
+- Admonitions of every kind in the environments' language: an italic label
+  and a hairline rule in the kind's hue, no fill or icon, in five colour
+  families. Collapsible admonitions and `{dropdown}` fold with the
+  environments' ▸ / ▾. A new `--qb-c-danger` token, AA in light and dark,
+  colours danger and error ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- Citations in every form set upright in the text colour with a dotted
+  hairline, and the references as author–year entries with a hanging indent
+  ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- Hover cards for citations, footnotes and cross-references to equations,
+  figures, tables, environments and sections, on the paper with a hairline
+  border ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- The search dialog in the Manuscript style ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- Behavioural tests for each of these on the fixture book, which gains a
+  bibliography, admonitions, a labelled equation, figure and table, and an
+  aside ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+
+### Changed
+
+- Exercises and solutions no longer share their rule with admonitions; they
+  look as before ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- Footnote marks are small mono numerals; the footnotes and the references
+  each sit under a mono kicker ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- Margin notes show their hairline in the gutter, and below 1080px take a
+  clay rule rather than a filled box ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+
+### Fixed
+
+- The footnotes were ruled off twice, over their heading and over the list
+  ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- On wide screens a page with footnotes or references scrolled sideways: the
+  sections took the reading column's negative margin a second time ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+
 ## [0.1.0] - unreleased
 
 ### Added

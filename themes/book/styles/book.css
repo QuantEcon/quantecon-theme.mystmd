@@ -426,6 +426,12 @@ body.qb-body {
   .qb-reading .qb-grid {
     margin-right: calc(-1 * (var(--qb-gutter) + var(--qb-gutter-gap)));
   }
+  /* A grid inside the article (upstream's footnotes and references are
+     sections on the same grid) already spans the gutter: without this it
+     takes the negative margin again and the page scrolls sideways. */
+  .qb-reading .qb-grid .qb-grid {
+    margin-right: 0;
+  }
   .qb-reading {
     padding-right: calc(40px + var(--qb-gutter) + var(--qb-gutter-gap));
   }
@@ -1007,6 +1013,23 @@ details.qb-env[open] > summary::after {
 }
 .qb-article .myst-aside a {
   color: var(--qb-link);
+}
+/* In the gutter upstream gives the aside no height (`lg:h-0`), so it does
+   not push the column down; the hairline is drawn on its children. */
+@media (min-width: 1080px) {
+  .qb-article .myst-aside {
+    border-left: 0;
+    padding-left: 0 !important;
+  }
+  .qb-article .myst-aside > *,
+  .qb-article .myst-aside > p {
+    margin: 0;
+    padding: 0 0 0.6em 1rem;
+    border-left: 1px solid var(--qb-rule);
+  }
+  .qb-article .myst-aside > :last-child {
+    padding-bottom: 0;
+  }
 }
 @media (max-width: 1079px) {
   .qb-article .myst-aside {
@@ -1723,8 +1746,8 @@ details.qb-env[open] > summary::after {
   display: none;
 }
 .qb-body .hover-document {
-  width: min(30rem, calc(100vw - 32px)) !important;
-  max-width: min(30rem, calc(100vw - 32px)) !important;
+  width: min(34rem, calc(100vw - 32px)) !important;
+  max-width: min(34rem, calc(100vw - 32px)) !important;
   max-height: min(26rem, 60vh);
   overflow: auto;
   padding: 14px 18px 14px 18px !important;
@@ -1772,6 +1795,11 @@ details.qb-env[open] > summary::after {
 }
 .qb-body .hover-document .katex {
   color: var(--qb-ink);
+}
+/* Display maths a little smaller than in the article, so a numbered
+   equation fits the card's width more often; it scrolls when it does not. */
+.qb-body .hover-document .katex-display > .katex {
+  font-size: 1.08em;
 }
 .qb-body .hover-document figure {
   margin: 0;

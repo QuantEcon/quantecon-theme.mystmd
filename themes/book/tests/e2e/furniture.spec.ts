@@ -171,6 +171,8 @@ test.describe('furniture', () => {
       els.filter((e) => parseFloat(getComputedStyle(e).borderTopWidth) > 0).length,
     );
     expect(ruled).toBe(1);
+    // The notes stay within the page: no sideways scroll.
+    expect(await page.evaluate(() => document.scrollingElement!.scrollWidth)).toBeLessThanOrEqual(1360);
     expect(errors).toEqual([]);
   });
 
