@@ -20,7 +20,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+> Headline: the theme runs on React Router 8 and Vite with `@myst-theme/*` 2.1.1,
+> off Remix v1 at last. Consumers need **mystmd 1.11.0 or later** (QuantEcon/mystmd
+> from `qe-v11`) for `myst build --html`, and **Node 22.22 or later**.
+
 ### Changed
+- **The theme moves from Remix 1.17 to React Router 8 and Vite 8, and from
+  `@myst-theme/*` 1.3.0 to 2.1.1**, following upstream's book theme
+  ([#28](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/28))
+  ([#283](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/283)). The pin
+  existed because `@myst-theme` 1.x required Remix v1 and Remix 1.19+ reloads in a
+  loop under the mystmd CLI (jupyter-book/myst-theme#184); React Router 8 loads
+  each page's document once, under `myst start` and on a static build, with or
+  without a base URL. What consumers see:
+  - **mystmd 1.11.0 or later for static builds.** The bundle ships a renderer
+    that `myst build --html` runs through the template's new `build.render`
+    command (mystmd 1.11.0 added it), instead of the CLI scraping a running theme
+    server. An older mystmd falls back to that scraping, which this theme
+    refuses with a message naming the mystmd it needs; `myst start` itself is
+    unaffected. Pin v3.2.0 on an older mystmd.
+  - **Node 22.22 or later** (`engines.node`), React Router 8's own floor.
+  - **A new bundle layout**: `server/` (run by `myst start`) and `renderer/`
+    (run by `myst build --html`), each a self-contained Vite build with every
+    dependency compiled in, so there is no `npm install` of the theme any more,
+    and no lockfile in the zip. Static sites put bundled assets under `_assets/`
+    and a page's own files (images, downloads) under `_public/`, instead of
+    `build/`.
+  - **The light/dark choice is remembered in `localStorage` on every site**,
+    as upstream 2.x does; the `/api/theme` cookie endpoint `myst start` used is
+    gone.
+  - **`#cell-id=<id>` links** scroll to the notebook cell, as upstream 2.x
+    supports.
+  - **Upstream 2.x styling**: theorem / proof blocks gain a purple left border
+    and title, headings take `@myst-theme`'s gray-900 (`#111827`) instead of
+    stone-900 (`#1c1917`), and a few neutral and dark-mode tones (list
+    markers, blockquote text, admonition borders and icons, the executable
+    cell's border in dark mode) move to `@myst-theme/styles` 2.x's colour
+    tokens. Apart from the theorem block, each change is at most 16/255 per
+    colour channel in light mode.
 - The Playwright CI jobs (the visual regression, the FOUC guard and
   `/update-snapshots`) run on `ubuntu-24.04`, not `ubuntu-latest`. `ubuntu-latest`
   is now Ubuntu 26.04, where Playwright 1.60 cannot install browsers, so both CI
@@ -49,6 +86,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   percent-escape with 400 instead of failing the request. Test-only: nothing in
   the theme bundle changes
   ([#277](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/277)).
+- `npm ci` works with npm 10 as well as 11: the root `katex` override is an
+  explicit range rather than `$katex`, which npm 10 rejects (the root package
+  does not depend on `katex`) and npm 11 silently skipped
+  ([#283](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/283)).
+
+### Security
+- Moving off Remix v1 clears every deferred Remix-family advisory
+  (`@remix-run/node`, `@remix-run/react`, `@remix-run/server-runtime`,
+  `@remix-run/router`, `react-router` 6.13) and the `@remix-run/dev` toolchain's
+  (`ip`, `ip-address`, `@tootallnate/once`, `tar`, `toml`, `path-to-regexp`,
+  `esbuild` 0.17, `vite` 5, `estree-util-value-to-estree`). `npm audit` goes
+  from 126 findings (9 critical) to 94 (4 critical). `SECURITY.md` is updated to
+  match ([#283](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/283)).
+
+### Dependencies
+- `@myst-theme/*` and `myst-to-react` 1.3.0 → 2.1.1, `@myst-theme/prerender`
+  0.3.0 (new), `myst-common` / `myst-config` 1.9.5 → 1.11.0, `myst-migrate`
+  (new), `react` / `react-dom` 18.3 → 19.3 (one copy for the whole tree, by
+  override), `react-router` and `@react-router/{node,express,dev,fs-routes}`
+  8.5, `vite` 8; `@remix-run/*` (node, react, vercel, dev, serve,
+  eslint-config) and `@vercel/node` removed. The `@myst-theme/jupyter` patch
+  for nested code cells is carried over unchanged to 2.1.1, whose file it
+  patches is identical to 1.3.0's
+  ([#283](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/283)).
 
 ## [3.2.0] - 2026-09-30
 
