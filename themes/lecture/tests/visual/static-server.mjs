@@ -12,7 +12,7 @@
  */
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
-import { extname, join, normalize, resolve } from "node:path";
+import { extname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 
 const [rootArg, portArg] = process.argv.slice(2);
 if (!rootArg) {
@@ -44,9 +44,18 @@ const TYPES = {
 
 createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost");
-  const pathname = decodeURIComponent(url.pathname);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(url.pathname);
+  } catch {
+    res.writeHead(400).end();
+    return;
+  }
   let file = normalize(join(root, pathname));
-  if (!file.startsWith(root)) {
+  // Serve only what lies inside the root. A prefix test on the path is not
+  // enough: `<root>-other/` starts with `<root>` too.
+  const rel = relative(root, file);
+  if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
     res.writeHead(403).end();
     return;
   }

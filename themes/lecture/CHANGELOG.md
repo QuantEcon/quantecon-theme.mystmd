@@ -27,6 +27,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   jobs were failing before any test ran. The committed baselines are unchanged
   ([#272](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/272)).
 
+### Fixed
+- The static file server behind the `static-chrome` Playwright project
+  (`tests/visual/static-server.mjs`) serves only files under its root. Its guard
+  was a prefix test on the path, which a request for a sibling folder whose name
+  starts with the root's (`<root>-other/`) passed. It also answers a malformed
+  percent-escape with 400 instead of failing the request. Test-only: nothing in
+  the theme bundle changes
+  ([#277](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/277)).
+
 ## [3.2.0] - 2026-09-30
 
 ### Added
