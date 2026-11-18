@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is now Ubuntu 26.04, where Playwright 1.60 cannot install browsers, so both CI
   jobs were failing before any test ran. The committed baselines are unchanged
   ([#272](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/272)).
+- Dependabot no longer proposes `katex` 0.17 or later. KaTeX 0.18 renamed its
+  CSS classes, but the maths HTML on a lecture page comes from the KaTeX bundled
+  in the `mystmd` CLI (0.15.6), so the theme's stylesheet has to stay on the
+  0.16 class names: with the 0.18 stylesheet, superscripts, equation tags and
+  root indices lose their styling
+  ([#275](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/275)).
 
 ## [3.2.0] - 2026-09-30
 
