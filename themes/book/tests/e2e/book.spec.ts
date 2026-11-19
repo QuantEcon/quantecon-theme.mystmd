@@ -39,7 +39,7 @@ test.describe('contents', () => {
     const errors = watchErrors(page);
     await page.goto('/contents/');
     const items = page.locator('.qb-toc__item');
-    await expect(items).toHaveCount(3);
+    await expect(items).toHaveCount(4);
     await expect(items.nth(0)).toContainText('i');
     await expect(items.nth(0)).toContainText('Preface');
     await expect(page.locator('.qb-toc__part-label')).toContainText(['Front Matter', 'Foundations', 'Applications']);
@@ -103,6 +103,21 @@ test.describe('chapter', () => {
     await expect(drawer).not.toHaveAttribute('data-open', '');
     await expect(page.locator('.qb-chap-nav__prev')).toContainText('Preface');
     await expect(page.locator('.qb-chap-nav__next')).toContainText('Computation');
+  });
+});
+
+test.describe('notebook', () => {
+  test('a chapter with stored outputs renders them, and a figure embeds one', async ({ page }) => {
+    const errors = watchErrors(page);
+    // A page with outputs once failed to render at all (no execution scope).
+    const response = await page.goto('/notebook/');
+    expect(response?.status()).toBe(200);
+    await expect(page.locator('.qb-chapter-head h1')).toContainText('Simulation');
+    await expect(page.locator('[data-name="outputs-container"]').first()).toContainText('mean 0.5');
+    const plot = page.locator('[data-name="outputs-container"] img').first();
+    await expect(plot).toBeVisible();
+    await expect(page.locator('figure#fig-sim img')).toBeVisible();
+    expect(errors).toEqual([]);
   });
 });
 

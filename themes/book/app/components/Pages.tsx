@@ -13,6 +13,12 @@ import {
   withBaseurl,
 } from '@myst-theme/providers';
 import { Bibliography, Footnotes } from '@myst-theme/site';
+import {
+  BusyScopeProvider,
+  ComputeOptionsProvider,
+  ExecuteScopeProvider,
+  ThebeLoaderAndServer,
+} from '@myst-theme/jupyter';
 import { MyST } from 'myst-to-react';
 import { copyNode, toText, type GenericNode, type GenericParent } from 'myst-common';
 import { PageProvider } from '@quantecon/theme-common/components/PageProvider';
@@ -41,7 +47,18 @@ export function sectionsOf(mdast?: GenericParent): Section[] {
   return out;
 }
 
+/** No live compute in a book: notebook outputs are shown as built. */
+const NO_COMPUTE = { notebookCompute: false, figureCompute: false, launchBinder: false };
+
+/**
+ * A page's article context. Notebook outputs render through
+ * @myst-theme/jupyter, whose components need its execution scope (and that
+ * scope, Thebe's loader and server) even when nothing executes; without
+ * them any page with an output fails to render. The lecture theme sets up
+ * the same chain in PageContent.tsx and Page.tsx.
+ */
 function Article({ page, children }: { page: PageLoader; children: React.ReactNode }) {
+  const baseurl = useBaseurl();
   return (
     <GridSystemProvider gridSystem={GRID}>
       <ArticleProvider
@@ -49,7 +66,15 @@ function Article({ page, children }: { page: PageLoader; children: React.ReactNo
         kind={page.kind}
         frontmatter={page.frontmatter}
       >
-        {children}
+        <ComputeOptionsProvider features={NO_COMPUTE}>
+          <ThebeLoaderAndServer baseurl={baseurl}>
+            <BusyScopeProvider>
+              <ExecuteScopeProvider enable={false} contents={page}>
+                {children}
+              </ExecuteScopeProvider>
+            </BusyScopeProvider>
+          </ThebeLoaderAndServer>
+        </ComputeOptionsProvider>
       </ArticleProvider>
     </GridSystemProvider>
   );

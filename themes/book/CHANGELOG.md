@@ -26,3 +26,6 @@ keeps its own changelog in `themes/lecture/CHANGELOG.md`.
 - PR previews build *Economic Networks* with the book theme, at
   `pr-preview/pr-<n>/book/` beside the lecture preview
   ([#271](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/271)).
+- Chapters written as notebooks: their stored outputs render, and a
+  `{figure}` can embed one. Live compute is off
+  ([#271](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/271)).
