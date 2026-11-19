@@ -12,13 +12,14 @@ import {
   useSiteManifest,
   withBaseurl,
 } from '@myst-theme/providers';
-import { Bibliography, Footnotes } from '@myst-theme/site';
+import { Bibliography } from '@myst-theme/site';
 import {
   BusyScopeProvider,
   ComputeOptionsProvider,
   ExecuteScopeProvider,
   ThebeLoaderAndServer,
 } from '@myst-theme/jupyter';
+import { Notes } from './Notes';
 import { MyST } from 'myst-to-react';
 import { copyNode, toText, type GenericNode, type GenericParent } from 'myst-common';
 import { PageProvider } from '@quantecon/theme-common/components/PageProvider';
@@ -136,7 +137,7 @@ function Chapter({ page }: { page: PageLoader }) {
               {!fm.subtitle && fm.description && <p className="qb-lede">{fm.description}</p>}
             </header>
             <MyST ast={tree} />
-            <Footnotes containerClassName="qb-notes qb-footnotes" />
+            <Notes containerClassName="qb-notes qb-footnotes" />
             <Bibliography containerClassName="qb-notes qb-bibliography" />
             <ChapterNav book={book} slug={page.slug} />
           </article>

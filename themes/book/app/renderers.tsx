@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import type { GenericNode } from 'myst-common';
 import type { NodeRenderer, NodeRenderers } from '@myst-theme/providers';
-import { useFrontmatter } from '@myst-theme/providers';
-import { HashLink, MyST } from 'myst-to-react';
+import { XRefProvider, useFrontmatter, useReferences } from '@myst-theme/providers';
+import { DEFAULT_RENDERERS, HashLink, HoverPopover, MyST } from 'myst-to-react';
+import { collect } from './mdast';
 import SyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/light';
 import python from 'react-syntax-highlighter/dist/cjs/languages/hljs/python';
 import julia from 'react-syntax-highlighter/dist/cjs/languages/hljs/julia';
@@ -252,8 +253,81 @@ const HeadingRenderer: NodeRenderer = ({ node, className }) => {
   );
 };
 
+/* ============================================================
+   Admonitions and footnote marks
+   ============================================================ */
+
+/** The kinds upstream's admonition renderer knows, by `kind` or by class. */
+const ADMONITION_KINDS = [
+  'note',
+  'important',
+  'hint',
+  'seealso',
+  'tip',
+  'attention',
+  'warning',
+  'caution',
+  'danger',
+  'error',
+];
+
+const UpstreamAdmonition = (DEFAULT_RENDERERS.admonition as Record<string, NodeRenderer>).base;
+
+/**
+ * Upstream's admonition, with a generic one tagged. A titled `{admonition}`
+ * has no kind, and upstream renders it as a note; the class lets it take a
+ * neutral grey instead of note-blue (styles/book.css). A box whose class
+ * names a kind (`:class: tip`) is that kind, not generic.
+ */
+const AdmonitionRenderer: NodeRenderer = (props) => {
+  const classes = String(props.node.class ?? '')
+    .toLowerCase()
+    .split(/\s+/);
+  const generic = !props.node.kind && !classes.some((c) => ADMONITION_KINDS.includes(c));
+  const className = generic
+    ? [props.className, 'qb-admonition-generic'].filter(Boolean).join(' ')
+    : props.className;
+  return <UpstreamAdmonition {...props} className={className} />;
+};
+
+function FootnoteCard({ identifier }: { identifier: string }) {
+  const references = useReferences();
+  const node =
+    // `footnotes` is on the references at runtime (upstream reads it too) but
+    // not in their type.
+    (references as { footnotes?: Record<string, GenericNode> } | undefined)?.footnotes?.[identifier] ??
+    collect(references?.article, 'footnoteDefinition').find((fn) => fn.identifier === identifier);
+  return (
+    <XRefProvider>
+      <div className="hover-document article w-[500px] sm:max-w-[500px] px-3 text-sm">
+        <MyST ast={node?.children} />
+      </div>
+    </XRefProvider>
+  );
+}
+
+/**
+ * Upstream's footnote mark with a bare numeral, "1" rather than "[1]", as the
+ * Manuscript design's `sup.fnref` draws it. The brackets are text in
+ * upstream's link, so the mark is rendered here; its id, link and hover card
+ * are upstream's.
+ */
+const FootnoteReferenceRenderer: NodeRenderer = ({ node, className }) => (
+  <HoverPopover openDelay={0} card={<FootnoteCard identifier={node.identifier} />}>
+    <span id={`fnref-${node.key}`} className={className}>
+      <sup className="hover-link">
+        <HashLink id={`fn-${node.identifier}`} title="Link to Footnote" scrollBehavior="instant" canSelectText>
+          {node.enumerator ?? node.number ?? node.identifier}
+        </HashLink>
+      </sup>
+    </span>
+  </HoverPopover>
+);
+
 export const BOOK_RENDERERS: NodeRenderers = {
   proof: ProofRenderer,
   code: CodeRenderer,
   heading: HeadingRenderer,
+  admonition: AdmonitionRenderer,
+  footnoteReference: FootnoteReferenceRenderer,
 };

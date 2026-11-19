@@ -14,6 +14,9 @@ project:
   venue:
     title: QuantEcon
   subject: Economics
+  # Cited in ch-one (tests/e2e: "citations").
+  bibliography:
+    - references.bib
   # Drawn on the cover's book (tests/e2e: "cover art").
   thumbnail: cover.png
   numbering:
