@@ -1,6 +1,12 @@
 import type { SiteManifest } from 'myst-config';
 import type { NodeRenderers, Theme } from '@myst-theme/providers';
-import { BaseUrlProvider, SiteProvider, ThemeProvider, useThemeSwitcher } from '@myst-theme/providers';
+import {
+  BaseUrlProvider,
+  SiteProvider,
+  ThemeProvider,
+  useThemeSwitcher,
+  withBaseurl,
+} from '@myst-theme/providers';
 import {
   Link,
   Links,
@@ -46,6 +52,11 @@ import classNames from 'classnames';
  * app/root.tsx mirrors these classes), and the base-aware favicon and
  * `/myst-theme.css` links in the head (see below).
  *
+ * And on a static build, a `navigate` that adds the base URL (see below):
+ * upstream provides none there, and the providers' fallback sets
+ * `window.location` to the bare path, which drops the base on a site served
+ * under a sub-path.
+ *
  * Everything else is upstream's, unchanged, so a future upstream `lang` /
  * `dir` prop (see UPSTREAM-CANDIDATES.yml) lets this file be deleted.
  * Kept in step with @myst-theme/site 2.1.1.
@@ -82,6 +93,12 @@ export function Document({
     ? {
         Link: (props: any) => <Link {...{ ...props, reloadDocument: true }} />,
         NavLink: (props: any) => <NavLink {...{ ...props, reloadDocument: true }} />,
+        // A full page load, like the links above. They get the base URL from
+        // the router's basename; a bare location would not, so add it here,
+        // for every caller of useNavigateProvider (the search box, for one).
+        navigate: (to: string) => {
+          window.location.assign(withBaseurl(to, baseurl));
+        },
       }
     : {
         Link: Link as any,

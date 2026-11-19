@@ -35,7 +35,6 @@ import {
   useLinkProvider,
   withBaseurl,
   useBaseurl,
-  useIsStaticBuild,
   useNavigateProvider,
 } from '@myst-theme/providers';
 import { Tooltip } from './Tooltip';
@@ -480,13 +479,11 @@ function SearchForm({
   const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   }, []);
-  // Handle item selection
+  // Handle item selection. The theme's Document supplies a navigate that adds
+  // the base URL on every kind of site -- the router's on a live server, a
+  // page load under the base on a static build -- so the result's
+  // site-relative URL goes in as it is.
   const navigate = useNavigateProvider();
-  const baseurl = useBaseurl();
-  // A static build's Document provides no router navigate, so the provider
-  // falls back to setting window.location, which does not add the base URL;
-  // the router's navigate does.
-  const isStaticBuild = useIsStaticBuild();
 
   // Handle item selection and navigation
   const handleSearchKeyPress = useCallback<KeyboardEventHandler<HTMLInputElement>>(
@@ -505,7 +502,7 @@ function SearchForm({
 
         const url = searchResults[selectedIndex]?.url;
         if (url) {
-          navigate(isStaticBuild ? withBaseurl(url, baseurl) : url);
+          navigate(url);
           closeSearch?.();
         }
       }
