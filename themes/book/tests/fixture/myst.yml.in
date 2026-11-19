@@ -36,6 +36,7 @@ project:
     - title: Applications
       children:
         - file: ch-two.md
+        - file: notebook.ipynb
 site:
   template: __THEME__
   options:
