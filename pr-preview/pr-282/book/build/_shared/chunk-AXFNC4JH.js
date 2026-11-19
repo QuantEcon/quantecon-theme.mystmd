@@ -1,1 +1,0 @@
-import{b as i}from"/quantecon-theme.mystmd/pr-preview/pr-282/book/build/_shared/chunk-IMAXG52F.js";import{c as n}from"/quantecon-theme.mystmd/pr-preview/pr-282/book/build/_shared/chunk-RAQ24GF6.js";var a=n(t=>{"use strict";var e=i();t.createRoot=e.createRoot,t.hydrateRoot=e.hydrateRoot;var s});export{a};
