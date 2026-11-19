@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.1] - 2026-11-20
+
+> Patch release for the dependency security updates merged since 3.2.0. Of the
+> packages updated, only `dompurify`, `fast-uri` and `source-map-js` change code
+> in the theme bundle. Consumers' requirements are unchanged.
+
 ### Changed
 - The Playwright CI jobs (the visual regression, the FOUC guard and
   `/update-snapshots`) run on `ubuntu-24.04`, not `ubuntu-latest`. `ubuntu-latest`
@@ -61,6 +67,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   percent-escape with 400 instead of failing the request. Test-only: nothing in
   the theme bundle changes
   ([#277](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/277)).
+
+### Dependencies
+- `dompurify` 3.4.13 → 3.4.17. It reaches the client bundle and the server
+  build, through `mermaid`, which draws diagrams. Advisories (all low):
+  GHSA-6688-9rhm-gjv2, GHSA-c6gr-qvv4-5v3f, GHSA-cg2g-xh64-v4q7,
+  GHSA-mrv2-3pqr-j5jr and GHSA-p98j-92pf-mc4p
+  ([#265](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/265)).
+- `fast-uri` 3.1.8 → 3.1.9. It reaches the server build, through `ajv`; the
+  client bundle does not include it. Advisories: GHSA-w74x-v6f9-j3xg and
+  GHSA-wjr9-j795-jxcr (medium), GHSA-333x-w4r6-6crp and GHSA-xhq7-xmqj-769h
+  (low) ([#266](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/266)).
+- `source-map-js` 1.2.1 → 1.2.2. It reaches the server build, inside `postcss`;
+  the client bundle does not include it. Advisory: GHSA-68fv-2mgg-jv7q (high)
+  ([#263](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/263)).
+- `probe-image-size` 7.2.3 → 7.4.0, a dependency of `plotly.js`. Nothing in the
+  bundle changes: the build takes plotly.js's prebuilt `dist/plotly.js` as it
+  is, with its own compiled-in copy, which this update does not touch.
+  Advisory: GHSA-gjj5-9665-rwrc (high)
+  ([#260](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/260)).
+- `handlebars` 4.7.9 → 4.7.10. Not in the bundle: it is in the dependency tree
+  only through the test utilities `thebe-core` depends on (via `ts-jest`), and
+  nothing the build compiles imports it, so nothing in the bundle changes.
+  Advisories: GHSA-8r5x-fm3f-whwj and GHSA-p8wg-vrv2-v86f (critical),
+  GHSA-xw65-4hp5-5hc7 (medium)
+  ([#264](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/264)).
+- `vm2` 3.11.6 → 3.12.2. Dev tooling only (`@remix-run/dev`, through
+  `proxy-agent`); nothing in the bundle changes. Thirty advisories: 19 critical,
+  5 high and 6 medium
+  ([#259](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/259)).
+- `shell-quote` 1.10.0 → 1.12.0, with its root `overrides` entry raised to
+  `^1.12.0`. Dev tooling only (`concurrently`, which runs the dev scripts);
+  nothing in the bundle changes. Advisory: GHSA-pqg4-j6r4-53mv (critical)
+  ([#261](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/261)).
+- `compression` 1.8.1 → 1.8.2, `proxy-addr` 2.0.7 → 2.0.8 and `express`
+  4.22.2 → 4.22.3, which brings `path-to-regexp` 0.1.12 → 0.1.13 and its own
+  `qs` 6.16.2. In this repository they are dev tooling only (`@remix-run/dev`
+  and `@remix-run/serve`). The theme's server takes its copies from the zip's
+  own `package.json` and the `package-lock.json` that `release.yml` resolves
+  when it builds the zip, and 3.2.0's already locked `compression` 1.8.2,
+  `proxy-addr` 2.0.8, `express` 4.22.3 and `path-to-regexp` 0.1.13, so nothing
+  consumers run changes. Advisories: GHSA-jqcg-44mw-7w3h (`proxy-addr`,
+  critical), GHSA-vc2v-76pw-4v95 (`compression`, high) and GHSA-37ch-88jc-xwx2
+  (`path-to-regexp`, high). The `qs` that `body-parser` uses stays at 6.15.2,
+  so GHSA-6pq8-jhm2-2vcw (medium, dev tooling only) remains open
+  ([#262](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/262))
+  ([#273](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/273))
+  ([#274](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/274)).
 
 ## [3.2.0] - 2026-09-30
 
@@ -885,7 +938,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version of the QuantEcon MyST theme: Remix + `@myst-theme` book theme with QuantEcon branding, toolbar (home, search, fullscreen, font scaling, dark mode, downloads, Colab/JupyterHub launch, edit-on-GitHub), content-driven site footer, and bundled brand assets.
 
-[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v3.2.1...HEAD
+[3.2.1]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/QuantEcon/quantecon-theme.mystmd/compare/v2.7.0...v3.0.0
