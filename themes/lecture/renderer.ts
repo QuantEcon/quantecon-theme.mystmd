@@ -16,14 +16,13 @@ import { prerender } from '@myst-theme/prerender';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import * as build from 'virtual:react-router/server-build';
+import { clearableOutputDirectory } from './rendererOutput';
 
 const CLIENT_PATH = path.join(path.dirname(import.meta.dirname), 'client');
-const OUT_PATH = process.env.BUILD_DIRECTORY;
+// Emptied below, so it is checked first: a build output, not the project, the
+// home directory or this bundle (see rendererOutput.ts).
+const OUT_PATH = clearableOutputDirectory(process.env.BUILD_DIRECTORY, { keep: [CLIENT_PATH] });
 const CONCURRENCY = parseInt(process.env.RENDERER_CONCURRENCY ?? '4');
-
-if (OUT_PATH === undefined) {
-  throw new Error('BUILD_DIRECTORY is not set: run this through `myst build --html`.');
-}
 
 await fs.rm(OUT_PATH, { recursive: true, force: true });
 await fs.cp(CLIENT_PATH, OUT_PATH, { recursive: true });

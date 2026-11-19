@@ -45,7 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     dependency compiled in, so there is no `npm install` of the theme any more,
     and no lockfile in the zip. Static sites put bundled assets under `_assets/`
     and a page's own files (images, downloads) under `_public/`, instead of
-    `build/`.
+    `build/`. The renderer empties its output directory first, so it refuses a
+    `BUILD_DIRECTORY` that is the filesystem root, the home or current
+    directory, one of their ancestors, or its own bundle; `myst build --html`
+    always passes `_build/html`, so this only matters when it is run by hand.
   - **The light/dark choice is remembered in `localStorage` on every site**,
     as upstream 2.x does; the `/api/theme` cookie endpoint `myst start` used is
     gone.
