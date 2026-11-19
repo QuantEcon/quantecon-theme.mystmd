@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   preview path, the commit messages and the sticky comment's header are
   unchanged, and the QR code is gone from the comment
   ([#269](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/269)).
+- Dependabot's monthly npm update is split in two: minor and patch updates in
+  one grouped PR, majors in another, so a major that is really a migration no
+  longer holds back the routine bumps
+  ([#255](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/255)).
 - Dependabot no longer proposes `katex` 0.17 or later. KaTeX 0.18 renamed its
   CSS classes, but the maths HTML on a lecture page comes from the KaTeX bundled
   in the `mystmd` CLI (0.15.6), so the theme's stylesheet has to stay on the
@@ -60,6 +64,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#279](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/279)).
 
 ### Fixed
+- The bundle's own `README.md` told consumers to pin v2.3.0 in its
+  `site.template` example. It now names the current release, and
+  `CONTRIBUTING.md`'s release steps include it, so it is bumped with each
+  release.
 - The static file server behind the `static-chrome` Playwright project
   (`tests/visual/static-server.mjs`) serves only files under its root. Its guard
   was a prefix test on the path, which a request for a sibling folder whose name

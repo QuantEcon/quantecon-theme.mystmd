@@ -59,7 +59,7 @@ assets on `quantecon-theme.mystmd`.)
 
 ```yaml
 site:
-  template: https://github.com/QuantEcon/quantecon-theme.mystmd/releases/download/v2.3.0/quantecon-theme.zip
+  template: https://github.com/QuantEcon/quantecon-theme.mystmd/releases/download/v3.2.1/quantecon-theme.zip
 ```
 
 Then start the local server:
