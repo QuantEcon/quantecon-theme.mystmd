@@ -50,14 +50,14 @@ rules in an element's hue, and no heavy fills.
 
 | Element | How it looks | MyST |
 | ------- | ------------ | ---- |
-| **Admonitions** | an italic label and a 1.5px rule in the kind's hue, no fill or icon. Five families: blue (note, seealso, a generic `{admonition}`), green (tip, hint), clay (important), amber (attention, caution, warning) and red (danger, error) | every `{note}`-style kind and `{admonition}` |
+| **Admonitions** | an italic label and a 1.5px rule in the kind's hue, no fill or icon. Five families: blue (note, seealso), green (tip, hint), clay (important), amber (attention, caution, warning) and red (danger, error). A generic `{admonition}`, which has no kind, takes the proof's grey | every `{note}`-style kind and `{admonition}` |
 | **Collapsible admonitions and dropdowns** | the same label, followed by ▸ / ▾ as on a folded environment; a dropdown takes the proof's grey | `:class: dropdown`, `{dropdown}` |
 | **Exercises and solutions** | a hairline rule and a mono clay label (unchanged) | `{exercise}`, `{solution}` |
 | **Citations** | upright, in the text colour, with a dotted hairline in the link hue; a hover card with the reference | `{cite}`, `{cite:p}`, `{cite:t}`, `{cite:author}`, `{cite:year}` |
-| **References** | unnumbered author–year entries with a hanging indent, under a mono kicker and one hairline | the page's bibliography |
+| **References** | unnumbered author–year entries with a hanging indent, set smaller in the muted colour under a faint mono kicker and one hairline | the page's bibliography |
 | **Cross-references** | links with a dotted hairline, and a hover card previewing the target as it is set in the text | `{eq}`, `{numref}`, `{ref}`, `{prf:ref}`, to equations, figures, tables, environments and sections |
-| **Footnotes** | a small mono numeral in the house blue, with a hover card; the notes under a mono kicker and one hairline | `[^label]` |
-| **Margin notes** | small and muted in the 16rem gutter, set off by a hairline; below 1080px, in the column with a clay rule | `{margin}`, `{aside}` |
+| **Footnotes** | a small mono numeral in the house blue, without brackets, with a hover card; the notes set smaller in the muted colour under a faint mono "Notes" kicker and one hairline | `[^label]` |
+| **Margin notes** | small and muted in the 16rem gutter, opened by a clay ▸ and set off by a hairline; below 1080px, a filled box in the column with a clay rule | `{margin}`, `{aside}` |
 | **Search** | the shared search dialog on the paper, with the body face and ruled results | the masthead's search button, or Ctrl/⌘ K |
 
 Hover cards are a sheet of the paper with a hairline border, the theme's

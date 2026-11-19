@@ -13,7 +13,8 @@ keeps its own changelog in `themes/lecture/CHANGELOG.md`.
   and a hairline rule in the kind's hue, no fill or icon, in five colour
   families. Collapsible admonitions and `{dropdown}` fold with the
   environments' ▸ / ▾. A new `--qb-c-danger` token, AA in light and dark,
-  colours danger and error ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+  colours danger and error; a generic `{admonition}`, which has no kind,
+  takes the proofs' grey rather than note-blue ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
 - Citations in every form set upright in the text colour with a dotted
   hairline, and the references as author–year entries with a hanging indent
   ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
@@ -29,10 +30,11 @@ keeps its own changelog in `themes/lecture/CHANGELOG.md`.
 
 - Exercises and solutions no longer share their rule with admonitions; they
   look as before ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
-- Footnote marks are small mono numerals; the footnotes and the references
-  each sit under a mono kicker ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
-- Margin notes show their hairline in the gutter, and below 1080px take a
-  clay rule rather than a filled box ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- Footnote marks are small mono numerals without brackets. The footnotes,
+  now headed "Notes", and the references are set smaller in the muted
+  colour, each under a faint mono kicker ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+- Margin notes open with a clay ▸ and show their hairline in the gutter;
+  below 1080px they sit in the column as a filled box with a clay rule ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
 
 ## [0.1.0] - unreleased
 

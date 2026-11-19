@@ -68,8 +68,18 @@ test.describe('furniture', () => {
       expect(await css(label, 'font-style')).toBe('italic');
       await expect(box.locator('.myst-admonition-header svg').first()).toBeHidden();
     }
-    // A generic admonition keeps its own title.
+    // A generic admonition keeps its own title, and takes the neutral grey
+    // rather than note-blue.
     await expect(page.locator('.qb-article .myst-admonition-header-text', { hasText: 'Problem' })).toBeVisible();
+    const generic = page.locator('.qb-article aside.qb-admonition-generic');
+    await expect(generic).toHaveCount(1);
+    await expect(generic).toContainText('Problem');
+    const grey = await token(page, '--qb-c-proof');
+    expect(await css(generic, 'border-left-color')).toBe(grey);
+    expect(await css(generic.locator('.myst-admonition-header-text'), 'color')).toBe(grey);
+    // A real note is not tagged.
+    await expect(page.locator('.qb-article aside.myst-admonition-note.qb-admonition-generic')).toHaveCount(1);
+    await expect(page.locator('.qb-article aside.myst-admonition-note:not(.qb-admonition-generic)')).toHaveCount(1);
     expect(errors).toEqual([]);
   });
 
@@ -158,6 +168,8 @@ test.describe('furniture', () => {
     const errors = watchErrors(page);
     await page.goto('/ch-one/');
     const mark = page.locator('.qb-article [id^="fnref-"] sup a').first();
+    // A bare numeral, as the design's sup.fnref draws it: no brackets.
+    await expect(mark).toHaveText(/^\d+$/);
     expect(await css(mark, 'font-family')).toContain('Plex Mono');
     expect(await css(mark, 'color')).toBe(await token(page, '--qb-blue'));
     const card = await openCard(page, page.locator('.qb-article [id^="fnref-"] sup').first());
@@ -166,6 +178,10 @@ test.describe('furniture', () => {
 
     const notes = page.locator('#footnotes.qb-notes');
     await expect(notes.locator('.myst-footnotes-item')).toHaveCount(2);
+    // Headed "Notes" in the faint colour; the notes in the muted colour.
+    await expect(notes.locator('.myst-footnotes-header')).toHaveText(/^Notes/);
+    expect(await css(notes.locator('.myst-footnotes-header'), 'color')).toBe(await token(page, '--qb-faint'));
+    expect(await css(notes.locator('.myst-footnotes-list'), 'color')).toBe(await token(page, '--qb-muted'));
     // One hairline over the list, not one over the header and another over the list.
     const ruled = await notes.locator(':scope > *').evaluateAll((els) =>
       els.filter((e) => parseFloat(getComputedStyle(e).borderTopWidth) > 0).length,
@@ -186,12 +202,23 @@ test.describe('furniture', () => {
       const box = await note.boundingBox();
       expect(box!.x).toBeGreaterThan(column!.x + 500);
       expect(await css(note, 'background-color')).toBe('rgba(0, 0, 0, 0)');
+      // The design's clay ▸ before the note.
+      const marker = await note.evaluate((el) => {
+        const cs = getComputedStyle(el.firstElementChild ?? el, '::before');
+        return { content: cs.content, color: cs.color };
+      });
+      expect(marker.content).toContain('▸');
+      expect(marker.color).toBe(await token(page, '--qb-clay'));
     }
     // Below 1080px they fall into the column.
     await page.setViewportSize({ width: 900, height: 900 });
     const narrow = await notes.first().boundingBox();
     const narrowColumn = await page.locator('.qb-article h2').first().boundingBox();
     expect(Math.abs(narrow!.x - narrowColumn!.x)).toBeLessThan(40);
+    // A filled note, as the design draws it: paper-2 and a 3px clay rule.
+    expect(await css(notes.first(), 'background-color')).toBe(await token(page, '--qb-paper-2'));
+    expect(await css(notes.first(), 'border-left-width')).toBe('3px');
+    expect(await css(notes.first(), 'border-left-color')).toBe(await token(page, '--qb-clay'));
     expect(errors).toEqual([]);
   });
 

@@ -707,8 +707,8 @@ details.qb-env[open] > summary::after {
    In the environments' language: an italic label and a hairline rule in the
    kind's hue, no fill, no icon. The kinds fall into five families of the
    environment hues (the design draws no admonitions):
-     blue   note, seealso, and a generic `{admonition}` (upstream renders it
-            as a note)
+     blue   note, seealso
+     grey   a generic `{admonition}`, which has no kind
      green  tip, hint
      clay   important
      amber  attention, caution, warning
@@ -740,6 +740,11 @@ details.qb-env[open] > summary::after {
 .qb-article .myst-admonition-danger,
 .qb-article .myst-admonition-error {
   --qb-c: var(--qb-c-danger);
+}
+/* A generic `{admonition}` (no kind; app/renderers.tsx tags it) is neither
+   a note nor any other kind, so it takes the neutral proof grey. */
+.qb-article .myst-admonition.qb-admonition-generic {
+  --qb-c: var(--qb-c-proof);
 }
 .qb-article .myst-admonition-header {
   display: flex;
@@ -981,9 +986,10 @@ details.qb-env[open] > summary::after {
 }
 
 /* ---------- Margin notes (MyST `aside` / `margin`) ----------
-   In the 16rem gutter at 1080px and wider: small, muted, set off by a
-   hairline. Below that they fall into the column, as a note in the clay
-   hue rather than a filled box. */
+   As the design's chapter.html draws `aside.marginnote`: small and muted,
+   led by a clay ▸. In the 16rem gutter at 1080px and wider they are set off
+   by a hairline; below that they fall into the column as a filled note on
+   paper-2 with a 3px clay rule. */
 .qb-article .myst-aside {
   font-size: 0.8em;
   line-height: 1.5;
@@ -1014,6 +1020,18 @@ details.qb-env[open] > summary::after {
 .qb-article .myst-aside a {
   color: var(--qb-link);
 }
+/* The design's `.mn-num`: a mono ▸ in clay before the note. Decorative, so
+   it has empty alternative text where the syntax is supported. */
+.qb-article .myst-aside > :first-child::before {
+  content: '▸';
+  content: '▸' / '';
+  font-family: var(--qb-font-mono);
+  font-size: 0.92em;
+  font-weight: 600;
+  font-style: normal;
+  color: var(--qb-clay);
+  margin-right: 0.4em;
+}
 /* In the gutter upstream gives the aside no height (`lg:h-0`), so it does
    not push the column down; the hairline is drawn on its children. */
 @media (min-width: 1080px) {
@@ -1034,20 +1052,24 @@ details.qb-env[open] > summary::after {
 @media (max-width: 1079px) {
   .qb-article .myst-aside {
     height: auto;
-    margin: 1.2em 0;
-    padding: 2px 0 2px 1rem !important;
-    border-left: 1.5px solid var(--qb-clay);
-    border-radius: 0;
-    font-size: 0.86em;
+    margin: 1em 0;
+    padding: 12px 14px !important;
+    background: var(--qb-paper-2) !important;
+    border-left: 3px solid var(--qb-clay);
+    border-radius: var(--qb-radius);
   }
 }
 
 /* ---------- Footnotes and references ----------
    Upstream's sections (`myst-footnotes`, `myst-bibliography`), each closed
    off by one hairline over the column, headed by a mono kicker. The theme
-   passes `qb-notes` as the section's class (app/components/Pages.tsx). */
+   passes `qb-notes` as the section's class (app/components/Pages.tsx).
+   Sizes and colours follow the design's `.footnotes`: the notes at 0.9em in
+   the muted colour, the kicker at 0.82em of that in the faint colour. */
 .qb-notes {
   margin-top: 3.5em;
+  font-size: 0.9em;
+  color: var(--qb-muted);
 }
 .qb-notes + .qb-notes {
   margin-top: 1.6em;
@@ -1059,35 +1081,33 @@ details.qb-env[open] > summary::after {
 .qb-notes .myst-footnotes-header,
 .qb-notes .myst-bibliography-header {
   font-family: var(--qb-font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  font-size: 0.82em;
+  font-weight: var(--qb-h-weight);
+  line-height: 1.18;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--qb-muted) !important;
-  margin: 0 0 1em;
+  color: var(--qb-faint) !important;
+  margin: 0 0 0.8em;
 }
 .qb-notes .myst-footnotes-list,
 .qb-notes .myst-bibliography-list {
   padding-left: 0 !important;
   margin-bottom: 0 !important;
-  font-size: 0.84rem !important;
-  line-height: 1.55;
-  color: var(--qb-ink-soft) !important;
+  font-size: inherit !important;
+  line-height: var(--qb-leading);
+  color: inherit !important;
 }
 .qb-notes .myst-footnotes-list ol {
   list-style: decimal;
   margin: 0;
-  padding-left: 1.7em;
+  padding-left: 1.4em;
 }
 .qb-notes .myst-footnotes-item {
-  margin: 0 0 0.5em;
+  margin: 0.5em 0;
   scroll-margin-top: calc(var(--qb-masthead-h) + 16px);
 }
 .qb-notes .myst-footnotes-item::marker {
-  font-family: var(--qb-font-mono);
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--qb-blue);
+  color: var(--qb-faint);
 }
 .qb-notes .myst-footnotes-item:target .myst-footnote-content {
   color: var(--qb-ink);
@@ -1145,10 +1165,12 @@ details.qb-env[open] > summary::after {
   border-color: var(--qb-blue) !important;
 }
 
-/* Footnote marks in the text: a small mono numeral in the house blue. */
+/* Footnote marks in the text, as the design's `sup.fnref`: a bare mono
+   numeral in the house blue (app/renderers.tsx drops upstream's brackets). */
 .qb-article sup.hover-link,
 .qb-article [id^='fnref-'] sup {
-  font-size: 0.68em;
+  font-size: 0.72em;
+  line-height: 0;
   text-decoration: none;
 }
 .qb-article [class*='footnote'] sup a,
@@ -1157,7 +1179,7 @@ details.qb-env[open] > summary::after {
   font-family: var(--qb-font-mono);
   font-weight: 600;
   color: var(--qb-blue) !important;
-  padding: 0 0.08em;
+  padding: 0 1px;
 }
 .qb-article sup a:hover {
   color: var(--qb-blue-press) !important;
