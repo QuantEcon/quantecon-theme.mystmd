@@ -6,7 +6,7 @@ import {
   getMystXrefJson,
   getMystSearchJson,
   getPage,
-} from "~/backend/loaders.server";
+} from "@quantecon/theme-common/backend/loaders.server";
 
 function api404(message = "No API route found at this URL") {
   return json(

@@ -19,6 +19,8 @@ import {
   useTheme,
 } from '@myst-theme/site';
 import classNames from 'classnames';
+import type { DefaultColorScheme } from '../colorScheme';
+import { DefaultThemeLoader, useDefaultTheme } from '../colorScheme';
 
 /**
  * The document shell: `<html>`, `<head>` and `<body>`.
@@ -40,6 +42,12 @@ import classNames from 'classnames';
  * `@radix-ui/react-direction`, so a context from any other copy is invisible
  * to them.)
  *
+ * Two further props are for themes other than the lecture theme, and change
+ * nothing when unset: `bodyClassName` replaces the <body> classes, and
+ * `defaultColorScheme` swaps upstream's theme hook and blocking loader for
+ * the ones in ../colorScheme.tsx, which fall back to a site default rather
+ * than the OS preference.
+ *
  * Everything else is upstream's, unchanged, so a future upstream `lang` /
  * `dir` prop (see UPSTREAM-CANDIDATES.yml) lets this file be deleted.
  * Kept in step with @myst-theme/site 1.3.0.
@@ -57,6 +65,8 @@ export function Document({
   head,
   lang,
   dir,
+  bodyClassName,
+  defaultColorScheme,
 }: {
   children: React.ReactNode;
   scripts?: React.ReactNode;
@@ -70,6 +80,8 @@ export function Document({
   head?: React.ReactNode;
   lang?: string;
   dir?: 'ltr' | 'rtl';
+  bodyClassName?: string;
+  defaultColorScheme?: DefaultColorScheme;
 }) {
   const navigate = useNavigate();
   const links = staticBuild
@@ -84,13 +96,24 @@ export function Document({
       };
 
   // (Local) theme state driven by SSR and cookie/localStorage
-  const [theme, setTheme] = useTheme({ ssrTheme: ssrTheme, useLocalStorage: staticBuild });
+  // `defaultColorScheme` is fixed for the life of the app (a theme passes a
+  // site option or nothing), so the same hook runs on every render; a theme
+  // that leaves it unset runs upstream's hook exactly as before.
+  const [theme, setTheme] = defaultColorScheme
+    ? // eslint-disable-next-line react-hooks/rules-of-hooks
+      useDefaultTheme({ ssrTheme, useLocalStorage: staticBuild, defaultScheme: defaultColorScheme })
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useTheme({ ssrTheme: ssrTheme, useLocalStorage: staticBuild });
 
   // Inject blocking element to set proper pre-hydration state
   const headAndLoader = (
     <>
       {head}
-      {ssrTheme ? undefined : <BlockingThemeLoader useLocalStorage={!!staticBuild} />}
+      {ssrTheme ? undefined : defaultColorScheme ? (
+        <DefaultThemeLoader useLocalStorage={!!staticBuild} defaultScheme={defaultColorScheme} />
+      ) : (
+        <BlockingThemeLoader useLocalStorage={!!staticBuild} />
+      )}
     </>
   );
 
@@ -107,6 +130,7 @@ export function Document({
         top={top}
         lang={lang}
         dir={dir}
+        bodyClassName={bodyClassName}
       />
     </ThemeProvider>
   );
@@ -123,6 +147,7 @@ export function DocumentWithoutProviders({
   liveReloadListener,
   lang = 'en',
   dir,
+  bodyClassName = 'm-0 transition-colors duration-500 bg-white dark:bg-stone-900',
 }: {
   children: React.ReactNode;
   scripts?: React.ReactNode;
@@ -134,6 +159,7 @@ export function DocumentWithoutProviders({
   liveReloadListener?: boolean;
   lang?: string;
   dir?: 'ltr' | 'rtl';
+  bodyClassName?: string;
 }) {
   // Theme value from theme context; see upstream for the SSR / BlockingThemeLoader handshake.
   const { theme } = useThemeSwitcher();
@@ -166,7 +192,7 @@ export function DocumentWithoutProviders({
         />
         {head}
       </head>
-      <body className="m-0 transition-colors duration-500 bg-white dark:bg-stone-900">
+      <body className={bodyClassName}>
         <BaseUrlProvider baseurl={baseurl}>
           <SiteProvider config={config}>{children}</SiteProvider>
         </BaseUrlProvider>

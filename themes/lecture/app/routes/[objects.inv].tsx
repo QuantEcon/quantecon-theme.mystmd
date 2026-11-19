@@ -1,5 +1,5 @@
 import type { LoaderFunction } from "@remix-run/node";
-import { getObjectsInv } from "~/backend/loaders.server";
+import { getObjectsInv } from "@quantecon/theme-common/backend/loaders.server";
 
 export const loader: LoaderFunction = async (): Promise<Response> => {
   const inv = await getObjectsInv();

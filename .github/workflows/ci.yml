@@ -42,6 +42,9 @@ jobs:
       - run: npm run compile
       - run: npm run test:unit
       - run: npm run prod:build
+      # The book theme (themes/book) builds from the same install.
+      - name: Build the book theme
+        run: npm run prod:build -w themes/book
 
   # Pixel-diffs the fixture against the committed -linux baselines
   # (themes/lecture/tests/visual/__snapshots__). On intentional design changes, refresh the
@@ -147,4 +150,35 @@ jobs:
         with:
           name: fouc-playwright-report
           path: themes/lecture/playwright-report/
+          retention-days: 7
+
+  # The book theme (themes/book): behavioural Playwright tests on a static
+  # build of its fixture book, with the released mystmd. No pixel snapshots.
+  # Pinned to ubuntu-24.04: Playwright 1.60 cannot install its browsers on
+  # Ubuntu 26.04, which `ubuntu-latest` now is.
+  book:
+    name: Book theme (Chromium)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install mystmd CLI
+        run: npm install -g mystmd
+      - name: Build the book theme
+        run: make build-book
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run the book theme's tests
+        run: npm run test:e2e -w themes/book
+        env:
+          THEME_TEMPLATE: ${{ github.workspace }}/.deploy/quantecon-theme-book
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: book-playwright-report
+          path: themes/book/playwright-report/
           retention-days: 7

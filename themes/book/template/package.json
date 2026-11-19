@@ -1,0 +1,23 @@
+{
+  "name": "@quantecon/book-theme",
+  "version": "VERSION",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "start": "node ./server.js"
+  },
+  "dependencies": {
+    "@remix-run/express": "~1.17.0",
+    "@remix-run/node": "~1.17.0",
+    "compression": "^1.8.0",
+    "cross-env": "^7.0.3",
+    "express": "^4.21.2",
+    "get-port": "^5.1.1",
+    "isbot": "^3.8.0",
+    "morgan": "^1.10.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "description": "The QuantEcon book theme for MyST (Manuscript). Built bundle; see https://github.com/QuantEcon/quantecon-theme.mystmd"
+}

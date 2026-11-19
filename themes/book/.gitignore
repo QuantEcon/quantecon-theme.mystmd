@@ -1,0 +1,16 @@
+# Paths here are relative to themes/book.
+
+/public/build
+/public/*thebe*
+/api/*
+/build/*
+
+/app/styles/app.css
+
+# This is ignored as it is built
+remix.config.js
+
+# Playwright (tests/serve.sh builds the fixture into tests/.fixture-build)
+/playwright-report
+/test-results
+/tests/.fixture-build
