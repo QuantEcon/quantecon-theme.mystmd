@@ -1113,18 +1113,26 @@ details.qb-env[open] > summary::after {
   color: var(--qb-ink);
 }
 .qb-notes .myst-footnote-content p {
-  margin: 0;
+  margin: 0 !important;
+}
+/* As the design's `.footnotes li`: the back-link is a plain ↩ (`a.plain`)
+   running on after the note, in the note's face and colour, always shown.
+   Upstream puts it in a column of its own, hidden until hover. */
+.qb-notes .myst-footnotes-item > div {
+  display: block !important;
+}
+.qb-notes .myst-footnote-content,
+.qb-notes .myst-footnote-content > :last-child,
+.qb-notes .myst-footnote-backlinks {
+  display: inline !important;
 }
 .qb-notes .myst-footnote-backlinks a {
-  padding: 0 0 0 0.5em !important;
-  line-height: inherit;
-  color: var(--qb-muted) !important;
-  font-family: var(--qb-font-mono);
-  font-size: 12px;
+  display: inline;
+  padding: 0 0 0 0.25em !important;
+  opacity: 1 !important;
+  color: inherit !important;
+  font: inherit;
   text-decoration: none !important;
-}
-.qb-notes .myst-footnote-backlinks a:hover {
-  color: var(--qb-blue) !important;
 }
 /* The references: author–year entries with a hanging indent, unnumbered. */
 .qb-notes .myst-bibliography-list ol {

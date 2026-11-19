@@ -182,6 +182,19 @@ test.describe('furniture', () => {
     await expect(notes.locator('.myst-footnotes-header')).toHaveText(/^Notes/);
     expect(await css(notes.locator('.myst-footnotes-header'), 'color')).toBe(await token(page, '--qb-faint'));
     expect(await css(notes.locator('.myst-footnotes-list'), 'color')).toBe(await token(page, '--qb-muted'));
+    // The ↩ shown, running on after the note in its face and colour, as the
+    // design's `.footnotes li` has it (`a.plain`).
+    const item = notes.locator('.myst-footnotes-item').first();
+    const back = item.locator('.myst-footnote-backlinks a');
+    await expect(back).toBeVisible();
+    expect(await css(back, 'opacity')).toBe('1');
+    expect(await css(back, 'color')).toBe(await token(page, '--qb-muted'));
+    expect(await css(back, 'font-family')).toContain('Newsreader');
+    const [noteBox, backBox] = await Promise.all([
+      item.locator('.myst-footnote-content').boundingBox(),
+      back.boundingBox(),
+    ]);
+    expect(Math.abs(backBox!.y - noteBox!.y)).toBeLessThan(8);
     // One hairline over the list, not one over the header and another over the list.
     const ruled = await notes.locator(':scope > *').evaluateAll((els) =>
       els.filter((e) => parseFloat(getComputedStyle(e).borderTopWidth) > 0).length,

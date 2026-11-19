@@ -32,7 +32,9 @@ keeps its own changelog in `themes/lecture/CHANGELOG.md`.
   look as before ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
 - Footnote marks are small mono numerals without brackets. The footnotes,
   now headed "Notes", and the references are set smaller in the muted
-  colour, each under a faint mono kicker ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
+  colour, each under a faint mono kicker. A note's ↩ runs on after its
+  text and is always shown, rather than in a column of its own until hover
+  ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
 - Margin notes open with a clay ▸ and show their hairline in the gutter;
   below 1080px they sit in the column as a filled box with a clay rule ([#282](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/282)).
 
