@@ -87,9 +87,11 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     return { config, page, project };
   } catch (error) {
     // Not a page: under `myst start`, a project's `static_files` are served
-    // by the content server, so send the reader there.
+    // by the content server, so send the reader there. The content server's
+    // paths are site-relative, so look the file up by the splat, not by the
+    // request URL, which still carries the router's basename.
     if (error instanceof Response && error.status === 404) {
-      const cdnUrl = await getStaticFileUrl(new URL(request.url).pathname);
+      const cdnUrl = await getStaticFileUrl(`/${path}`);
       if (cdnUrl) throw redirect(cdnUrl);
     }
     throw error;

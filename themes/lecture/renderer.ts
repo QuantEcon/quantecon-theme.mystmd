@@ -19,9 +19,12 @@ import * as build from 'virtual:react-router/server-build';
 import { clearableOutputDirectory } from './rendererOutput';
 
 const CLIENT_PATH = path.join(path.dirname(import.meta.dirname), 'client');
+// The theme bundle this runs from: <bundle>/renderer/server/index.js, beside
+// <bundle>/server (`myst start`), template.yml and .env.prod.
+const BUNDLE_PATH = path.dirname(path.dirname(import.meta.dirname));
 // Emptied below, so it is checked first: a build output, not the project, the
-// home directory or this bundle (see rendererOutput.ts).
-const OUT_PATH = clearableOutputDirectory(process.env.BUILD_DIRECTORY, { keep: [CLIENT_PATH] });
+// home directory or any part of this bundle (see rendererOutput.ts).
+const OUT_PATH = clearableOutputDirectory(process.env.BUILD_DIRECTORY, { keep: [BUNDLE_PATH] });
 const CONCURRENCY = parseInt(process.env.RENDERER_CONCURRENCY ?? '4');
 
 await fs.rm(OUT_PATH, { recursive: true, force: true });

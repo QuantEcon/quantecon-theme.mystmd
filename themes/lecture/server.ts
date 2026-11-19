@@ -47,8 +47,12 @@ const viteDevServer = IS_PRODUCTION
     );
 
 type ServerBuild = Awaited<typeof import('virtual:react-router/server-build')>;
-const serverBuild: ServerBuild = viteDevServer
-  ? ((await viteDevServer.ssrLoadModule('virtual:react-router/server-build')) as any)
+// In development the build is loaded through Vite on every request, so edits
+// to routes and loaders apply without restarting the server; in production it
+// is loaded once.
+const build: ServerBuild | (() => Promise<ServerBuild>) = viteDevServer
+  ? async () =>
+      (await viteDevServer.ssrLoadModule('virtual:react-router/server-build')) as unknown as ServerBuild
   : await import('virtual:react-router/server-build');
 
 const app = express();
@@ -58,8 +62,8 @@ app.disable('x-powered-by');
 app.use(morgan('tiny'));
 if (viteDevServer) {
   app.use(viteDevServer.middlewares);
-} else {
-  const baseName = serverBuild.basename ?? '/';
+} else if (typeof build !== 'function') {
+  const baseName = build.basename ?? '/';
   // The build is <root>/server/index.js beside <root>/client.
   const CLIENT_PATH = path.join(path.dirname(import.meta.dirname), 'client');
   // Vite fingerprints everything it emits into _assets/, so it can be cached
@@ -71,7 +75,7 @@ if (viteDevServer) {
   );
   app.use(baseName, express.static(CLIENT_PATH, { maxAge: '1h' }));
 }
-app.use(createRequestHandler({ build: serverBuild }));
+app.use(createRequestHandler({ build }));
 
 // mystmd reads the port from the first line of output that contains a URL, so
 // nothing before this may print one.
