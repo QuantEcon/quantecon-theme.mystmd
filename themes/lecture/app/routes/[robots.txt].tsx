@@ -2,10 +2,8 @@ import {
   createRobotsTxtResponse,
   getDomainFromRequest,
 } from "@myst-theme/site";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 
-export const loader: LoaderFunction = async ({
-  request,
-}): Promise<Response | null> => {
+export async function loader({ request }: LoaderFunctionArgs) {
   return createRobotsTxtResponse(getDomainFromRequest(request));
-};
+}

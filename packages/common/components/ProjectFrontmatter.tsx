@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Author } from '@myst-theme/frontmatter';
 import type { Affiliation, Contributor } from 'myst-frontmatter';
 import React from 'react';
-import { useBaseurl, useLinkProvider } from '@myst-theme/providers';
+import { useLinkProvider } from '@myst-theme/providers';
 import { PageHeaderHistory } from './PageHeaderHistory';
 import type { Person } from '../i18n';
 
@@ -53,7 +53,6 @@ export function ProjectFrontmatter({
   translatorsLabel?: string;
 }) {
   const hasTranslators = !!translators && translators.length > 0;
-  const baseurl = useBaseurl();
   const Link = useLinkProvider();
   return (
     <div
@@ -76,7 +75,7 @@ export function ProjectFrontmatter({
             'me-4': pageTitle,
           })}
         >
-          <Link to={baseurl ?? '/'}>{projectTitle}</Link>
+          <Link to="/">{projectTitle}</Link>
         </div>
         {pageTitle && (
           <div className="block text-lg lg:inline" aria-label="Page title">

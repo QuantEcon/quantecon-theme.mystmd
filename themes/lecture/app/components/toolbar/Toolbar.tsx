@@ -13,11 +13,10 @@ import { FontScaleListItems } from './FontScaleListItems';
 import { Tooltip } from '@quantecon/theme-common/components/Tooltip';
 import { MobileActionsMenu } from './MobileActionsMenu';
 import { LanguageSwitcher } from '@quantecon/theme-common/components/LanguageSwitcher';
-import { useBaseurl, useLinkProvider } from '@myst-theme/providers';
+import { useLinkProvider } from '@myst-theme/providers';
 
 export function Toolbar() {
   const Link = useLinkProvider();
-  const baseurl = useBaseurl();
   const iconSize = 20;
   return (
     <div
@@ -45,7 +44,7 @@ export function Toolbar() {
         </li>
         <li>
           <Tooltip label="Home" asChild>
-            <Link to={baseurl ?? '/'} aria-label="Home">
+            <Link to="/" aria-label="Home">
               <House className="opacity-90 hover:scale-110" width={iconSize} height={iconSize} />
             </Link>
           </Tooltip>

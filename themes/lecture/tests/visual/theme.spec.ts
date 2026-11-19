@@ -794,16 +794,18 @@ test.describe("Content typography", () => {
   test("code-block-size", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chrome", "not viewport-dependent");
     // A plain fence takes the non-executable branch, with no border class.
+    // myst-to-react marks the executable branch with a left border coloured
+    // by the `myst-link-underline` token (blue-400 in light mode).
     await page.goto("/features", { waitUntil: "domcontentloaded" });
     await settle(page);
-    const fence = await size(page, ".myst-code:not(.border-l-blue-400) pre");
+    const fence = await size(page, ".myst-code:not(.border-l-myst-link-underline) pre");
     expect(fence, "features.md renders a plain fence").not.toBeNull();
     expect(fence).toEqual({ fontSize: "16px", lineHeight: "20px" });
     // A notebook cell takes the executable branch; its stored text output is
     // rendered by @myst-theme/jupyter in a div of its own.
     await page.goto("/notebook", { waitUntil: "domcontentloaded" });
     await settle(page);
-    const cell = await size(page, ".myst-code.border-l-blue-400 pre");
+    const cell = await size(page, ".myst-code.border-l-myst-link-underline pre");
     expect(cell, "the fixture notebook renders an executable cell").not.toBeNull();
     expect(cell).toEqual({ fontSize: "16px", lineHeight: "20px" });
     const output = await size(page, ".myst-jp-safe-output-text");

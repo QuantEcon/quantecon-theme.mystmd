@@ -1,5 +1,5 @@
 import type { PageLoader } from '@myst-theme/common';
-import { useLoaderData } from '@remix-run/react';
+import { useLoaderData } from 'react-router';
 import type { SiteManifest } from 'myst-config';
 import { useBaseurl, useSiteManifest, ProjectProvider } from '@myst-theme/providers';
 import { ComputeOptionsProvider, ThebeLoaderAndServer } from '@myst-theme/jupyter';

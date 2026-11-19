@@ -20,13 +20,8 @@ import classNames from 'classnames';
 import type { GenericNode } from 'myst-common';
 import { slugToUrl } from 'myst-common';
 import { getProjectHeadings } from '@myst-theme/common';
-import {
-  useBaseurl,
-  useLinkProvider,
-  useProjectManifest,
-  useSiteManifest,
-  withBaseurl,
-} from '@myst-theme/providers';
+import type { JSX } from 'react';
+import { useLinkProvider, useProjectManifest, useSiteManifest } from '@myst-theme/providers';
 import { Block } from 'myst-to-react';
 import type { TocEntry } from '../tocTree';
 import { buildTocTree, tocLabel, tocSegments } from '../tocTree';
@@ -36,14 +31,13 @@ import { buildTocTree, tocLabel, tocSegments } from '../tocTree';
 const UpstreamBlock = Block as (props: { node: GenericNode; className?: string }) => JSX.Element;
 
 function TocList({ entries }: { entries: TocEntry[] }) {
-  const baseurl = useBaseurl();
   const Link = useLinkProvider();
   return (
     <ul>
       {entries.map((entry) => (
         <li key={entry.slug ?? entry.htmlId ?? entry.title}>
           {entry.slug ? (
-            <Link to={withBaseurl(`/${slugToUrl(entry.slug)}`, baseurl)}>{tocLabel(entry)}</Link>
+            <Link to={`/${slugToUrl(entry.slug)}`}>{tocLabel(entry)}</Link>
           ) : (
             // A nested captionless group (depth ≥ 2 in the project toc).
             // Only top-level sections get real headings; promoting deeper

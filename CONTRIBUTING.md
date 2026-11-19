@@ -7,10 +7,12 @@ Thank you for your interest in contributing to the QuantEcon theme!
 - **Node.js** — `.nvmrc` pins **24**, matching the CI runner. Running the unit tests (`npm run test:unit`)
   additionally requires **Node ≥ 23.6**, which strips TypeScript on the fly so the
   tests can import the `.ts` builders without a build step — this matches the CI
-  Node 24 runner. The built theme itself still supports Node ≥ 20 (`engines.node`).
+  Node 24 runner. The built theme itself needs Node ≥ 22.22 (`engines.node`),
+  React Router 8's own floor.
 - **npm** — whatever ships with Node 24; the lockfile is `lockfileVersion` 3.
-- **mystmd** on `PATH` for the visual and FOUC suites (`npm install -g mystmd`), which
-  build and serve the fixture. `npm run test:plugin` *skips* rather than fails without
+- **mystmd** ≥ 1.11.0 on `PATH` for the visual and FOUC suites (`npm install -g mystmd`),
+  which build and serve the fixture. 1.11.0 is where `myst build --html` learned to run
+  a template's `build.render` command, which this theme needs for static builds. `npm run test:plugin` *skips* rather than fails without
   it, so a green run there does not mean it executed.
 
 ## Development Setup
@@ -39,7 +41,7 @@ directory the same script names run that theme's own version.
 | Command             | Description                                      |
 | ------------------- | ------------------------------------------------ |
 | `npm run dev`       | Start dev server with CSS watch + hot reload     |
-| `npm run prod:build`| Production build (CSS + Thebe assets + Remix)    |
+| `npm run prod:build`| Production build: CSS + Thebe assets, then the two Vite builds (`build/server`, `build/renderer`) |
 | `npm run compile`   | TypeScript type-check of every workspace (`tsc --noEmit --skipLibCheck`) |
 | `npm run test:unit` | Pure-function unit tests of every workspace (`node --test`, Node ≥ 23.6) |
 | `npm run test:plugin` | End-to-end test of `plugins/git-metadata.mjs` (needs `myst`) |
@@ -72,10 +74,13 @@ packages/
     tests/unit/      #   unit tests for the helpers above
 themes/
   lecture/           # @quantecon/lecture-theme — ships as quantecon-theme.zip
-    app/             #   Remix app: backend/, components/, hooks/, routes/, root.tsx
+    app/             #   React Router app: backend/, components/, hooks/, routes/, root.tsx
     styles/          #   Tailwind entry (app.css) and the lecture styles
     public/          #   static assets (logos, Thebe bundles)
-    template/        #   files copied into the bundle (server.js, package.json, …)
+    template/        #   files copied into the bundle (package.json, README, …)
+    server.ts        #   the theme server `myst start` runs (build.start)
+    renderer.ts      #   the static pre-renderer `myst build --html` runs (build.render)
+    vite.config.ts react-router.config.ts
     template.yml     #   declared site options
     CHANGELOG.md     #   the lecture theme's release notes (vX.Y.Z tags)
     tests/           #   unit, plugin and Playwright (visual, FOUC, static) suites
@@ -95,8 +100,9 @@ landing-page table of contents, the launch and compute toolbar — stays in
 - **Themes import by package name,** e.g.
   `import { Search } from '@quantecon/theme-common/components/Search'`.
 - **The package is source, not a build.** It has no `dist/`: each theme's
-  Remix build compiles it (`serverDependenciesToBundle` covers it), and its
-  third-party imports are `peerDependencies` that the theme supplies.
+  Vite build compiles it (production builds bundle every dependency,
+  `ssr.noExternal`), and its third-party imports are `peerDependencies` that
+  the theme supplies.
 - **Tailwind must see it.** A theme's `tailwind.config.js` lists
   `../../packages/common/**` in `content`, or classes used only in common
   components are purged from the build.
@@ -108,7 +114,7 @@ consequence of that shapes most feature work here.
 
 | | `quantecon-book-theme` (Sphinx) | this theme (MyST) |
 | --- | --- | --- |
-| Runs | at **build time**, inside the lecture repo | as a **runtime Remix server**, over pre-built content JSON |
+| Runs | at **build time**, inside the lecture repo | as a **runtime React Router server** (or its static pre-renderer), over pre-built content JSON |
 | Sees the git repo? | **yes** — it can shell out to `git` | **no** — only each page's `mdast` and `frontmatter` |
 | Customised through | Jinja templates and a Sphinx extension | React components and `myst.yml` |
 
@@ -191,9 +197,10 @@ Two rules make patches safe to live with:
   that is why the guard test matters. Upstream the fix so the patch can be
   dropped, and note the upstream PR in the patch's own comments.
 
-The theme is bundled with `serverDependenciesToBundle: [/.*/]`, so patched code
-is inlined into `build/` and ships in the release zip — consumers get the fix
-without installing anything.
+Production builds bundle every dependency (`ssr.noExternal` in
+`vite.config.ts`, and the client build always does), so patched code is inlined
+into `server/` and `renderer/` and ships in the release zip — consumers get the
+fix without installing anything.
 
 ## Execution model: where code cells can live
 
@@ -369,8 +376,8 @@ To cut a release:
 
 If a release run fails, the failed run published nothing, so recovery is safe:
 
-- **Transient build failure** (e.g. the occasional esbuild hang): no changes needed —
-  re-run the failed workflow from the Actions UI.
+- **Transient build failure** (e.g. a hung build hitting the step's timeout): no
+  changes needed — re-run the failed workflow from the Actions UI.
 - **Guard failure** (version mismatch / missing changelog section): land the fix on
   `main` via a PR, then **move the tag** to the new commit — a pushed tag cannot simply
   be re-pushed:
@@ -386,6 +393,6 @@ release-equivalent zip).
 
 ## Notes
 
-- The theme is built on [Remix v1](https://remix.run/) and [@myst-theme](https://github.com/jupyter-book/myst-theme).
+- The theme is built on [React Router 8](https://reactrouter.com/) with [Vite](https://vite.dev/), and [@myst-theme](https://github.com/jupyter-book/myst-theme) 2.x.
 - Tailwind CSS is used for styling — see `themes/lecture/tailwind.config.js` for the theme configuration.
 - TypeScript strict mode is enabled — all code must pass `tsc --noEmit`.

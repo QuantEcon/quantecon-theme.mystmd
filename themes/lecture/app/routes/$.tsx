@@ -1,14 +1,7 @@
-import {
-  json,
-  type V2_MetaFunction,
-  type LinksFunction,
-  type LoaderFunction,
-} from '@remix-run/node';
+import { redirect, type LoaderFunctionArgs, type MetaArgs } from 'react-router';
 import { getProject, isFlatSite, type PageLoader } from '@myst-theme/common';
 import { getMetaTagsForArticle } from '@myst-theme/site';
-// Self-hosted, not the CDN-backed KatexCSS from @myst-theme/site — see app/links.ts.
-import { KatexCSS } from '~/links';
-import { getConfig, getPage } from '~/backend/loaders.server';
+import { getConfig, getPage, getStaticFileUrl } from '~/backend/loaders.server';
 import type { SiteManifest } from 'myst-config';
 import { ErrorPage } from '~/components/ErrorPage';
 import { Page } from '~/components/Page';
@@ -21,26 +14,21 @@ export { shouldRevalidate } from '~/revalidate';
 
 type ManifestProject = Required<SiteManifest>['projects'][0];
 
-export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }) => {
-  if (!data) return [];
+export function meta({ loaderData, matches, location }: MetaArgs<typeof loader>) {
+  if (!loaderData) return [];
 
-  const config: SiteManifest = data.config;
-  const project: ManifestProject = data.project;
-  const page: PageLoader['frontmatter'] = data.page.frontmatter;
+  const config: SiteManifest = loaderData.config;
+  const project: ManifestProject | undefined = loaderData.project;
+  const page: PageLoader['frontmatter'] = loaderData.page.frontmatter;
 
   const siteTitle = config?.title ?? project?.title ?? '';
 
-  // The root loader carries the static build's base URL, which is not part of
-  // the page path other editions share.
-  // `matches` is typed `never` under this generic; the root match's data is the root loader's.
-  const rootMatch = (matches as Array<{ id: string; data?: { BASE_URL?: string } }>).find(
-    (m) => m.id === 'root',
-  );
-  const baseurl = rootMatch?.data?.BASE_URL;
+  // The root loader carries the base URL, which is not part of the page path
+  // other editions share.
+  const rootMatch = matches.find((m) => m?.id === 'root');
+  const baseurl = (rootMatch?.loaderData as { BASE_URL?: string } | undefined)?.BASE_URL;
 
-  // The page's public URL, shared by og:url and the canonical link. `pageUrl`
-  // strips the base before re-applying it: the browser router has no basename,
-  // so on the client `location.pathname` already carries it.
+  // The page's public URL, shared by og:url and the canonical link.
   const url = pageUrl({
     origin: siteOrigin((config?.options as any)?.site_url, config?.domains),
     pathname: location.pathname,
@@ -75,25 +63,40 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, matches, location }
     ...hreflangLinks(config?.options, location.pathname, baseurl),
     ...canonicalLink(url),
   ];
-};
+}
 
-export const links: LinksFunction = () => [KatexCSS];
-
-export const loader: LoaderFunction = async ({ params, request }) => {
-  const [first, ...rest] = new URL(request.url).pathname.slice(1).split('/');
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  // The splat is the path below the router's basename (BASE_URL), so a site
+  // served under a sub-path resolves the same slugs as one at the root.
+  const path = params['*'] ?? '';
+  const [first, ...rest] = path.split('/').filter((part) => !!part);
   const config = await getConfig();
   const project = getProject(config, first);
   const projectName = project?.slug === first ? first : undefined;
-  const slugParts = projectName ? rest : [first, ...rest];
+  const slugParts = projectName ? rest : [first, ...rest].filter((part) => part !== undefined);
   const slug = slugParts.length ? slugParts.join('.') : undefined;
   const flat = isFlatSite(config);
-  const page = await getPage(request, {
-    project: flat ? projectName : projectName ?? slug,
-    slug: flat ? slug : projectName ? slug : undefined,
-    redirect: process.env.MODE === 'static' ? false : true,
-  });
-  return json({ config, page, project });
-};
+  try {
+    const page = await getPage(request, {
+      project: flat ? projectName : projectName ?? slug,
+      slug: flat ? slug : projectName ? slug : undefined,
+      // The renderer writes every page at its own path, so a redirect to the
+      // canonical one would only write a redirect stub there.
+      redirect: !import.meta.env.VITE_BUILD_HTML,
+    });
+    return { config, page, project };
+  } catch (error) {
+    // Not a page: under `myst start`, a project's `static_files` are served
+    // by the content server, so send the reader there. The content server's
+    // paths are site-relative, so look the file up by the splat, not by the
+    // request URL, which still carries the router's basename.
+    if (error instanceof Response && error.status === 404) {
+      const cdnUrl = await getStaticFileUrl(`/${path}`);
+      if (cdnUrl) throw redirect(cdnUrl);
+    }
+    throw error;
+  }
+}
 
 export default Page;
 

@@ -62,6 +62,9 @@ site:
   template: https://github.com/QuantEcon/quantecon-theme.mystmd/releases/download/v2.3.0/quantecon-theme.zip
 ```
 
+The theme needs Node 22.22 or later, and mystmd 1.11.0 or later for a static
+`myst build --html` (the CLI runs the theme's own renderer from that version on).
+
 Then start the local server:
 
 ```sh

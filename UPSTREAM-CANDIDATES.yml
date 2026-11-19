@@ -103,13 +103,14 @@ upstream_candidates:
     description: |
       @myst-theme/site's `Document` responds to `staticBuild` by swapping the
       link provider to `<Link reloadDocument>`, but renders `<Scripts />`
-      unconditionally, so a `myst build --html` site still hydrates a Remix
-      data router whose loaders only a running server can answer. Any
+      unconditionally, so a `myst build --html` site still hydrates a React
+      Router data router whose loaders only a running server can answer. Any
       client-side navigation that is not short-circuited -- Back off an
-      in-page anchor removes the hash, which `isHashChangeOnly` deliberately
+      in-page anchor removes the hash, which React Router deliberately
       treats as a real navigation -- re-runs the loaders, the static host
-      returns the page's own HTML to `?_data=`, and the routes throw on the
-      string loader value ("Application Error").
+      404s the `<path>.data` request, and the page falls into its error
+      boundary. (Under Remix v1 the host answered `?_data=` with the page's
+      HTML and the routes threw on the string loader value instead.)
     status: pending
     target: jupyter-book/myst-theme
     provenance:
@@ -123,9 +124,12 @@ upstream_candidates:
     notes: |
       The workaround stays here regardless. Upstream, a `staticBuild`
       Document should either not hydrate live loaders at all or default every
-      route to `shouldRevalidate: () => false`; React Router 7 keeps the same
-      hash-removal semantics, so the migration tracked in #28 does not repair
-      it. No upstream issue found on jupyter-book/myst-theme at filing time.
+      route to `shouldRevalidate: () => false`. React Router 8 keeps the same
+      hash-removal semantics, and @myst-theme 2.1.1's Document still renders
+      `<Scripts />` on static builds, so the move to React Router 8 (#28) did
+      not repair it: without the guard, Back off "Top" on a static fixture
+      page requests `features/_.data`, gets a 404 and blanks the page. No
+      upstream issue found on jupyter-book/myst-theme at filing time.
 
   - id: link-icon-stranding
     title: External-link icon strands on its own line (.link-icon)

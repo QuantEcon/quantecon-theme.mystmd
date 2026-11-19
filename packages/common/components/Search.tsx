@@ -1,4 +1,5 @@
-/* Forked from @myst-theme/site@1.3.0 (src/components/Navigation/Search.tsx).
+/* Forked from @myst-theme/site@1.3.0 (src/components/Navigation/Search.tsx),
+   with the index request and link handling of 2.1.1.
    Local changes: the dialog trigger is an icon-only toolbar button instead of
    the boxed placeholder input, and the keyboard-shortcut hint (⌘K / CTRL K)
    renders inside the dialog over the right edge of the search input. The
@@ -14,7 +15,6 @@ import {
   forwardRef,
 } from 'react';
 import type { KeyboardEventHandler, Dispatch, SetStateAction, FormEvent, MouseEvent } from 'react';
-import { useFetcher } from '@remix-run/react';
 import {
   ArrowTurnDownLeftIcon,
   MagnifyingGlassIcon,
@@ -227,7 +227,6 @@ function SearchResultItem({
   closeSearch?: () => void;
 }) {
   const { hierarchy, type, url, queries } = result;
-  const baseurl = useBaseurl();
   const Link = useLinkProvider();
 
   // Render the icon
@@ -269,7 +268,8 @@ function SearchResultItem({
   return (
     <Link
       className="block px-1 py-2 text-gray-700 rounded shadow-md dark:text-white group-aria-selected:bg-blue-600 group-aria-selected:text-white dark:shadow-none dark:bg-stone-800"
-      to={withBaseurl(url, baseurl)}
+      // A router link: the router adds the base URL itself.
+      to={url}
       // Close the main search on click
       onClick={closeSearch}
     >
@@ -391,30 +391,43 @@ function SearchResults({
  */
 function useSearch() {
   const baseURL = useBaseurl();
-  const fetcher = useFetcher();
+  const [data, setData] = useState<MystSearchIndex | null>(null);
   const [enabled, setEnabled] = useState(true);
-  // Load index when this component is required
+  // Load index when this component is required. A plain request for the
+  // file, not a router fetcher: on a static build the index is a file beside
+  // the pages, and there is no loader to answer a router data request.
   // TODO: this reloads every time the search box is opened.
   //       we should lift the state up
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data == null) {
-      const searchURL = withBaseurl('/myst.search.json', baseURL);
-      fetcher.load(searchURL);
+    async function loadIndex() {
+      let response;
+      try {
+        response = await fetch(withBaseurl('/myst.search.json', baseURL));
+      } catch {
+        console.error('Unable to fetch search data');
+        return;
+      }
+      if (!response.ok) {
+        console.error('Unable to fetch search data');
+        return;
+      }
+      setData(await response.json());
     }
-  }, [fetcher, baseURL]);
+    loadIndex();
+  }, [baseURL]);
 
   const searchFactory = useSearchFactory();
   const search = useMemo(() => {
-    if (!fetcher.data || !searchFactory) {
+    if (!data || !searchFactory) {
       return undefined;
     } else {
-      if (fetcher.data?.version && fetcher.data?.records) {
-        return searchFactory(fetcher.data as MystSearchIndex);
+      if (data?.version && data?.records) {
+        return searchFactory(data);
       }
       setEnabled(false);
       return undefined;
     }
-  }, [searchFactory, fetcher.data, setEnabled]);
+  }, [searchFactory, data, setEnabled]);
 
   // Implement pass-through
   return { search, enabled };
@@ -466,9 +479,11 @@ function SearchForm({
   const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   }, []);
-  // Handle item selection
+  // Handle item selection. The theme's Document supplies a navigate that adds
+  // the base URL on every kind of site -- the router's on a live server, a
+  // page load under the base on a static build -- so the result's
+  // site-relative URL goes in as it is.
   const navigate = useNavigateProvider();
-  const baseurl = useBaseurl();
 
   // Handle item selection and navigation
   const handleSearchKeyPress = useCallback<KeyboardEventHandler<HTMLInputElement>>(
@@ -487,7 +502,7 @@ function SearchForm({
 
         const url = searchResults[selectedIndex]?.url;
         if (url) {
-          navigate(withBaseurl(url, baseurl));
+          navigate(url);
           closeSearch?.();
         }
       }

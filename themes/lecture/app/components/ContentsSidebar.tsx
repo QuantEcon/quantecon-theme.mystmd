@@ -1,12 +1,6 @@
 import type { Heading } from '@myst-theme/common';
 import { getProjectHeadings } from '@myst-theme/common';
-import {
-  useBaseurl,
-  useLinkProvider,
-  useProjectManifest,
-  useSiteManifest,
-  withBaseurl,
-} from '@myst-theme/providers';
+import { useLinkProvider, useProjectManifest, useSiteManifest } from '@myst-theme/providers';
 import { slugToUrl } from 'myst-common';
 import { useEffect } from 'react';
 import { TOC_HEADING_ID, TOC_POPOVER_ID } from './contentsDrawer';
@@ -15,7 +9,6 @@ type StrictHeading = Omit<Heading, 'level'> & { level: number };
 type HeadingGroup = StrictHeading[];
 
 function Section({ group }: { group: HeadingGroup }) {
-  const baseurl = useBaseurl();
   const Link = useLinkProvider();
   return (
     <ul>
@@ -25,7 +18,7 @@ function Section({ group }: { group: HeadingGroup }) {
           key={heading.slug ?? heading.title}
         >
           {heading.slug ? (
-            <Link to={withBaseurl(`/${slugToUrl(heading.slug)}`, baseurl)}>
+            <Link to={`/${slugToUrl(heading.slug)}`}>
               {heading.enumerator ? `${heading.enumerator}. ` : ''}
               {heading.title}
             </Link>
@@ -79,7 +72,6 @@ export function ContentsSidebar() {
   useCloseOnDialogOpen(TOC_POPOVER_ID);
   const config = useSiteManifest();
   const project = useProjectManifest();
-  const baseurl = useBaseurl();
   const Link = useLinkProvider();
 
   if (!config) return null;
@@ -140,7 +132,7 @@ export function ContentsSidebar() {
               key={headingOrGroup.slug ?? headingOrGroup.title}
             >
               {headingOrGroup.slug ? (
-                <Link to={withBaseurl(`/${slugToUrl(headingOrGroup.slug)}`, baseurl)}>
+                <Link to={`/${slugToUrl(headingOrGroup.slug)}`}>
                   {headingOrGroup.title}
                 </Link>
               ) : (

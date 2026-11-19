@@ -9,7 +9,7 @@
  * The button therefore rendered and did nothing.
  *
  * This imports the *patched* file out of `node_modules`, so it fails both if
- * the traversal regresses and if `patches/@myst-theme+jupyter+1.3.0.patch`
+ * the traversal regresses and if `patches/@myst-theme+jupyter+2.1.1.patch`
  * stops applying (`npm ci` runs patch-package via `postinstall`).
  *
  * The module has no imports of its own, so a hand-rolled `core` is enough.

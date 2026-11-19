@@ -103,7 +103,7 @@ jobs:
       # Node 20). The comment keeps the `pr-preview` header, so it updates the
       # one that action left on open pull requests. Root .nojekyll on gh-pages
       # (seeded once) keeps Pages from eating the underscore-prefixed asset
-      # paths (build/_assets/...).
+      # paths (_assets/..., _public/...).
       - name: Deploy preview
         if: github.event.action != 'closed'
         uses: JamesIves/github-pages-deploy-action@v4

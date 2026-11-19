@@ -51,6 +51,9 @@ module.exports = {
         'gutter-right': 'margin-end / screen-end',
       },
       colors: {
+        // The `myst-*` colours (CSS custom properties) that @myst-theme/styles'
+        // own stylesheets apply.
+        ...mystTheme.themeExtensions.colors,
         'qepage-dark': '#222',
         'qetoolbar-light': '#efefef',
         'qetoolbar-dark': '#444',

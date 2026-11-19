@@ -5,15 +5,17 @@ import { test, expect, type Page } from "@playwright/test";
  * against a `myst build --html` of the fixture served by a plain file server
  * (tests/visual/serve-static.sh). That is the shape a production site
  * deploys in, and the one the `myst start` harness structurally cannot see:
- * in MODE=app every loader is live, so `?_data=` fetches return JSON and the
- * defects below do not exist.
+ * under `myst start` every loader is live, so the router's loader requests
+ * return data and the defects below do not exist.
  *
  * The bug: a static build still hydrates a loader-bearing data router.
  * Pressing Back after an in-page anchor removes the hash, which React Router
  * does not treat as a hash-only navigation, so the loaders re-run, the host
- * answers `?_data=` with the page's HTML, and the next `data.page` read throws
- * -- a bare "Application Error" screen. Guarded by the `shouldRevalidate`
- * exports in app/revalidate.ts.
+ * cannot answer the loader request, and the page falls into an error screen.
+ * Guarded by the `shouldRevalidate` exports in app/revalidate.ts.
+ *
+ * React Router requests a route's loader data at `<path>.data`, or at
+ * `<path>/_.data` when the path ends in a slash (`/_.data` for the site root).
  */
 
 /** Same-document fragment navigations must leave the JS context intact. */
@@ -23,7 +25,7 @@ function watch(page: Page) {
   const dataRequests: string[] = [];
   const pageErrors: string[] = [];
   page.on("request", (req) => {
-    if (/[?&]_data=/.test(req.url())) dataRequests.push(req.url());
+    if (/\.data(\?|$)/.test(req.url())) dataRequests.push(req.url());
   });
   page.on("pageerror", (err) => pageErrors.push(err.message));
   return { dataRequests, pageErrors };
@@ -44,7 +46,7 @@ const markerSurvives = (page: Page) =>
  * The failure mode is total, so the assertions can be blunt -- but the error
  * screen only lands once the stray loader fetches have *returned*, so give the
  * router a beat to process them before reading the DOM. The mechanism (any
- * `?_data=` fetch at all) is asserted first, so a regression names itself.
+ * loader request at all) is asserted first, so a regression names itself.
  */
 async function expectIntact(page: Page, title: string, watched: ReturnType<typeof watch>) {
   await page.waitForTimeout(1500);

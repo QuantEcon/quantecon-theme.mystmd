@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useBaseurl, useSiteManifest } from '@myst-theme/providers';
-import { useLocation } from '@remix-run/react';
+import { useLocation } from 'react-router';
 import classNames from 'classnames';
 import { Check, Globe } from 'lucide-react';
 import type { SiteManifest } from 'myst-config';

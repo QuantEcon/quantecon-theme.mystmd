@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import type { GenericNode } from 'myst-common';
 import type { NodeRenderers } from '@myst-theme/providers';
 import { Block, DEFAULT_RENDERERS, MyST } from 'myst-to-react';
