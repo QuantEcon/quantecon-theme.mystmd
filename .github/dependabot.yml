@@ -54,8 +54,35 @@ updates:
     # and root indices, and the visual regression suite fails on every page
     # with maths.
     # 0.17.0 is held back too: it keeps the old class names but brings no fix
-    # we need. Lift this once mystmd bundles KaTeX 0.18 or later.
+    # we need. Lift this once mystmd bundles KaTeX 0.18 or later (#118).
     ignore:
       - dependency-name: katex
         versions:
           - ">=0.17.0"
+      # Majors that are migrations rather than bumps, so Dependabot cannot
+      # land them. @myst-theme/* and myst-to-react 2.x replace Remix with
+      # React Router 8 and Vite, and move together with @remix-run/* (which
+      # that work removes) and React 19; #28 tracks it. Tailwind 4 moves its
+      # CLI to @tailwindcss/cli and its config into CSS (#281), and
+      # TypeScript 7 removes the moduleResolution and baseUrl settings
+      # tsconfig.json uses (#280), so each needs its own change. Minor and
+      # patch updates still arrive in the npm-dependencies group. Drop an
+      # entry once its migration lands.
+      - dependency-name: "@myst-theme/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: myst-to-react
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@remix-run/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: react
+        update-types: ["version-update:semver-major"]
+      - dependency-name: react-dom
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: tailwindcss
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
