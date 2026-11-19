@@ -80,6 +80,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the katex 0.18.2 bump
   ([#275](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/275))
   ([#276](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/276)).
+- Dependabot no longer proposes major updates to `@myst-theme/*`,
+  `myst-to-react`, `@remix-run/*`, `react`, `react-dom`, their type packages,
+  `tailwindcss` or `typescript`. Each is a migration rather than a bump:
+  myst-theme 2.x replaces Remix with React Router 8 and Vite (tracked in
+  [#28](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/28)), and
+  Tailwind 4 ([#281](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/281))
+  and TypeScript 7 ([#280](https://github.com/QuantEcon/quantecon-theme.mystmd/issues/280))
+  need config changes of their own. The monthly
+  major-version PR that bundled them failed every CI job
+  ([#278](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/278)).
+  Minor and patch updates to these packages still arrive
+  ([#279](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/279)).
 
 ### Fixed
 - The static file server behind the `static-chrome` Playwright project
