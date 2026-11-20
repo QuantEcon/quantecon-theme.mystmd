@@ -1097,7 +1097,9 @@ details.qb-env[open] > summary::after {
   line-height: var(--qb-leading);
   color: inherit !important;
 }
-.qb-notes .myst-footnotes-list ol {
+/* The notes list only: a list inside a note keeps the article's list rules,
+   so a parenthesised `(a)` list keeps its drawn markers (lists.css). */
+.qb-notes .myst-footnotes-list > ol {
   list-style: decimal;
   margin: 0;
   padding-left: 1.4em;
@@ -1117,12 +1119,14 @@ details.qb-env[open] > summary::after {
 }
 /* As the design's `.footnotes li`: the back-link is a plain ↩ (`a.plain`)
    running on after the note, in the note's face and colour, always shown.
-   Upstream puts it in a column of its own, hidden until hover. */
+   Upstream puts it in a column of its own, hidden until hover. Only a
+   closing paragraph is run in: a note ending in a code card, a list or
+   another block keeps that block, and the ↩ follows it. */
 .qb-notes .myst-footnotes-item > div {
   display: block !important;
 }
 .qb-notes .myst-footnote-content,
-.qb-notes .myst-footnote-content > :last-child,
+.qb-notes .myst-footnote-content > p:last-child,
 .qb-notes .myst-footnote-backlinks {
   display: inline !important;
 }

@@ -17,6 +17,12 @@ project:
   # Cited in ch-one (tests/e2e: "citations").
   bibliography:
     - references.bib
+  # Stamps `(a)` markers on the list in ch-one's third note (tests/e2e:
+  # "block content in a note"), which stock mystmd does not parse. The
+  # lecture fixture's plugin, reached from tests/.fixture-build, where
+  # tests/serve.sh builds.
+  plugins:
+    - ../../../lecture/tests/visual/fixture/fancy-lists.mjs
   # Drawn on the cover's book (tests/e2e: "cover art").
   thumbnail: cover.png
   numbering:

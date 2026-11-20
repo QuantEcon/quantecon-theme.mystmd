@@ -33,6 +33,8 @@ A margin note.
 1. first
 2. second
 
+A note can hold a list[^c] or end in code.[^d]
+
 (sec-fixed)=
 ## Fixed points
 
@@ -75,3 +77,15 @@ An aside, set in the gutter like a margin note.
 
 [^a]: The footnote.
 [^b]: A second footnote, with a [link](https://quantecon.org).
+
+[^c]: A note with a parenthesised list:
+
+    % fancy: lower-alpha parens
+    1. the first case;
+    2. the second.
+
+[^d]: A note that ends in code:
+
+    ```python
+    x = 1
+    ```

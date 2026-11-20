@@ -177,7 +177,7 @@ test.describe('furniture', () => {
     await page.mouse.move(5, 5);
 
     const notes = page.locator('#footnotes.qb-notes');
-    await expect(notes.locator('.myst-footnotes-item')).toHaveCount(2);
+    await expect(notes.locator('.myst-footnotes-item')).toHaveCount(4);
     // Headed "Notes" in the faint colour; the notes in the muted colour.
     await expect(notes.locator('.myst-footnotes-header')).toHaveText(/^Notes/);
     expect(await css(notes.locator('.myst-footnotes-header'), 'color')).toBe(await token(page, '--qb-faint'));
@@ -202,6 +202,46 @@ test.describe('furniture', () => {
     expect(ruled).toBe(1);
     // The notes stay within the page: no sideways scroll.
     expect(await page.evaluate(() => document.scrollingElement!.scrollWidth)).toBeLessThanOrEqual(1360);
+    expect(errors).toEqual([]);
+  });
+
+  test('footnotes: block content in a note keeps its own formatting', async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto('/ch-one/');
+    const notes = page.locator('#footnotes.qb-notes');
+    // The notes list itself is numbered.
+    expect(await css(notes.locator('.myst-footnotes-list > ol'), 'list-style-type')).toBe('decimal');
+    // A parenthesised list inside a note keeps lists.css: no native marker,
+    // and its drawn (a), (b).
+    const list = notes.locator('#fn-c .myst-footnote-content ol.delimiter-parens');
+    await expect(list.locator(':scope > li')).toHaveCount(2);
+    expect(await css(list, 'list-style-type')).toBe('none');
+    const drawn = await list
+      .locator(':scope > li')
+      .first()
+      .evaluate((el) => getComputedStyle(el, '::before').content);
+    expect(drawn).toBe('"(" counter(list-item, lower-alpha) ")"');
+    // A note ending in code keeps its code card a block, with its border,
+    // and the ↩ follows the card.
+    const card = notes.locator('#fn-d .myst-footnote-content > .qb-codecard');
+    await expect(card).toBeVisible();
+    expect(await css(card, 'display')).toBe('block');
+    expect(await css(card, 'border-top-style')).toBe('solid');
+    expect(await css(card, 'border-top-width')).toBe('1px');
+    expect(await css(card, 'border-top-color')).toBe(await token(page, '--qb-rule'));
+    const cardBack = notes.locator('#fn-d .myst-footnote-backlinks a');
+    await expect(cardBack).toBeVisible();
+    const [cardBox, cardBackBox] = await Promise.all([card.boundingBox(), cardBack.boundingBox()]);
+    expect(cardBackBox!.y).toBeGreaterThanOrEqual(cardBox!.y + cardBox!.height - 1);
+    // A note of one paragraph still runs its ↩ on after the text.
+    const text = notes.locator('#fn-a .myst-footnote-content > p');
+    expect(await css(text, 'display')).toBe('inline');
+    const [textBox, backBox] = await Promise.all([
+      text.boundingBox(),
+      notes.locator('#fn-a .myst-footnote-backlinks a').boundingBox(),
+    ]);
+    expect(Math.abs(backBox!.y - textBox!.y)).toBeLessThan(8);
+    expect(backBox!.x).toBeGreaterThanOrEqual(textBox!.x + textBox!.width - 1);
     expect(errors).toEqual([]);
   });
 
