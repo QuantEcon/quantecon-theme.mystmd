@@ -62,6 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#278](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/278)).
   Minor and patch updates to these packages still arrive
   ([#279](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/279)).
+- The source is now an npm workspace (`packages/common`, `themes/lecture`), with
+  the Tailwind content globs rebased to match. The built CSS is byte-identical
+  to 3.2.0's, so nothing in the theme bundle changes
+  ([#270](https://github.com/QuantEcon/quantecon-theme.mystmd/pull/270)).
 
 ### Fixed
 - The bundle's own `README.md` told consumers to pin v2.3.0 in its
