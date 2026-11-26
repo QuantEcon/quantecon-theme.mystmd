@@ -1,0 +1,88 @@
+/* ============================================================
+   Manuscript — the book theme's design direction.
+
+   Every colour, face and measure the theme uses is a custom property
+   declared here, and nothing else in the theme names a raw value. A second
+   direction would be a sibling file declaring the same properties, imported
+   instead of this one: the components in book.css need no change.
+
+   Source: QuantEcon/demo-book-theme-designs, assets/base.css (the shared
+   tokens) and assets/directions.css (`[data-theme="manuscript"]`). The
+   design's `[data-mode="dark"]` is MyST's `html.dark`.
+   ============================================================ */
+
+:root {
+  /* Type. Newsreader throughout; IBM Plex Mono for labels and code. Both
+     self-hosted (app/links.ts); the family names are the ones the
+     @fontsource packages declare. */
+  --qb-font-body: 'Newsreader Variable', 'Newsreader', Georgia, serif;
+  --qb-font-head: 'Newsreader Variable', 'Newsreader', Georgia, serif;
+  --qb-font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --qb-size: 19px;
+  --qb-leading: 1.62;
+  --qb-h-weight: 600;
+
+  /* Measures. A 37rem reading column with a 16rem right gutter for margin
+     notes; the drawer is 330px wide. */
+  --qb-measure: 37rem;
+  --qb-gutter: 16rem;
+  --qb-gutter-gap: 2.2rem;
+  --qb-masthead-h: 58px;
+  --qb-drawer-w: min(82vw, 330px);
+  --qb-radius: 6px;
+
+  /* House accents: QuantEcon blue is primary, clay the book secondary. */
+  --qb-blue: #1a5b8a;
+  --qb-blue-press: #103f5e;
+  --qb-clay: #a64a3a;
+
+  /* Theorem-environment hues. */
+  --qb-c-theorem: #1a5b8a;
+  --qb-c-definition: #a64a3a;
+  --qb-c-proof: #6b6760;
+  --qb-c-example: #2f7d5b;
+  /* The design's #9a6a1f is 4.44:1 on the paper, under WCAG AA for the
+     body-size italic labels it colours; #98691f is 4.52:1 and looks the same. */
+  --qb-c-remark: #98691f;
+
+  /* Paper and ink (light). */
+  --qb-paper: #faf8f3;
+  --qb-paper-2: #f3efe6;
+  --qb-paper-3: #ece7da;
+  --qb-ink: #1d1b16;
+  --qb-ink-soft: #3a362e;
+  --qb-muted: #6f6a5f;
+  /* As designed, 3.24:1 on the paper (3.40:1 for the dark value): under AA
+     for the small labels and code comments that use it. Raising it to pass
+     would make it the same colour as --qb-muted; left for a design decision. */
+  --qb-faint: #908a7c;
+  --qb-rule: #e4dece;
+  --qb-link: var(--qb-blue);
+  --qb-code-bg: #f4f1ea;
+  --qb-shadow: 0 1px 2px rgba(40, 34, 20, 0.05), 0 8px 30px rgba(40, 34, 20, 0.06);
+  /* Figures are drawn for white paper; dark mode keeps them on this. */
+  --qb-figure-bg: transparent;
+}
+
+.dark {
+  --qb-paper: #16161a;
+  --qb-paper-2: #1d1e23;
+  --qb-paper-3: #25272d;
+  --qb-ink: #e9e6df;
+  --qb-ink-soft: #cfcabf;
+  --qb-muted: #9a958a;
+  --qb-faint: #6f6b62;
+  --qb-rule: #2c2e34;
+  --qb-blue: #5fa3d6;
+  --qb-blue-press: #97c7ec;
+  --qb-clay: #db8a64;
+  --qb-link: #6fb0e0;
+  --qb-code-bg: #1c1d22;
+  --qb-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 36px rgba(0, 0, 0, 0.35);
+  --qb-c-theorem: #5fa3d6;
+  --qb-c-definition: #db8a64;
+  --qb-c-proof: #9a958a;
+  --qb-c-example: #5ec095;
+  --qb-c-remark: #d6a55e;
+  --qb-figure-bg: #fff;
+}

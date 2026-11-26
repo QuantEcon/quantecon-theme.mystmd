@@ -11,7 +11,7 @@
     "clean": "rimraf public/build build api",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "build:thebe": "copy-thebe-assets ./public",
-    "prod:build": "npm run prod:copy && npm run build:thebe && npm run build:css && remix build && node scripts/relative-css-asset-urls.mjs",
+    "prod:build": "npm run prod:copy && npm run build:thebe && npm run build:css && remix build && node ../../packages/common/scripts/relative-css-asset-urls.mjs",
     "dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css",
     "dev": "npm run dev:copy && npm run build:thebe && concurrently \"npm run dev:css\" \"remix dev\"",
     "start": "npm run build:css && remix dev",

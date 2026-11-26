@@ -57,7 +57,7 @@ export const KatexCSS: HtmlLinkDescriptor = {
  * emitted relative to the Tailwind *output* file and 404. Imported from a
  * module, Remix's esbuild pass rewrites them and emits the woff2 files into
  * `public/build/_assets/`, the same route KaTeX's fonts take. (Those emitted
- * URLs are then made stylesheet-relative by `scripts/relative-css-asset-urls.mjs`,
+ * URLs are then made stylesheet-relative by `packages/common/scripts/relative-css-asset-urls.mjs`,
  * without which they resolve only under `myst start` and not in static builds.)
  *
  * Two stylesheets, not one: the package splits upright from italic, and lecture

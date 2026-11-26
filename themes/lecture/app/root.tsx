@@ -2,7 +2,7 @@ import type { LinksFunction, V2_MetaFunction, LoaderFunction } from '@remix-run/
 import tailwind from '~/styles/app.css';
 import thebeCoreCss from 'thebe-core/dist/lib/thebe-core.css';
 import { PTSerifCSS, SourceSans3CSS } from '~/links';
-import { getConfig } from '~/backend/loaders.server';
+import { getConfig } from '@quantecon/theme-common/backend/loaders.server';
 import type { SiteLoader } from '@myst-theme/common';
 import {
   responseNoSite,
@@ -26,14 +26,14 @@ import {
   STDERR_RENDERERS,
   TOC_RENDERERS,
 } from './renderers';
-import { Document } from './components/Document';
+import { Document } from '@quantecon/theme-common/components/Document';
 import { htmlDir, htmlLang } from '@quantecon/theme-common/i18n';
 import { normalizeBaseurl } from '@quantecon/theme-common/seo';
 import type { TemplateOptions } from './types';
 export { AppErrorBoundary as ErrorBoundary } from '@myst-theme/site';
 // Never re-run the loader on a navigation that changes neither pathname nor
 // search (Back off an in-page anchor on a static build).
-export { shouldRevalidate } from '~/revalidate';
+export { shouldRevalidate } from '@quantecon/theme-common/revalidate';
 
 const RENDERERS: NodeRenderers = mergeRenderers([
   defaultRenderers,

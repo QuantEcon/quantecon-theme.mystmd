@@ -1,5 +1,5 @@
 import type { LoaderFunction } from "@remix-run/node";
-import { getFavicon } from "~/backend/loaders.server";
+import { getFavicon } from "@quantecon/theme-common/backend/loaders.server";
 
 export const loader: LoaderFunction = async (): Promise<Response> => {
   const favicon = await getFavicon();

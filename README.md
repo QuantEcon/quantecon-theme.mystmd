@@ -23,6 +23,7 @@ shared code in `packages/`, and thin theme apps in `themes/`.
 | Path | What it is |
 | ---- | ---------- |
 | [`themes/lecture/`](./themes/lecture) | The lecture theme, `@quantecon/lecture-theme`: the Remix app, its styles, `template/` and `template.yml`, its `CHANGELOG.md` and its test suites. It ships as `quantecon-theme.zip` on `vX.Y.Z` tags. |
+| [`themes/book/`](./themes/book) | The book theme, `@quantecon/book-theme`, in the Manuscript direction. It ships as `quantecon-theme-book.zip` on `book-vX.Y.Z` tags; see its [README](./themes/book/README.md). |
 | [`packages/common/`](./packages/common) | `@quantecon/theme-common`: components, helpers and styles every theme uses (search, the language switcher, project frontmatter and git history in the page header, long-cell collapsing, i18n and SEO helpers, list and right-to-left styles). It is TypeScript source, compiled by each theme's build, and is never published on its own. |
 | [`plugins/`](./plugins) | Build-time MyST plugins (`git-metadata.mjs`). They stay at the repository root so the raw URLs consumers pin keep working. |
 | [`scripts/`](./scripts) | Repository tooling that is not part of a theme build (`rewrite-raw-blocks.mjs`, used by the preview workflow). |
@@ -30,8 +31,9 @@ shared code in `packages/`, and thin theme apps in `themes/`.
 | [`docs/`](./docs) | The lecture theme's feature reference. |
 
 Every command runs from the repository root: `npm ci` installs all workspaces
-into one root `node_modules`, and `make build-theme` assembles the lecture
-theme's bundle in `.deploy/quantecon-theme`, as before.
+into one root `node_modules`, `make build-theme` assembles the lecture
+theme's bundle in `.deploy/quantecon-theme`, as before, and `make build-book`
+the book theme's in `.deploy/quantecon-theme-book`.
 
 ![](./themes/lecture/template/thumbnail.png)
 

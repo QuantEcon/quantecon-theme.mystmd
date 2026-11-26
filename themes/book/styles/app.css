@@ -1,0 +1,9 @@
+/* The book theme's stylesheet. Fonts and KaTeX are linked from app/links.ts,
+   not @import-ed here: Tailwind does not rebase url() in imported files. */
+@import '@myst-theme/styles';
+/* Fancy ordered-list markers, shared with the lecture theme. */
+@import '../../../packages/common/styles/lists.css';
+/* The design direction: every token the components below use. */
+@import './manuscript.css';
+/* Layout and components, written against the tokens only. */
+@import './book.css';

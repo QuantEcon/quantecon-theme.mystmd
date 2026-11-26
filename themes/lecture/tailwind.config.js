@@ -8,8 +8,7 @@ const content = [
   ...mystTheme.content.map((glob) =>
     glob.startsWith('node_modules/') ? `../../${glob}` : glob,
   ),
-  '../../packages/common/*.{ts,tsx}',
-  '../../packages/common/components/**/*.{ts,tsx}',
+  '../../packages/common/**/*.{ts,tsx}',
 ];
 
 module.exports = {
